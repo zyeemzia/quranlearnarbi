@@ -1176,16 +1176,35 @@
     x.fillText('Copyright © ZyeemZia', W / 2, 1000);
   }
 
+  /* ---------------- contact: the shared ZyeemZia Direct Transmission Hub, loaded only when opened ---------------- */
+  const TX_BASE = 'https://zyeemzia.com/';
+  let txP = null;
+  const loadTransmit = () => window.ZZTransmit ? Promise.resolve() : txP || (txP = new Promise((res, rej) => {
+    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = TX_BASE + 'transmit.css?v=3'; document.head.appendChild(l);
+    const sc = document.createElement('script'); sc.src = TX_BASE + 'transmit.js?v=3'; sc.onload = () => res(); sc.onerror = () => { txP = null; rej(); }; document.head.appendChild(sc);
+  }));
+  function viewContact() {
+    return `<div class="page-head"><div class="eyebrow">${t1({ bn: 'যোগাযোগ', en: 'Contact' })}</div><h1 class="page-title">${tx({ bn: 'ZyeemZia-কে বার্তা পাঠান', en: 'Send a message to ZyeemZia' })}</h1>
+      <p class="muted">${t1({ bn: 'পাঠ, উচ্চারণ বা কোনো ভুল নিয়ে প্রশ্ন বা পরামর্শ থাকলে লিখুন; উত্তর আপনার ইমেইলে আসবে।', en: 'Questions or suggestions about the lessons, the pronunciation or a mistake? Write here and the reply will come to your email.' })}</p></div>
+      <section class="tx-mount" id="contact" data-tx-topic="academy" data-tx-dark='html[data-theme="dark"]' data-tx-light='html[data-theme="light"]' data-tx-auto="media"
+        data-tx-regarding="কুরআন ও আরবি শিক্ষা · Quran &amp; Arabic Learning" data-tx-source="quranlearnarbi.zyeemzia.com · Course"
+        data-tx-lead="প্রশ্ন, পরামর্শ বা ভুল জানাতে বার্তা পাঠান · Questions, suggestions or corrections? Send a message to ZyeemZia."><p class="muted">${t1({ bn: 'যোগাযোগের ফর্ম লোড হচ্ছে…', en: 'Loading the contact form…' })}</p></section>`;
+  }
+  function mountContact() {
+    loadTransmit().then(() => { const el = $('#view .tx-mount'); if (el && window.ZZTransmit) window.ZZTransmit.mount(el); })
+      .catch(() => { const el = $('#view .tx-mount'); if (el) el.innerHTML = `<p class="muted">${t1({ bn: 'যোগাযোগের ফর্ম লোড হয়নি। ইন্টারনেট দেখুন, অথবা ইমেইল করুন', en: 'The contact form could not load. Check your connection, or email' })} <a href="mailto:admin@zyeemzia.com">admin@zyeemzia.com</a>.</p>`; });
+  }
   function notFound() { return `<div class="empty"><div class="ar">؟</div><p>${t1({ bn: 'পাতাটি পাওয়া যায়নি।', en: 'Page not found.' })}</p><a class="btn" href="#home">${u('home')}</a></div>`; }
 
   /* ---------------- router ---------------- */
   function route() {
     stopGame(); stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel();
     const [r, arg] = location.hash.slice(1).split('/');
-    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate, sound: viewSound, audio: viewAudio }[r || ''] || notFound;
+    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate, sound: viewSound, audio: viewAudio, contact: viewContact }[r || ''] || notFound;
     view.innerHTML = V(arg);
     renderChrome(); initTraces(view);
     if (r === 'makharij') markZone();
+    if (r === 'contact') mountContact();
     if (r === 'certificate') { drawCert(); if (document.fonts) document.fonts.ready.then(drawCert); }
     window.scrollTo(0, 0); onScroll();
     document.title = (r === 'lesson' && D.lessons.find(l => l.id === arg)) ? plain(D.lessons.find(l => l.id === arg).title) + ' · কুরআন ও আরবি শিক্ষা' : 'কুরআন ও আরবি শিক্ষা · Quran & Arabic Learning';
