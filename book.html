@@ -11,7 +11,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="কুরআন ও আরবি শিক্ষা · Quran &amp; Arabic Learning">
 <meta property="og:title" content="কুরআন ও আরবি শিক্ষা — বই · Quran &amp; Arabic Learning Book">
-<meta property="og:description" content="বাংলা ও ইংরেজিতে কুরআন পড়া, তাজবীদ ও আরবি শেখার স্মার্ট, ইন্টারঅ্যাকটিভ কোর্স — ৭১টি পাঠ, শব্দে শব্দে সূরা, ফ্ল্যাশকার্ড ও খেলা। A smart, interactive course in Quran reading, tajweed and Arabic in Bangla and English.">
+<meta property="og:description" content="বাংলা ও ইংরেজিতে কুরআন পড়া, আরবি হাতের লেখা, তাজবীদ ও আরবি শেখার স্মার্ট, ইন্টারঅ্যাকটিভ কোর্স — ৮৭টি পাঠ, শব্দে শব্দে সূরা, লেখার খাতা, ফ্ল্যাশকার্ড ও খেলা। A smart, interactive course in Quran reading, Arabic handwriting, tajweed and Arabic in Bangla and English.">
 <meta property="og:url" content="https://quranlearnarbi.zyeemzia.com/book.html">
 <meta property="og:image" content="https://quranlearnarbi.zyeemzia.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -19,10 +19,12 @@
 <meta property="og:locale" content="bn_BD">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="কুরআন ও আরবি শিক্ষা — বই · Quran &amp; Arabic Learning Book">
-<meta name="twitter:description" content="বাংলা ও ইংরেজিতে কুরআন পড়া, তাজবীদ ও আরবি শেখার স্মার্ট, ইন্টারঅ্যাকটিভ কোর্স — ৭১টি পাঠ, শব্দে শব্দে সূরা, ফ্ল্যাশকার্ড ও খেলা। A smart, interactive course in Quran reading, tajweed and Arabic in Bangla and English.">
+<meta name="twitter:description" content="বাংলা ও ইংরেজিতে কুরআন পড়া, আরবি হাতের লেখা, তাজবীদ ও আরবি শেখার স্মার্ট, ইন্টারঅ্যাকটিভ কোর্স — ৮৭টি পাঠ, শব্দে শব্দে সূরা, লেখার খাতা, ফ্ল্যাশকার্ড ও খেলা। A smart, interactive course in Quran reading, Arabic handwriting, tajweed and Arabic in Bangla and English.">
 <meta name="twitter:image" content="https://quranlearnarbi.zyeemzia.com/og-image.png">
+<link rel="preload" href="fonts/HindSiliguri-400-bengali-ff06ff.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Amiri-400-arabic-1bb639.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="book.css?v=16">
+<link rel="stylesheet" href="book.css?v=4dbea55eef">
 </head>
 <body>
 <div class="screen-bar">
@@ -30,15 +32,9 @@
   <span>Ctrl + P চাপুন → “Save as PDF” বা প্রিন্টার বেছে নিন · Press Ctrl + P to print or save as PDF (A4, margins: default, background graphics: on)</span>
   <a href="index.html">← ওয়েব অ্যাপে ফিরুন / Back to the web app</a>
 </div>
-<div id="book"></div>
-<script src="common.js?v=16"></script>
-<script src="data/reading.js"></script>
-<script src="data/writing.js"></script>
-<script src="data/tajweed.js"></script>
-<script src="data/vocab.js"></script>
-<script src="data/grammar.js"></script>
-<script src="data/daily.js"></script>
-<script src="data/quran.js"></script>
-<script src="book.js?v=16"></script>
+<div id="book"><p class="boot-book">বই তৈরি হচ্ছে… · Preparing the book…</p></div>
+<script defer src="common.js?v=4dbea55eef"></script>
+<script defer src="data.bundle.js?v=4dbea55eef"></script>
+<script defer src="book.js?v=4dbea55eef"></script>
 </body>
 </html>

@@ -420,7 +420,7 @@ AQ.units.push({
         {"ar": "غُرْفَةٌ", "tr": {"bn": "গুরফাহ", "en": "ghurfah"}, "mean": {"bn": "কক্ষ, রুম", "en": "room"}},
         {"ar": "مَطْبَخٌ", "tr": {"bn": "মাতবাখ", "en": "maṭbakh"}, "mean": {"bn": "রান্নাঘর", "en": "kitchen"}},
         {"ar": "سَرِيرٌ", "tr": {"bn": "সারীর", "en": "sareer"}, "mean": {"bn": "খাট, বিছানা", "en": "bed"}},
-        {"ar": "كُرْسِيٌّ", "tr": {"bn": "কুরসিয়্যুন", "en": "kursiyy"}, "mean": {"bn": "চেয়ার", "en": "chair"}},
+        {"ar": "كُرْسِيٌّ", "tr": {"bn": "কুরসিয়্য", "en": "kursiyy"}, "mean": {"bn": "চেয়ার", "en": "chair"}},
         {"ar": "مِفْتَاحٌ", "tr": {"bn": "মিফতাহ", "en": "miftaaḥ"}, "mean": {"bn": "চাবি", "en": "key"}, "root": "ف ت ح"},
         {"ar": "مِصْبَاحٌ", "tr": {"bn": "মিসবাহ", "en": "miṣbaaḥ"}, "mean": {"bn": "বাতি", "en": "lamp"}},
         {"ar": "سَاعَةٌ", "tr": {"bn": "সা'আহ", "en": "saa'ah"}, "mean": {"bn": "ঘড়ি; ঘণ্টা", "en": "clock, watch; hour"}},
@@ -674,10 +674,10 @@ AQ.units.push({
       {"type": "tip", "kind": "tip", "bn": "স্ত্রীবাচক রঙে {{ة}} লাগে না! ছাঁচ হলো **তিন অক্ষর + {{ـَاءُ}}**: {{أَحْمَرُ}} ➜ {{حَمْرَاءُ}}। যেমন {{قَلَمٌ أَحْمَرُ}} (লাল কলম), কিন্তু {{سَيَّارَةٌ حَمْرَاءُ}} (লাল গাড়ি)। আলহামরা প্রাসাদের নামও এখান থেকে — “লাল প্রাসাদ”!", "en": "Feminine colours don't take {{ة}}! The mould is **three letters + {{ـَاءُ}}**: {{أَحْمَرُ}} ➜ {{حَمْرَاءُ}}. So {{قَلَمٌ أَحْمَرُ}} (a red pen), but {{سَيَّارَةٌ حَمْرَاءُ}} (a red car). The Alhambra palace gets its name from here — “the red one”!"},
       {"type": "vocab", "title": {"bn": "আরও কিছু রং", "en": "More colours"}, "items": [
         {"ar": "لَوْنٌ", "tr": {"bn": "লাওন", "en": "lawn"}, "mean": {"bn": "রং", "en": "colour"}},
-        {"ar": "بُنِّيٌّ", "tr": {"bn": "বুন্নিয়্যুন", "en": "bunniyy"}, "mean": {"bn": "বাদামি (কফি-বীজের রং)", "en": "brown (colour of coffee beans)"}},
-        {"ar": "رَمَادِيٌّ", "tr": {"bn": "রামাদিয়্যুন", "en": "ramaadiyy"}, "mean": {"bn": "ধূসর (ছাইয়ের রং)", "en": "grey (colour of ash)"}},
-        {"ar": "وَرْدِيٌّ", "tr": {"bn": "ওয়ারদিয়্যুন", "en": "wardiyy"}, "mean": {"bn": "গোলাপি (গোলাপের রং)", "en": "pink (colour of roses)"}},
-        {"ar": "بُرْتُقَالِيٌّ", "tr": {"bn": "বুরতুকালিয়্যুন", "en": "burtuqaaliyy"}, "mean": {"bn": "কমলা (কমলালেবুর রং)", "en": "orange (colour of oranges)"}}
+        {"ar": "بُنِّيٌّ", "tr": {"bn": "বুন্নিয়্য", "en": "bunniyy"}, "mean": {"bn": "বাদামি (কফি-বীজের রং)", "en": "brown (colour of coffee beans)"}},
+        {"ar": "رَمَادِيٌّ", "tr": {"bn": "রামাদিয়্য", "en": "ramaadiyy"}, "mean": {"bn": "ধূসর (ছাইয়ের রং)", "en": "grey (colour of ash)"}},
+        {"ar": "وَرْدِيٌّ", "tr": {"bn": "ওয়ারদিয়্য", "en": "wardiyy"}, "mean": {"bn": "গোলাপি (গোলাপের রং)", "en": "pink (colour of roses)"}},
+        {"ar": "بُرْتُقَالِيٌّ", "tr": {"bn": "বুরতুকালিয়্য", "en": "burtuqaaliyy"}, "mean": {"bn": "কমলা (কমলালেবুর রং)", "en": "orange (colour of oranges)"}}
       ]},
       {"type": "tip", "kind": "memory", "bn": "এই রংগুলো একটা জিনিসের নাম + {{ـِيٌّ}} (ইয়্যুন) = “ওই জিনিসের রঙের”: {{بُنٌّ}} কফি-বীজ ➜ {{بُنِّيٌّ}}, {{رَمَادٌ}} ছাই ➜ {{رَمَادِيٌّ}}, {{وَرْدٌ}} গোলাপ ➜ {{وَرْدِيٌّ}}। ঠিক বাংলার “গোলাপি”, “কমলা” রঙের মতো!", "en": "These colours are a thing's name + {{ـِيٌّ}} (-iyy) = “the colour of that thing”: {{بُنٌّ}} coffee beans ➜ {{بُنِّيٌّ}}, {{رَمَادٌ}} ash ➜ {{رَمَادِيٌّ}}, {{وَرْدٌ}} rose ➜ {{وَرْدِيٌّ}}. Just like English “rose-coloured” or “orange”!"},
       {"type": "vocab", "title": {"bn": "বর্ণনার শব্দ (বিশেষণ)", "en": "Describing words (adjectives)"}, "items": [
@@ -688,7 +688,7 @@ AQ.units.push({
         {"ar": "قَدِيمٌ", "tr": {"bn": "কাদীম", "en": "qadeem"}, "mean": {"bn": "পুরনো", "en": "old"}},
         {"ar": "طَوِيلٌ", "tr": {"bn": "তাউয়ীল", "en": "ṭaweel"}, "mean": {"bn": "লম্বা", "en": "tall, long"}},
         {"ar": "قَصِيرٌ", "tr": {"bn": "কাসীর", "en": "qaṣeer"}, "mean": {"bn": "খাটো, ছোট", "en": "short"}},
-        {"ar": "حَارٌّ", "tr": {"bn": "হাররুন", "en": "ḥaarr"}, "mean": {"bn": "গরম", "en": "hot"}},
+        {"ar": "حَارٌّ", "tr": {"bn": "হার্র", "en": "ḥaarr"}, "mean": {"bn": "গরম", "en": "hot"}},
         {"ar": "بَارِدٌ", "tr": {"bn": "বারিদ", "en": "baarid"}, "mean": {"bn": "ঠান্ডা", "en": "cold"}},
         {"ar": "سَهْلٌ", "tr": {"bn": "সাহল", "en": "sahl"}, "mean": {"bn": "সহজ", "en": "easy"}},
         {"ar": "صَعْبٌ", "tr": {"bn": "সা'ব", "en": "ṣa'b"}, "mean": {"bn": "কঠিন", "en": "difficult"}},

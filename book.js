@@ -270,9 +270,15 @@
     const pz = puzzles(), ap = ayahPuzzles();
     const keys = (pz.key || ap.key) ? `<section class="flow"><div class="eyebrow">পরিশিষ্ট · Appendix</div><h1 class="h-page">ধাঁধার উত্তর<span class="sub">Puzzle answers</span></h1>
       ${ap.key ? `<h3 class="blk-title">আয়াত পাজল · Ayah puzzles</h3><div class="key">${ap.key}</div>` : ''}${pz.key ? `<h3 class="blk-title" style="margin-top:4mm">শব্দ খোঁজ · Word search</h3><div class="ws-keys">${pz.key}</div>` : ''}</section>` : '';
-    document.getElementById('book').innerHTML = cover() + intro() + toc() + alphabetChart() + D.units.map(unitSection).join('')
-      + pz.pages + ap.page + rootTrees() + makharijPage() + hifzTracker() + journal() + keys + tracker() + certificate();
-    document.body.setAttribute('data-ready', '1');
+    // build the book in chunks so the browser stays responsive on phones
+    const el = document.getElementById('book'); el.innerHTML = '';
+    const parts = [() => cover() + intro() + toc() + alphabetChart()].concat(D.units.map(u => () => unitSection(u)),
+      [() => pz.pages + ap.page, () => rootTrees() + makharijPage() + hifzTracker() + journal() + keys + tracker() + certificate()]);
+    let i = 0;
+    (function step() {
+      el.insertAdjacentHTML('beforeend', parts[i++]());
+      if (i < parts.length) setTimeout(step, 0); else document.body.setAttribute('data-ready', '1');
+    })();
   };
   // load every face before laying out, so print/PDF never falls back to system fonts
   const faces = ['400 16px Amiri', '700 16px Amiri', '400 16px "Hind Siliguri"', '600 16px "Hind Siliguri"', '700 16px "Hind Siliguri"',

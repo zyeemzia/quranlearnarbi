@@ -324,3 +324,6 @@ td .sub, th .sub { font-size: .85em; }
 .mk-tag text { fill: #4f6660; font: 600 13px "Hind Siliguri", sans-serif; text-anchor: middle; }
 .mk-t td.arc { font-size: 15pt; white-space: nowrap; }
 .jr { margin-bottom: 4mm; break-inside: avoid; font-size: 10pt; }
+
+.boot-book { text-align: center; padding: 40mm 0; color: var(--ink-2); font-size: 14pt; }
+@media print { .boot-book { display: none; } }

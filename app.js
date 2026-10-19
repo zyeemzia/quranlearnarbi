@@ -93,6 +93,29 @@
     arrowL: '<path d="M15 5l-7 7 7 7"/>', arrowR: '<path d="M9 5l7 7-7 7"/>', gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
   };
   const icon = (n, extra) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra || ''}>${I[n] || ''}</svg>`;
+  /* Single words are said in the stopping form when their transliteration has no "-n" ending:
+     drop the final tanween, and turn a final short vowel into sukun. Phrases and ayahs stay as written. */
+  function pz(ar, tr) {
+    if (!ar || !tr || !tr.en || /\s/.test(ar.trim())) return ar;
+    const en = tr.en.trim().toLowerCase().replace(/[\s.,!?;:)'’ʼ\-…]+$/, '');
+    const tan = (ar.match(/([\u064B-\u064D])\u0651?[اى]?$/) || [])[1];
+    if (tan && en.endsWith({ '\u064B': 'an', '\u064C': 'un', '\u064D': 'in' }[tan])) return ar;   // the tanween "-un/-in/-an" is meant to be heard
+    let out = ar.replace(/[\u064B-\u064D](\u0651?)([اى]?)$/, '$1$2');
+    if (/[^aeiouāīū]$/.test(en)) {                      // ends in a consonant: stop with sukun
+      out = out.replace(/[\u064E-\u0650](\u0651?)$/, '$1\u0652').replace(/(\u0651)[\u064E-\u0650]$/, '$1\u0652');
+      if (/[\u0621-\u064A]$/.test(out) && !/[اوي]$/.test(out)) out += '\u0652';
+    }
+    return out;
+  }
+  /* Stopping (waqf) form for a word tapped on its own inside an ayah: no tanween, final short vowel becomes sukun,
+     fathatan before a final alif becomes a long 'aa'. Used only for single-word taps, never for full ayahs. */
+  function waqf(ar) {
+    if (!ar) return ar;
+    return ar.split(/(\s+)/).map((w, i, all) => i !== all.length - 1 ? w : w
+      .replace(/\u064B([اى])$/, '\u064E$1')
+      .replace(/[\u064B\u064C\u064D](\u0651?)$/, '$1\u0652')
+      .replace(/(\u0651?)[\u064E-\u0650](\u0651?)$/, '$1$2\u0652')).join('');
+  }
   const playBtn = (text, label) => `<button class="play" type="button" data-say="${esc(text)}" aria-label="${esc(label || u('listen'))}">${icon('play')}</button>`;
 
   /* ---------------- speech & audio ---------------- */
@@ -215,7 +238,7 @@
         <div class="wotd-ar ${w.ar.length > 12 ? 'long' : ''}" lang="ar">${esc(w.ar)}</div>
         <div class="wotd-tr">${esc(w.tr.bn)} · <span lang="en">${esc(w.tr.en)}</span></div>
         <div class="wotd-mean">${tx(w.mean)}</div>
-        ${playBtn(w.ar)}
+        ${playBtn(pz(w.ar, w.tr))}
       </aside>` : ''}
     </section>
 
@@ -348,7 +371,7 @@
       }
       case 'letters': return `<div>${T}<div class="letter-grid">${b.items.map(id => D.letterById[id]).filter(Boolean).map(letterTile).join('')}</div></div>`;
       case 'examples': return `<div>${T}<div class="ex-grid">${b.items.map(x => `
-        <button class="ex" type="button" data-say="${esc(x.ar)}">
+        <button class="ex" type="button" data-say="${esc(pz(x.ar, x.tr))}">
           <span class="ar" lang="ar">${hlAr(x.ar, x.hl)}</span>
           <span class="ex-tr">${esc(S.lang === 'en' ? x.tr.en : x.tr.bn)}${S.lang === 'both' ? `<span class="sub" lang="en">${esc(x.tr.en)}</span>` : ''}</span>
           ${x.mean ? `<span class="ex-mean">${t1(x.mean)}</span>` : ''}
@@ -380,10 +403,10 @@
       </section>`;
       case 'vocab': return `<div>${T}<div class="vocab">${b.items.map(w => `
         <div class="vrow">
-          <span class="ar" lang="ar" data-say="${esc(w.ar)}">${esc(w.ar)}</span>
+          <span class="ar" lang="ar" data-say="${esc(pz(w.ar, w.tr))}">${esc(w.ar)}</span>
           <span class="v-tr">${esc(S.lang === 'en' ? w.tr.en : w.tr.bn)}${S.lang === 'both' ? `<span class="sub" lang="en">${esc(w.tr.en)}</span>` : ''}</span>
           <span class="v-mean">${tx(w.mean)} ${w.root ? `<span class="root" title="root">${esc(w.root)}</span>` : ''}</span>
-          ${playBtn(w.ar)}
+          ${playBtn(pz(w.ar, w.tr))}
           ${w.example ? `<div class="v-ex"><span class="ar-in" lang="ar">${esc(w.example.ar)}</span> — ${t1(w.example.mean)}${w.example.ref ? ` <span class="chip">${esc(w.example.ref)}</span>` : ''}</div>` : ''}
         </div>`).join('')}</div></div>`;
       case 'ayah': {
@@ -393,8 +416,8 @@
           <div class="ayah-top"><span class="ayah-ref">${S.lang === 'en' ? `Surah ${s} · Ayah ${a}` : `সূরা ${bnNum(s)} · আয়াত ${bnNum(a)}`}</span>
             <span class="ayah-btns">${S.memo[b.ref] ? `<span class="chip memo-chip">${icon('check')} ${t1({ bn: 'মুখস্থ', en: 'Memorised' })}</span>` : ''}<button class="btn btn-sm" type="button" data-wbw>${u('wbw')}</button><button class="btn btn-sm" type="button" data-memo="${esc(b.ref)}">${icon('brain')} ${t1({ bn: 'মুখস্থ করুন', en: 'Memorise' })}</button><button class="btn btn-sm btn-primary" type="button" data-ayah="${esc(b.ref)}">${icon('play')} ${u('listen')}</button></span></div>
           <div class="memo-bar" hidden><span class="memo-level"></span><span class="memo-actions"><button class="btn btn-sm" type="button" data-memorep="${esc(b.ref)}">${icon('play')} ×3</button><button class="btn btn-sm" type="button" data-memodone="${esc(b.ref)}">${icon('check')} ${t1({ bn: 'মুখস্থ হয়েছে', en: 'I know it' })}</button></span></div>
-          <div class="ayah-ar" lang="ar">${words.length ? words.map((w, j) => `<span class="w" data-wi="${j}" data-say="${esc(w.ar)}">${esc(w.ar)}</span>`).join(' ') : esc(b.ar)} <span class="ayah-num">${esc(toArabicDigits(a))}</span></div>
-          <div class="wbw" hidden>${words.map(w => `<div class="wbw-w" data-say="${esc(w.ar)}"><span class="ar" lang="ar">${esc(w.ar)}</span>${S.lang !== 'en' ? `<small>${md(w.bn)}</small>` : ''}${S.lang !== 'bn' ? `<small class="en" lang="en">${md(w.en)}</small>` : ''}</div>`).join('')}</div>
+          <div class="ayah-ar" lang="ar">${words.length ? words.map((w, j) => `<span class="w" data-wi="${j}" data-say="${esc(waqf(w.ar))}">${esc(w.ar)}</span>`).join(' ') : esc(b.ar)} <span class="ayah-num">${esc(toArabicDigits(a))}</span></div>
+          <div class="wbw" hidden>${words.map(w => `<div class="wbw-w" data-say="${esc(waqf(w.ar))}"><span class="ar" lang="ar">${esc(w.ar)}</span>${S.lang !== 'en' ? `<small>${md(w.bn)}</small>` : ''}${S.lang !== 'bn' ? `<small class="en" lang="en">${md(w.en)}</small>` : ''}</div>`).join('')}</div>
           <div class="ayah-tr">${esc(S.lang === 'en' ? b.tr.en : b.tr.bn)}${S.lang === 'both' ? `<span class="sub" lang="en">${esc(b.tr.en)}</span>` : ''}</div>
           <div class="ayah-mean">${tx(b.mean)}</div>
         </section>`;
@@ -656,7 +679,7 @@
           <dt>${u('makhraj')}</dt><dd>${tx(a.makhraj)}</dd>
           <dt>${u('sound')}</dt><dd>${tx(a.sound)}</dd>
           ${a.mnemonic ? `<dt>${u('trick')}</dt><dd>${tx(a.mnemonic)}</dd>` : ''}
-          <dt>${u('example')}</dt><dd><span class="ar-in" lang="ar" style="font-size:1.9em;cursor:pointer" data-say="${esc(a.example.ar)}">${esc(a.example.ar)}</span> — ${esc(a.example.tr.bn)} / <span lang="en">${esc(a.example.tr.en)}</span> = ${t1(a.example.mean)}</dd>
+          <dt>${u('example')}</dt><dd><span class="ar-in" lang="ar" style="font-size:1.9em;cursor:pointer" data-say="${esc(pz(a.example.ar, a.example.tr))}">${esc(a.example.ar)}</span> — ${esc(a.example.tr.bn)} / <span lang="en">${esc(a.example.tr.en)}</span> = ${t1(a.example.mean)}</dd>
         </dl>
         ${traceHTML([a.ar, a.forms.initial.replace('ـ', ''), a.example.ar], 'lm')}
         <div class="lm-nav"><button class="btn" type="button" data-letter="${prev.id}">${icon('arrowL')} ${t1(prev.name)}</button><button class="btn" type="button" data-letter="${next.id}">${t1(next.name)} ${icon('arrowR')}</button></div>
@@ -708,7 +731,7 @@
       <div class="card3d ${fcFlip ? 'flip' : ''}" id="fcCard" role="button" tabindex="0" aria-label="${u('flip')}">
         <div class="card3d-in"><div class="face"><div class="pattern"></div>${front}<span class="hint">${u('flip')}</span></div><div class="face back"><div class="pattern"></div>${back}</div></div>
       </div>
-      <div style="display:flex;justify-content:center;margin:12px 0">${playBtn(w.ar)}</div>
+      <div style="display:flex;justify-content:center;margin:12px 0">${playBtn(pz(w.ar, w.tr))}</div>
       <div class="fc-actions">
         <button class="btn" type="button" data-fc="0" style="color:var(--bad)">${u('again')}<small>${S.lang === 'en' ? 'soon' : 'শিগগিরই'}</small></button>
         <button class="btn" type="button" data-fc="1">${u('hard')}<small>${S.lang === 'en' ? 'tomorrow' : 'আগামীকাল'}</small></button>
@@ -761,9 +784,9 @@
       answer = w.ar; opts = shuffle([w].concat(others)).map(x => x.ar);
       G.answer = answer;
       $('#arena').innerHTML = `${arenaTop()}<div class="prompt"><div class="muted">${t1({ bn: 'শুনুন — কোন শব্দটি?', en: 'Listen: which word is it?' })}</div>
-        <button class="btn btn-primary listen-btn" type="button" data-say="${esc(w.ar)}">${icon('play')} ${u('listen')}</button><div class="muted" style="margin-top:8px">${t1(w.mean)}</div></div>
+        <button class="btn btn-primary listen-btn" type="button" data-say="${esc(pz(w.ar, w.tr))}">${icon('play')} ${u('listen')}</button><div class="muted" style="margin-top:8px">${t1(w.mean)}</div></div>
         <div class="answers answers-words">${opts.map(o => `<button type="button" data-gans="${esc(o)}" lang="ar">${esc(o)}</button>`).join('')}</div>`;
-      setTimeout(() => say(w.ar), 250);
+      setTimeout(() => say(pz(w.ar, w.tr)), 250);
       return;
     }
     if (G.id === 'hunt') {
@@ -812,7 +835,7 @@
     const pool = shuffle(D.vocab.filter(w => w.ar.length <= 14 && plain(w.mean).length <= 28)).slice(0, 6);
     if (pool.length < 3) { $('#arena').innerHTML = `<div class="empty">${u('loading')}</div>`; return; }
     G.pairs = pool.length; G.found = 0; G.sel = null;
-    const tiles = shuffle(pool.flatMap((w, k) => [{ k, html: `<span class="ar-in" lang="ar">${esc(w.ar)}</span>`, ar: w.ar }, { k, html: t1(w.mean) }]));
+    const tiles = shuffle(pool.flatMap((w, k) => [{ k, html: `<span class="ar-in" lang="ar">${esc(w.ar)}</span>`, ar: pz(w.ar, w.tr) }, { k, html: t1(w.mean) }]));
     G.start = Date.now();
     $('#arena').innerHTML = `<div class="arena-top"><a class="btn btn-ghost btn-sm" href="#games">${icon('arrowL')} ${u('games')}</a><span id="gMoves">${S.lang === 'en' ? 'Moves' : 'চাল'}: ${num(0)}</span></div>
       <div class="memory">${tiles.map((t, i) => `<button class="mem" type="button" data-mem="${t.k}" ${t.ar ? `data-say="${esc(t.ar)}"` : ''}>${t.html}</button>`).join('')}</div>`;
@@ -914,7 +937,7 @@
       <p class="muted">${t1({ bn: 'আরবির বেশিরভাগ শব্দ তিন অক্ষরের একটি মূল থেকে আসে। একটি মূল চিনলে শব্দের পুরো পরিবার চেনা যায়।', en: 'Most Arabic words grow from a three-letter root. Learn one root and you recognise a whole family of words.' })}</p></div>
       <section class="root-hero"><div class="pattern"></div><div class="eyebrow">${t1({ bn: 'আজকের মূল', en: 'Root of the day' })}</div>
         <div class="root-big" lang="ar">${esc(pick[0])}</div>
-        <div class="root-fam">${pick[1].map(w => `<button class="root-w" type="button" data-say="${esc(w.ar)}"><span class="ar-in" lang="ar">${esc(w.ar)}</span><small>${t1(w.mean)}</small></button>`).join('')}</div></section>
+        <div class="root-fam">${pick[1].map(w => `<button class="root-w" type="button" data-say="${esc(pz(w.ar, w.tr))}"><span class="ar-in" lang="ar">${esc(w.ar)}</span><small>${t1(w.mean)}</small></button>`).join('')}</div></section>
       <form class="search page-search" id="rootSearch" role="search"><input id="rootSearchInput" type="search" value="${esc(rootQuery)}" placeholder="${S.lang === 'en' ? 'Filter by root letters or meaning…' : 'মূল অক্ষর বা অর্থ দিয়ে খুঁজুন…'}" aria-label="Filter roots"></form>
       <div class="root-grid" id="rootGrid">${rootGrid(all)}</div>`;
   }
@@ -923,7 +946,7 @@
     const list = (all || rootMap()).filter(([r, ws]) => !q || r.replace(/\s/g, '').includes(strip(q).replace(/\s/g, '')) || ws.some(w => (w.mean.bn + ' ' + w.mean.en + ' ' + strip(w.ar)).toLowerCase().includes(q)));
     if (!list.length) return `<div class="empty">${u('nothing')}</div>`;
     return list.map(([r, ws]) => `<details class="root-card"><summary><span class="root-letters" lang="ar">${esc(r)}</span><span class="chip">${num(ws.length)} ${t1({ bn: 'শব্দ', en: ws.length === 1 ? 'word' : 'words' })}</span><span class="root-hint">${t1(ws[0].mean)}</span></summary>
-      <div class="root-list">${ws.map(w => `<div class="root-row"><span class="ar" lang="ar" data-say="${esc(w.ar)}">${esc(w.ar)}</span><span><b>${t1(w.mean)}</b><small class="muted"> · ${esc(S.lang === 'en' ? w.tr.en : w.tr.bn)}</small></span>${playBtn(w.ar)}</div>`).join('')}</div></details>`).join('');
+      <div class="root-list">${ws.map(w => `<div class="root-row"><span class="ar" lang="ar" data-say="${esc(pz(w.ar, w.tr))}">${esc(w.ar)}</span><span><b>${t1(w.mean)}</b><small class="muted"> · ${esc(S.lang === 'en' ? w.tr.en : w.tr.bn)}</small></span>${playBtn(pz(w.ar, w.tr))}</div>`).join('')}</div></details>`).join('');
   }
 
   let mkZone = 'halq';
@@ -1012,8 +1035,8 @@
       drawCert(); const a = document.createElement('a'); a.download = 'Quran-o-Arbi-Shikkha-certificate.png'; a.href = $('#certCanvas').toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); return;
     }
     if (t.closest('[data-howto]')) { const el = $('.howto-ar', t.closest('.howto')); el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); return; }
-    const mm0 = t.closest('[data-memo]'); if (mm0) {
-      const ay = mm0.closest('.ayah'); const lvl = ((+ay.dataset.memo || 0) + 1) % 4; ay.dataset.memo = lvl;
+    const mm0 = t.closest('button[data-memo]'); if (mm0) {
+      const ay = mm0.closest('.ayah'); const lvl = ((+ay.dataset.memoLevel || 0) + 1) % 4; ay.dataset.memoLevel = lvl;
       const ws = $$('.ayah-ar .w', ay);
       ws.forEach((w, j) => w.classList.toggle('hid', lvl === 3 || (lvl === 2 && j % 2 === 1) || (lvl === 1 && j % 3 === 2)));
       const bar = $('.memo-bar', ay); bar.hidden = lvl === 0; $('.wbw', ay).hidden = true;
@@ -1039,7 +1062,7 @@
     const ay = t.closest('[data-ayah]'); if (ay) { playAyah(ay.dataset.ayah, ay); return; }
     const wb = t.closest('[data-wbw]'); if (wb) { const box = $('.wbw', wb.closest('.ayah')); box.hidden = !box.hidden; wb.classList.toggle('btn-primary', !box.hidden); return; }
     const af = t.closest('[data-afilter]'); if (af) { alphaFilter = af.dataset.afilter; $$('[data-afilter]').forEach(b => b.setAttribute('aria-pressed', b === af)); $('#alphaGrid').innerHTML = alphaGrid(); return; }
-    if (t.closest('#fcCard')) { fcFlip = !fcFlip; $('#fcCard').classList.toggle('flip', fcFlip); if (fcFlip && fcQueue[0]) say(fcQueue[0].ar); return; }
+    if (t.closest('#fcCard')) { fcFlip = !fcFlip; $('#fcCard').classList.toggle('flip', fcFlip); if (fcFlip && fcQueue[0]) say(pz(fcQueue[0].ar, fcQueue[0].tr)); return; }
     const fg = t.closest('[data-fc]'); if (fg) { fcGrade(+fg.dataset.fc); return; }
     const fd = t.closest('[data-fcdir]'); if (fd) { S.fcDir = fd.dataset.fcdir; save(); rerender(); return; }
     const ga = t.closest('[data-gans]'); if (ga) { gameAnswer(ga); return; }
@@ -1081,4 +1104,7 @@
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (S.theme === 'auto') renderChrome(); });
 
   applyTheme(); route();
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { /* offline cache is optional */ }));
+  }
 })();

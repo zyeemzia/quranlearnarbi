@@ -9,7 +9,7 @@ One set of content powers two outputs: an interactive web app and a printable bo
 
 | What | How |
 |---|---|
-| Web app | Double-click `index.html` (works offline; recitation audio needs internet) |
+| Web app | https://quranlearnarbi.zyeemzia.com/ (installs an offline cache on first visit; recitation audio needs internet) |
 | Printable book | Open `book.html` → Ctrl + P → Save as PDF / print (A4, background graphics on) |
 | Ready PDF | `Quran-o-Arbi-Shikkha.pdf` (419 pages) |
 
@@ -37,14 +37,20 @@ copybook pages, answer keys, a progress tracker and a certificate.
 
 ## Edit the content
 
-All content lives in `data/*.js` (schema: `data/SCHEMA.md`). After editing, check it with:
+All content lives in `data/*.js` (schema: `data/SCHEMA.md`). After editing, run the build:
 
 ```bash
-cd data && python validate.py *.js
+python tools/build.py
 ```
 
-Then refresh the app; the book updates automatically. To rebuild the PDF, run a local server in this folder
-(`python -m http.server 8765`) and print `http://localhost:8765/book.html` from Chrome.
+It checks every file, bundles them into one compact `data.bundle.js` (what the site and book load) and stamps a new
+version so browsers and the offline cache pick up the change. Then commit and push.
+
+To rebuild the PDF, run a local server in this folder (`python -m http.server 8765`) and print
+`http://localhost:8765/book.html` from Chrome (A4, background graphics on).
+
+**Speed:** after the first visit the site opens instantly and works offline (service worker in `sw.js`);
+the online book draws its pages in chunks so phones stay responsive.
 
 Fonts (Amiri, Hind Siliguri, Reem Kufi, Figtree) are bundled in `fonts/` under the SIL Open Font License.
 
