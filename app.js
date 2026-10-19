@@ -169,7 +169,7 @@
     const inWriting = (r === 'unit' && arg === 'writing') || (lessonUnit && lessonUnit.unit.id === 'writing');
     const owner = inWriting ? 'write' : (r === 'unit' || r === 'lesson') ? 'learn' : (['cards', 'roots', 'makharij', 'certificate', 'settings', 'search'].includes(r) ? 'more' : r === 'play' ? 'games' : r);
     const active = k => k === owner ? 'aria-current="page"' : '';
-    $('#mainnav').innerHTML = NAV.map(([k, , href]) => `<a href="${href}" ${active(k)}>${u(k)}</a>`).join('');
+    $('#mainnav').innerHTML = NAV.map(([k, , href]) => `<a href="${href}" ${active(k)}>${u(k)}</a>`).join('') + `<a class="nav-book" href="book.html" target="_blank" rel="noopener">${icon('book')}${u('book')}</a>`;
     $('#tabbar').innerHTML = NAV.filter(([k]) => TABS.includes(k)).map(([k, ic, href]) => `<a href="${href}" ${active(k)}>${icon(ic)}<span>${u(k)}</span></a>`).join('');
     $('#langSeg').innerHTML = [['bn', 'বাং'], ['both', 'বাং+EN'], ['en', 'EN']].map(([k, l]) => `<button type="button" data-lang="${k}" aria-pressed="${S.lang === k}">${l}</button>`).join('');
     $('#themeBtn').innerHTML = icon(isDark() ? 'sun' : 'moon');
@@ -199,7 +199,7 @@
         <p class="hero-lead">${tx({ bn: `${bnNum(D.units.length)}টি ইউনিট, ${bnNum(D.lessons.length)}টি পাঠ, ${bnNum(D.vocab.length)}+ কুরআনি ও দৈনন্দিন শব্দ, ধাপে ধাপে হাতের লেখা, শব্দে শব্দে সূরা, তাজবীদ, ব্যাকরণ, খেলা ও ফ্ল্যাশকার্ড। প্রতিদিন মাত্র ১৫ মিনিট।`, en: `${D.units.length} units, ${D.lessons.length} lessons, ${D.vocab.length}+ Quranic and everyday words, phase-by-phase handwriting, surahs word by word, tajweed, grammar, games and flashcards. Just 15 minutes a day.` })}</p>
         <div class="hero-actions">
           ${nl ? `<a class="btn btn-primary" href="#lesson/${nl.id}">${u(started ? 'cont' : 'start')} ${icon('arrowR')}</a>` : ''}
-          <a class="btn" href="#alphabet">${u('alphabet')}</a>
+          <a class="btn" href="book.html" target="_blank" rel="noopener">${icon('book')} ${t1({ bn: 'বই পড়ুন', en: 'Read the book' })}</a>
         </div>
         ${nl ? `<div class="muted" style="font-size:.88rem">${u('lesson')} ${num(nl.gi + 1)}: <b>${t1(nl.title)}</b></div>` : ''}
         <div class="stats">
@@ -221,6 +221,8 @@
 
     ${missionsHTML()}
 
+    ${bookBanner()}
+
     <h2 class="section-title">${u('units')}</h2>
     ${D.units.length ? `<div class="unit-grid">${D.units.map(un => { const p = unitProgress(un); return `
       <a class="unit-card" href="#unit/${un.id}" data-c="${un.color}">
@@ -234,6 +236,16 @@
     <div class="tools-grid">${toolCards().slice(0, 8).join('')}    </div>`;
   }
 
+  function bookBanner() {
+    return `<section class="book-banner">
+      <a class="bb-cover" href="book.html" target="_blank" rel="noopener" aria-label="${esc(plain({ bn: 'বই খুলুন', en: 'Open the book' }))}"><span class="pattern"></span><span class="bb-cal" lang="ar">تَعَلُّمُ الْقُرْآنِ وَالْعَرَبِيَّةِ</span><b>কুরআন ও আরবি শিক্ষা</b><small>Quran &amp; Arabic Learning</small></a>
+      <div class="bb-text"><div class="eyebrow">${t1({ bn: 'ছাপার বই ও লেখার খাতা', en: 'Printable book & writing workbook' })}</div>
+        <h2>${t1({ bn: 'পুরো কোর্স এক বইয়ে — ৫১১ পৃষ্ঠা', en: 'The whole course in one book: 511 pages' })}</h2>
+        <p class="muted">${t1({ bn: 'সব পাঠ, ধাপে ধাপে আরবি হাতের লেখার খাতা, শব্দ খোঁজ ও আয়াত পাজল, মাখরাজ মানচিত্র, মুখস্থের খাতা, উত্তরমালা ও সনদপত্র। অনলাইনে পড়ুন বা PDF নামিয়ে প্রিন্ট করুন।', en: 'Every lesson, a phase-by-phase handwriting workbook, word searches and ayah puzzles, the makharij map, a memorisation tracker, answer keys and a certificate. Read it online or download the PDF to print.' })}</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="book.html" target="_blank" rel="noopener">${icon('book')} ${t1({ bn: 'অনলাইনে বই পড়ুন', en: 'Read the book online' })}</a>
+          <a class="btn" href="Quran-o-Arbi-Shikkha.pdf" download>${t1({ bn: 'PDF ডাউনলোড (২৭ MB)', en: 'Download PDF (27 MB)' })}</a></div></div>
+    </section>`;
+  }
   function missionsHTML() {
     const d = today_();
     const items = [
