@@ -1,35 +1,1369 @@
 window.AQ = window.AQ || { units: [], alphabet: [], vocab: [] };
 
 AQ.alphabet = [
-{"id": "alif", "ar": "ا", "name": {"bn": "আলিফ", "en": "Alif"}, "nameAr": "أَلِفٌ", "tr": {"bn": "আ", "en": "ā"}, "forms": {"isolated": "ا", "initial": "ا", "medial": "ـا", "final": "ـا"}, "connects": false, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "মুখ ও গলার ফাঁকা জায়গা (জাওফ) — টানা 'আ' হলে", "en": "The open space of mouth and throat (jawf), when it is a long 'ā'"}, "sound": {"bn": "আলিফের নিজের কোনো আলাদা আওয়াজ নেই: এটি হরকত বা হামযা বহন করে, আর যবরের পরে এলে 'আ'-কে লম্বা করে। বাংলাভাষীরা প্রায়ই একে 'অ' পড়েন — মুখ খুলে পরিষ্কার 'আ' বলুন।", "en": "Alif has no sound of its own: it carries a vowel or a hamza, and after a fatha it stretches 'a' into a long 'ā'. Bangla speakers often say 'o' (অ) — open your mouth for a clear 'a'."}, "family": "alif", "example": {"ar": "أَحَدٌ", "tr": {"bn": "আহাদুন", "en": "aḥadun"}, "mean": {"bn": "এক", "en": "one"}}, "mnemonic": {"bn": "আলিফ দেখতে ইংরেজি সংখ্যা 1-এর মতো — আর এটিই আরবির ১ নম্বর অক্ষর! একটা সোজা দাঁড়ানো লাঠি।", "en": "Alif looks like the number 1 — and it is letter number one! A straight, standing stick."}},
-{"id": "ba", "ar": "ب", "name": {"bn": "বা", "en": "Baa"}, "nameAr": "بَاءٌ", "tr": {"bn": "ব", "en": "b"}, "forms": {"isolated": "ب", "initial": "بـ", "medial": "ـبـ", "final": "ـب"}, "connects": true, "heavy": false, "sun": false, "qalqalah": true, "makhraj": {"bn": "দুই ঠোঁট (ভেতরের ভেজা অংশ)", "en": "Both lips (the inner, wet part)"}, "sound": {"bn": "দুই ঠোঁট মিলিয়ে পরিষ্কার 'ব'। বাংলা 'ভ'-এর মতো বাতাস ছাড়বেন না, আর ইংরেজি v-এর মতো দাঁতে ঠোঁট লাগাবেন না।", "en": "Close both lips for a clean 'b'. Don't add a puff of air like Bangla 'ভ', and never touch your teeth to your lip like a 'v'."}, "family": "ba", "example": {"ar": "بَيْتٌ", "tr": {"bn": "বাইতুন", "en": "baytun"}, "mean": {"bn": "ঘর", "en": "house"}}, "mnemonic": {"bn": "একটা নৌকা, নিচে একটি বিন্দু — যেন নৌকার নিচে একটা বল (ball)। বা = বল নিচে!", "en": "A boat with one dot underneath — a ball under the boat. Baa = ball below!"}},
-{"id": "ta", "ar": "ت", "name": {"bn": "তা", "en": "Taa"}, "nameAr": "تَاءٌ", "tr": {"bn": "ত", "en": "t"}, "forms": {"isolated": "ت", "initial": "تـ", "medial": "ـتـ", "final": "ـت"}, "connects": true, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের গোড়া", "en": "Tongue tip + roots of the upper front teeth"}, "sound": {"bn": "জিভের আগা ওপরের সামনের দাঁতের গোড়ায় লাগিয়ে পাতলা, নরম 'ত'। বাংলা 'ট'-এর মতো জিভ উল্টাবেন না, 'থ'-এর মতো বাতাসও ছাড়বেন না।", "en": "Tongue tip on the gum-line behind the upper front teeth: a light, crisp 't'. Don't curl the tongue like Bangla 'ট', and no puff of air like 'থ'."}, "family": "ba", "example": {"ar": "تُرَابٌ", "tr": {"bn": "তুরাবুন", "en": "turābun"}, "mean": {"bn": "মাটি, ধুলা", "en": "soil, dust"}}, "mnemonic": {"bn": "নৌকার ওপরে দুটি বিন্দু — যেন দুটি চোখ ওপরে তাকিয়ে আছে। তা = দুই চোখ ওপরে!", "en": "Two dots on top of the boat — two eyes looking up. Taa = two on top!"}},
-{"id": "tha", "ar": "ث", "name": {"bn": "ছা", "en": "Thaa"}, "nameAr": "ثَاءٌ", "tr": {"bn": "ছ", "en": "th"}, "forms": {"isolated": "ث", "initial": "ثـ", "medial": "ـثـ", "final": "ـث"}, "connects": true, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের মাথা", "en": "Tongue tip + edges of the upper front teeth"}, "sound": {"bn": "জিভের আগা একটু বের করে ওপরের দাঁতের মাথায় লাগান, তারপর আলতো বাতাস ছাড়ুন — ইংরেজি think-এর th। বাংলাভাষীরা প্রায়ই 'স' বলে ফেলেন; জিভ যেন দাঁতের ফাঁকে উঁকি দেয়।", "en": "Let the tongue tip peek out and touch the edges of the upper front teeth, then blow softly — the 'th' in 'think'. Bangla speakers often say 's'; let the tongue show between the teeth."}, "family": "ba", "example": {"ar": "ثَلَاثَةٌ", "tr": {"bn": "ছালাছাতুন", "en": "thalāthatun"}, "mean": {"bn": "তিন", "en": "three"}}, "mnemonic": {"bn": "নৌকার ওপরে তিনটি বিন্দু, ছোট্ট পাহাড়ের মতো সাজানো। ইংরেজি Three শুরু হয় th দিয়ে — Thaa-ও তাই, আর তার বিন্দুও ৩টা!", "en": "Three dots piled like a little hill on the boat. 'Three' starts with 'th' — so does Thaa, and it has three dots!"}},
-{"id": "jim", "ar": "ج", "name": {"bn": "জীম", "en": "Jeem"}, "nameAr": "جِيمٌ", "tr": {"bn": "জ", "en": "j"}, "forms": {"isolated": "ج", "initial": "جـ", "medial": "ـجـ", "final": "ـج"}, "connects": true, "heavy": false, "sun": false, "qalqalah": true, "makhraj": {"bn": "জিভের মাঝখান + তালুর মাঝখান", "en": "Middle of the tongue + middle of the hard palate"}, "sound": {"bn": "জিভের মাঝখান তালুতে চেপে পরিষ্কার 'জ', যেমন jam। নরম 'য' বা 'ঝ' বানাবেন না। জযম থাকলে আওয়াজ একটু লাফিয়ে ওঠে (কলকলা)।", "en": "Press the middle of the tongue to the hard palate: a clear 'j' as in 'jam'. Don't soften it. With a sukun it gives a small bounce (qalqalah)."}, "family": "jim", "example": {"ar": "جَنَّةٌ", "tr": {"bn": "জান্নাতুন", "en": "jannatun"}, "mean": {"bn": "বাগান, জান্নাত", "en": "garden, Paradise"}}, "mnemonic": {"bn": "একটা খোলা মুখ বা বড়শির মতো, পেটের ভেতর একটি বিন্দু — যেন জীম একটা জাম গিলে ফেলেছে!", "en": "An open mouth (or a hook) with a dot in its belly — Jeem swallowed a jam-berry!"}},
-{"id": "hha", "ar": "ح", "name": {"bn": "হা", "en": "Ḥaa"}, "nameAr": "حَاءٌ", "tr": {"bn": "হ", "en": "ḥ"}, "forms": {"isolated": "ح", "initial": "حـ", "medial": "ـحـ", "final": "ـح"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "গলার মাঝখান", "en": "Middle of the throat"}, "sound": {"bn": "গলার মাঝখান একটু চেপে বাতাস ছাড়ুন — যেন গরম চা খেয়ে 'হাহ্' বলছেন। সাধারণ 'হ' (ه)-এর চেয়ে এটি বেশি ঘষা ও জোরালো; বাংলাভাষীরা প্রায়ই দুটো এক করে ফেলেন।", "en": "Tighten the middle of the throat and push air through — like the 'ḥaah' after sipping hot tea. It is raspier than a normal 'h' (ه); Bangla speakers often mix the two."}, "family": "jim", "example": {"ar": "حَمْدٌ", "tr": {"bn": "হামদুন", "en": "ḥamdun"}, "mean": {"bn": "প্রশংসা", "en": "praise"}}, "mnemonic": {"bn": "জীমের মতোই শরীর, কিন্তু পেট খালি (বিন্দু নেই) — তাই সে ক্ষুধায় 'হাহ্' করে হাঁপাচ্ছে!", "en": "Same body as Jeem but an empty belly (no dot) — so it pants 'ḥaah' with hunger!"}},
-{"id": "kha", "ar": "خ", "name": {"bn": "খা", "en": "Khaa"}, "nameAr": "خَاءٌ", "tr": {"bn": "খ", "en": "kh"}, "forms": {"isolated": "خ", "initial": "خـ", "medial": "ـخـ", "final": "ـخ"}, "connects": true, "heavy": true, "sun": false, "qalqalah": false, "makhraj": {"bn": "গলার ওপরের অংশ (মুখের দিকের)", "en": "Top of the throat (nearest the mouth)"}, "sound": {"bn": "গলার ওপরের অংশ থেকে ঘষা আওয়াজ — যেন আলতো করে গলা পরিষ্কার করছেন। এটি বাংলা 'খ' (ক + বাতাস) নয়। এটি মোটা (ভারী) অক্ষর, তাই মুখ ভরে উচ্চারণ হয়।", "en": "A scraping sound from the top of the throat, like gently clearing it (the 'ch' in Scottish 'loch'). It is not Bangla 'খ' (k + puff). It's a heavy letter, said with a full mouth."}, "family": "jim", "example": {"ar": "خَيْرٌ", "tr": {"bn": "খাইরুন", "en": "khayrun"}, "mean": {"bn": "ভালো, কল্যাণ", "en": "good"}}, "mnemonic": {"bn": "জীমের শরীর, বিন্দুটা মাথার ওপরে — যেন টুপি পরেছে। খা = খোলা মাথায় টুপি!", "en": "Jeem's body with the dot on its head like a cap. Khaa wears a cap!"}},
-{"id": "dal", "ar": "د", "name": {"bn": "দাল", "en": "Daal"}, "nameAr": "دَالٌ", "tr": {"bn": "দ", "en": "d"}, "forms": {"isolated": "د", "initial": "د", "medial": "ـد", "final": "ـد"}, "connects": false, "heavy": false, "sun": true, "qalqalah": true, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের গোড়া", "en": "Tongue tip + roots of the upper front teeth"}, "sound": {"bn": "জিভের আগা ওপরের দাঁতের গোড়ায় লাগিয়ে নরম 'দ'। বাংলা 'ড'-এর মতো জিভ পেছনে উল্টাবেন না। জযম থাকলে আওয়াজ লাফিয়ে ওঠে (কলকলা)।", "en": "Tongue tip on the roots of the upper front teeth: a soft 'd'. Don't curl the tongue back like Bangla 'ড'. With a sukun it bounces (qalqalah)."}, "family": "dal", "example": {"ar": "دِينٌ", "tr": {"bn": "দীনুন", "en": "dīnun"}, "mean": {"bn": "দীন, জীবনব্যবস্থা", "en": "religion, way of life"}}, "mnemonic": {"bn": "দেখতে একটা ভাঁজ করা কনুই বা হাঁটুর মতো — দাল লাইনের ওপরেই ভাঁজ হয়ে বসে থাকে।", "en": "Looks like a bent elbow sitting right on the line — Daal sits down."}},
-{"id": "dhal", "ar": "ذ", "name": {"bn": "যাল", "en": "Dhaal"}, "nameAr": "ذَالٌ", "tr": {"bn": "য", "en": "dh"}, "forms": {"isolated": "ذ", "initial": "ذ", "medial": "ـذ", "final": "ـذ"}, "connects": false, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের মাথা", "en": "Tongue tip + edges of the upper front teeth"}, "sound": {"bn": "জিভের আগা ওপরের দাঁতের মাথায় লাগিয়ে গুনগুন কম্পনসহ আওয়াজ — ইংরেজি this-এর th। বাংলাভাষীরা প্রায়ই 'জ' বলেন; জিভ দাঁতের ফাঁকে রাখুন।", "en": "Tongue tip touching the edges of the upper front teeth, with a buzz — the 'th' in 'this'. Saying 'j' is a common slip; keep the tongue between the teeth."}, "family": "dal", "example": {"ar": "ذِكْرٌ", "tr": {"bn": "যিকরুন", "en": "dhikrun"}, "mean": {"bn": "স্মরণ, যিকির", "en": "remembrance"}}, "mnemonic": {"bn": "দালের মাথায় একটি বিন্দু — দাল টুপি পরলেই যাল!", "en": "Daal with a dot on its head — Daal puts on a cap and becomes Dhaal!"}},
-{"id": "ra", "ar": "ر", "name": {"bn": "রা", "en": "Raa"}, "nameAr": "رَاءٌ", "tr": {"bn": "র", "en": "r"}, "forms": {"isolated": "ر", "initial": "ر", "medial": "ـر", "final": "ـر"}, "connects": false, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা (একটু পিঠসহ) + ওপরের মাড়ি", "en": "Tongue tip (with a little of its top) + the upper gum"}, "sound": {"bn": "জিভের আগা ওপরের মাড়িতে একবার আলতো ছুঁয়ে 'র'। বারবার কাঁপিয়ে 'র্‌র্‌র্' করবেন না। যবর বা পেশে সাধারণত মোটা, যেরে চিকন শোনায়।", "en": "The tongue tip taps the upper gum once: 'r'. Don't roll it again and again. It usually sounds heavy with fatha or damma and light with kasra."}, "family": "ra", "example": {"ar": "رَبٌّ", "tr": {"bn": "রাব্বুন", "en": "rabbun"}, "mean": {"bn": "রব, প্রতিপালক", "en": "Lord, Sustainer"}}, "mnemonic": {"bn": "একটা ছোট্ট স্লিপার, যা লাইনের নিচে নেমে যায় — রা পিছলে নিচে যায়!", "en": "A little slide that dips below the line — Raa slides down!"}},
-{"id": "zay", "ar": "ز", "name": {"bn": "যা", "en": "Zaay"}, "nameAr": "زَايٌ", "tr": {"bn": "য", "en": "z"}, "forms": {"isolated": "ز", "initial": "ز", "medial": "ـز", "final": "ـز"}, "connects": false, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + নিচের সামনের দাঁতের কাছে (শিস দেওয়া অক্ষর)", "en": "Tongue tip near the lower front teeth (a whistling letter)"}, "sound": {"bn": "জিভের আগা নিচের দাঁতের কাছে রেখে মৌমাছির মতো 'য্‌য্‌য্' গুঞ্জন — ইংরেজি z। 'জ' (j) বলবেন না।", "en": "Tongue tip near the lower front teeth with a bee-like buzz 'zzz' — English z. Don't say 'j'."}, "family": "ra", "example": {"ar": "زَيْتُونٌ", "tr": {"bn": "যাইতূনুন", "en": "zaytūnun"}, "mean": {"bn": "জলপাই", "en": "olive"}}, "mnemonic": {"bn": "রা-এর মাথায় একটি বিন্দু — যেন স্লিপারে একটা মৌমাছি বসে 'যযয' করছে!", "en": "Raa with a dot on top — a bee sitting on the slide going 'zzz'!"}},
-{"id": "sin", "ar": "س", "name": {"bn": "সীন", "en": "Seen"}, "nameAr": "سِينٌ", "tr": {"bn": "স", "en": "s"}, "forms": {"isolated": "س", "initial": "سـ", "medial": "ـسـ", "final": "ـس"}, "connects": true, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + নিচের সামনের দাঁতের কাছে (শিস দেওয়া অক্ষর)", "en": "Tongue tip near the lower front teeth (a whistling letter)"}, "sound": {"bn": "জিভের আগা নিচের দাঁতের কাছে রেখে পাতলা শিসের মতো 'স' — সাপের 'স্‌স্‌স্'। বাংলাভাষীরা প্রায়ই 'শ' বলে ফেলেন; আওয়াজ চিকন ও তীক্ষ্ণ রাখুন।", "en": "Tongue tip near the lower front teeth: a thin, hissing 's', like a snake. Bangla speakers often slide into 'sh' — keep it thin and sharp."}, "family": "sin", "example": {"ar": "سَلَامٌ", "tr": {"bn": "সালামুন", "en": "salāmun"}, "mean": {"bn": "শান্তি", "en": "peace"}}, "mnemonic": {"bn": "তিনটি ছোট দাঁত আর একটা লেজ — যেন সাপ হাসছে তিন দাঁত বের করে: স্‌স্‌স্!", "en": "Three little teeth and a tail — a smiling snake showing three teeth: sss!"}},
-{"id": "shin", "ar": "ش", "name": {"bn": "শীন", "en": "Sheen"}, "nameAr": "شِينٌ", "tr": {"bn": "শ", "en": "sh"}, "forms": {"isolated": "ش", "initial": "شـ", "medial": "ـشـ", "final": "ـش"}, "connects": true, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের মাঝখান + তালুর মাঝখান", "en": "Middle of the tongue + middle of the hard palate"}, "sound": {"bn": "জিভের মাঝখান তালুর দিকে তুলে 'শ' — চুপ করানোর 'শ্‌শ্‌'। বাতাস মুখে ছড়িয়ে পড়ে।", "en": "Raise the middle of the tongue toward the palate: 'sh' as in 'shush'. The air spreads through the mouth."}, "family": "sin", "example": {"ar": "شَمْسٌ", "tr": {"bn": "শামসুন", "en": "shamsun"}, "mean": {"bn": "সূর্য", "en": "sun"}}, "mnemonic": {"bn": "সীনের মাথায় তিনটি বিন্দু — যেন তিন বন্ধু ঠোঁটে আঙুল দিয়ে বলছে 'শ্‌শ্‌শ্, চুপ!'", "en": "Seen with three dots on top — three friends saying 'shhh!'"}},
-{"id": "sad", "ar": "ص", "name": {"bn": "সোয়াদ", "en": "Ṣaad"}, "nameAr": "صَادٌ", "tr": {"bn": "স", "en": "ṣ"}, "forms": {"isolated": "ص", "initial": "صـ", "medial": "ـصـ", "final": "ـص"}, "connects": true, "heavy": true, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা নিচের সামনের দাঁতের কাছে, সাথে জিভের পেছন ওপরে তোলা", "en": "Tongue tip near the lower front teeth, with the back of the tongue raised"}, "sound": {"bn": "সীনের জায়গা থেকেই, কিন্তু জিভের পেছন ওপরে তুলে মুখ ভরে মোটা 'স'। এর সাথে যবর পড়লে আওয়াজ গভীর ও ভারী শোনায়।", "en": "Same spot as Seen, but raise the back of the tongue for a full, heavy 's'. A fatha after it sounds deep and dark."}, "family": "sad", "example": {"ar": "صَبْرٌ", "tr": {"bn": "সাবরুন", "en": "ṣabrun"}, "mean": {"bn": "ধৈর্য", "en": "patience"}}, "mnemonic": {"bn": "একটা লম্বা মোটা লুপ আর ছোট্ট একটা দাঁত — মোটা লুপ = মোটা আওয়াজ!", "en": "A long, fat loop with a tiny tooth — fat loop = fat (heavy) sound!"}},
-{"id": "dad", "ar": "ض", "name": {"bn": "দোয়াদ", "en": "Ḍaad"}, "nameAr": "ضَادٌ", "tr": {"bn": "দ", "en": "ḍ"}, "forms": {"isolated": "ض", "initial": "ضـ", "medial": "ـضـ", "final": "ـض"}, "connects": true, "heavy": true, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের এক বা দুই পাশ + ওপরের মাড়ির দাঁত", "en": "Side(s) of the tongue + the upper molars"}, "sound": {"bn": "জিভের পাশ ওপরের মাড়ির দাঁতে চেপে ভারী, মুখ-ভরা 'দ'-এর মতো আওয়াজ। এটি 'য/জ' নয়, আবার সাধারণ 'দ'-ও নয় — আরবির সবচেয়ে বিশেষ অক্ষর।", "en": "Press the side(s) of the tongue against the upper molars for a heavy, full-mouthed 'd'-like sound. It is not 'z', and not a plain 'd' — Arabic's most special letter."}, "family": "sad", "example": {"ar": "ضَعِيفٌ", "tr": {"bn": "দ'ঈফুন", "en": "ḍa'īfun"}, "mean": {"bn": "দুর্বল", "en": "weak"}}, "mnemonic": {"bn": "সোয়াদের মাথায় একটি বিন্দু। আরবিকে বলা হয় 'দোয়াদের ভাষা' — কারণ এই আওয়াজ আর কোনো ভাষায় সহজে পাওয়া যায় না!", "en": "Ṣaad with a dot. Arabic is nicknamed 'the language of Ḍaad' because this sound is so rare!"}},
-{"id": "tta", "ar": "ط", "name": {"bn": "ত্বোয়া", "en": "Ṭaa"}, "nameAr": "طَاءٌ", "tr": {"bn": "ত", "en": "ṭ"}, "forms": {"isolated": "ط", "initial": "طـ", "medial": "ـطـ", "final": "ـط"}, "connects": true, "heavy": true, "sun": true, "qalqalah": true, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দাঁতের গোড়া, জিভের পেছন ওপরে তোলা", "en": "Tongue tip + roots of the upper front teeth, back of the tongue raised"}, "sound": {"bn": "তা-এর জায়গা থেকেই, কিন্তু জিভের পেছন তুলে মুখ ভরে মোটা 'ত'। বাংলা 'ট' নয়। জযম থাকলে লাফিয়ে ওঠে (কলকলা)।", "en": "Same spot as Taa, but with the back of the tongue raised: a heavy, full 't'. Not Bangla 'ট'. With sukun it bounces (qalqalah)."}, "family": "tta", "example": {"ar": "طَعَامٌ", "tr": {"bn": "ত্বা'আমুন", "en": "ṭa'āmun"}, "mean": {"bn": "খাবার", "en": "food"}}, "mnemonic": {"bn": "একটা লুপের ওপর খাড়া একটা দণ্ড — যেন কেউ ছাতা ধরে দাঁড়িয়ে আছে!", "en": "A loop with a tall pole standing up — like someone holding an umbrella!"}},
-{"id": "zza", "ar": "ظ", "name": {"bn": "যোয়া", "en": "Ẓaa"}, "nameAr": "ظَاءٌ", "tr": {"bn": "য", "en": "ẓ"}, "forms": {"isolated": "ظ", "initial": "ظـ", "medial": "ـظـ", "final": "ـظ"}, "connects": true, "heavy": true, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দাঁতের মাথা, জিভের পেছন ওপরে তোলা", "en": "Tongue tip + edges of the upper front teeth, back of the tongue raised"}, "sound": {"bn": "যালের জায়গা থেকে (জিভ দাঁতের মাথায়), কিন্তু জিভের পেছন তুলে মোটা ও গুনগুন আওয়াজ। 'জ' বলবেন না।", "en": "Same spot as Dhaal (tongue on the tooth edges), but with the back of the tongue raised: a heavy, buzzing 'th' as in 'this'. Not 'j'."}, "family": "tta", "example": {"ar": "ظِلٌّ", "tr": {"bn": "যিল্লুন", "en": "ẓillun"}, "mean": {"bn": "ছায়া", "en": "shade"}}, "mnemonic": {"bn": "ত্বোয়ার পাশে একটি বিন্দু — ছাতার পাশে একটা বৃষ্টির ফোঁটা!", "en": "Ṭaa with a dot beside the pole — a raindrop next to the umbrella!"}},
-{"id": "ain", "ar": "ع", "name": {"bn": "আইন", "en": "'Ayn"}, "nameAr": "عَيْنٌ", "tr": {"bn": "আ", "en": "'"}, "forms": {"isolated": "ع", "initial": "عـ", "medial": "ـعـ", "final": "ـع"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "গলার মাঝখান", "en": "Middle of the throat"}, "sound": {"bn": "গলার মাঝখান চেপে স্বর বের করুন — গলা থেকে চাপা, গভীর 'আ'। বাংলাভাষীরা প্রায়ই সাধারণ 'আ' (হামযা) পড়েন; এতে শব্দের অর্থ বদলে যেতে পারে।", "en": "Squeeze the middle of the throat while voicing — a tight, deep 'a' from the throat. Reading it as a plain 'a' (like hamza) is the commonest mistake and can change meaning."}, "family": "ain", "example": {"ar": "عِلْمٌ", "tr": {"bn": "'ইলমুন", "en": "'ilmun"}, "mean": {"bn": "জ্ঞান", "en": "knowledge"}}, "mnemonic": {"bn": "ওপরে ছোট্ট একটা খোলা মুখ, নিচে বড় একটা লেজ — যেন কেউ হাঁ করে গলা থেকে আওয়াজ বের করছে। মজার কথা: عَيْنٌ মানে 'চোখ'!", "en": "A small open mouth on top and a big swoosh below — someone opening wide to make a throat sound. Fun fact: عَيْنٌ means 'eye'!"}},
-{"id": "ghain", "ar": "غ", "name": {"bn": "গাইন", "en": "Ghayn"}, "nameAr": "غَيْنٌ", "tr": {"bn": "গ", "en": "gh"}, "forms": {"isolated": "غ", "initial": "غـ", "medial": "ـغـ", "final": "ـغ"}, "connects": true, "heavy": true, "sun": false, "qalqalah": false, "makhraj": {"bn": "গলার ওপরের অংশ (মুখের দিকের)", "en": "Top of the throat (nearest the mouth)"}, "sound": {"bn": "গলার ওপরের অংশ থেকে গার্গল করার মতো কম্পনসহ আওয়াজ। এটি সাধারণ বাংলা 'গ' নয়; এটি মোটা অক্ষর।", "en": "From the top of the throat, a gargling, vibrating sound (like a French 'r'). Not a plain 'g'. A heavy letter."}, "family": "ain", "example": {"ar": "غَفُورٌ", "tr": {"bn": "গাফূরুন", "en": "ghafūrun"}, "mean": {"bn": "অতি ক্ষমাশীল", "en": "Most Forgiving"}}, "mnemonic": {"bn": "আইনের মাথায় একটি বিন্দু — গার্গল করার সময় যেন এক ফোঁটা পানি ছিটকে উঠেছে!", "en": "'Ayn with a dot on its head — a drop of water splashing up while you gargle!"}},
-{"id": "fa", "ar": "ف", "name": {"bn": "ফা", "en": "Faa"}, "nameAr": "فَاءٌ", "tr": {"bn": "ফ", "en": "f"}, "forms": {"isolated": "ف", "initial": "فـ", "medial": "ـفـ", "final": "ـف"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "নিচের ঠোঁটের ভেতরের অংশ + ওপরের সামনের দাঁতের মাথা", "en": "Inner lower lip + edges of the upper front teeth"}, "sound": {"bn": "ওপরের দাঁত নিচের ঠোঁটের ভেতরে ছুঁইয়ে বাতাস ছাড়ুন — ইংরেজি f। বাংলা 'ফ' (প + বাতাস) নয়।", "en": "Upper teeth touch the inside of the lower lip, then blow: English 'f'. Not Bangla 'ফ' (a breathy p)."}, "family": "fa", "example": {"ar": "فِيلٌ", "tr": {"bn": "ফীলুন", "en": "fīlun"}, "mean": {"bn": "হাতি", "en": "elephant"}}, "mnemonic": {"bn": "ছোট্ট গোল মাথা, ওপরে এক বিন্দু, আর লম্বা চ্যাপ্টা শরীর। ফা = ১ বিন্দু, শরীর লাইনের ওপর।", "en": "A small round head with one dot and a long flat body. Faa = one dot, body on the line."}},
-{"id": "qaf", "ar": "ق", "name": {"bn": "ক্বাফ", "en": "Qaaf"}, "nameAr": "قَافٌ", "tr": {"bn": "ক", "en": "q"}, "forms": {"isolated": "ق", "initial": "قـ", "medial": "ـقـ", "final": "ـق"}, "connects": true, "heavy": true, "sun": false, "qalqalah": true, "makhraj": {"bn": "জিভের একদম গোড়া + নরম তালু (আলজিভের কাছে)", "en": "Very back of the tongue + soft palate (near the uvula)"}, "sound": {"bn": "জিভের একদম পেছন নরম তালুতে চেপে গভীর, মোটা 'ক' — কাফ (ك)-এর চেয়েও পেছন থেকে। জযম থাকলে লাফিয়ে ওঠে (কলকলা)।", "en": "The very back of the tongue presses the soft palate: a deep, heavy 'q', further back than Kaaf (ك). With sukun it bounces (qalqalah)."}, "family": "fa", "example": {"ar": "قَلَمٌ", "tr": {"bn": "ক্বালামুন", "en": "qalamun"}, "mean": {"bn": "কলম", "en": "pen"}}, "mnemonic": {"bn": "ফা-এর মতো মাথা, কিন্তু দুই বিন্দু, আর লেজ লাইনের নিচে গভীর বাটির মতো — গভীর বাটি, গভীর আওয়াজ!", "en": "Like Faa's head but with two dots, and its tail dips deep below the line like a bowl — deep bowl, deep sound!"}},
-{"id": "kaf", "ar": "ك", "name": {"bn": "কাফ", "en": "Kaaf"}, "nameAr": "كَافٌ", "tr": {"bn": "ক", "en": "k"}, "forms": {"isolated": "ك", "initial": "كـ", "medial": "ـكـ", "final": "ـك"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "জিভের পেছন (ক্বাফের একটু সামনে) + তালু", "en": "Back of the tongue (a little forward of Qaaf) + the palate"}, "sound": {"bn": "জিভের পেছন তালুতে লাগিয়ে পাতলা, হালকা 'ক' — বাংলা 'ক'-এর কাছাকাছি। ক্বাফের মতো গভীর বা মোটা করবেন না।", "en": "Back of the tongue against the palate: a light 'k', close to Bangla 'ক'. Don't make it deep and heavy like Qaaf."}, "family": "kaf", "example": {"ar": "كِتَابٌ", "tr": {"bn": "কিতাবুন", "en": "kitābun"}, "mean": {"bn": "বই", "en": "book"}}, "mnemonic": {"bn": "দেখতে একটা ঘরের কোণের মতো, ভেতরে ছোট্ট একটা আঁকাবাঁকা চিহ্ন — কাফ নিজের ঘরে ছোট্ট একটা কলম রাখে!", "en": "Like the corner of a little room with a small squiggle inside — Kaaf keeps a tiny pen in its room!"}},
-{"id": "lam", "ar": "ل", "name": {"bn": "লাম", "en": "Laam"}, "nameAr": "لَامٌ", "tr": {"bn": "ল", "en": "l"}, "forms": {"isolated": "ل", "initial": "لـ", "medial": "ـلـ", "final": "ـل"}, "connects": true, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগার কিনারা + ওপরের সামনের দাঁতের মাড়ি", "en": "Front edges of the tongue + gum above the front teeth"}, "sound": {"bn": "জিভের আগা ওপরের মাড়িতে লাগিয়ে 'ল'। সাধারণত পাতলা; শুধু 'আল্লাহ' শব্দে (যবর বা পেশের পরে) মোটা হয়।", "en": "The tongue tip touches the gum above the front teeth: 'l'. Usually light; only in the word Allah (after fatha or damma) does it become heavy."}, "family": "lam", "example": {"ar": "لَيْلٌ", "tr": {"bn": "লাইলুন", "en": "laylun"}, "mean": {"bn": "রাত", "en": "night"}}, "mnemonic": {"bn": "আলিফের মতো লম্বা, কিন্তু নিচে একটা বাঁকা হুক — যেন একটা হকি স্টিক!", "en": "Tall like Alif but with a hook at the bottom — like a hockey stick!"}},
-{"id": "mim", "ar": "م", "name": {"bn": "মীম", "en": "Meem"}, "nameAr": "مِيمٌ", "tr": {"bn": "ম", "en": "m"}, "forms": {"isolated": "م", "initial": "مـ", "medial": "ـمـ", "final": "ـم"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "দুই ঠোঁট (শুকনো অংশ), সাথে নাকের বাঁশি", "en": "Both lips (the dry part), with the nasal passage"}, "sound": {"bn": "দুই ঠোঁট আলতো মিলিয়ে 'ম' — নাক দিয়েও একটু গুনগুন আওয়াজ বের হয়। বাংলা 'ম'-এর মতোই সহজ।", "en": "Close both lips gently: 'm', with a little hum through the nose. Just like Bangla 'ম'."}, "family": "mim", "example": {"ar": "مَسْجِدٌ", "tr": {"bn": "মাসজিদুন", "en": "masjidun"}, "mean": {"bn": "মসজিদ", "en": "mosque"}}, "mnemonic": {"bn": "ছোট্ট গোল মাথা আর নিচে ঝুলে থাকা লেজ — যেন সুতায় বাঁধা একটা বেলুন!", "en": "A small round head with a tail hanging down — like a balloon on a string!"}},
-{"id": "nun", "ar": "ن", "name": {"bn": "নূন", "en": "Noon"}, "nameAr": "نُونٌ", "tr": {"bn": "ন", "en": "n"}, "forms": {"isolated": "ن", "initial": "نـ", "medial": "ـنـ", "final": "ـن"}, "connects": true, "heavy": false, "sun": true, "qalqalah": false, "makhraj": {"bn": "জিভের আগা + ওপরের সামনের দাঁতের মাড়ি, সাথে নাকের বাঁশি", "en": "Tongue tip + gum above the front teeth, with the nasal passage"}, "sound": {"bn": "জিভের আগা ওপরের মাড়িতে লাগিয়ে 'ন', সাথে নাকে গুনগুন। বাংলা 'ন'-এর মতোই।", "en": "Tongue tip on the upper gum: 'n', with a nasal hum. Just like Bangla 'ন'."}, "family": "nun", "example": {"ar": "نُورٌ", "tr": {"bn": "নূরুন", "en": "nūrun"}, "mean": {"bn": "আলো", "en": "light"}}, "mnemonic": {"bn": "একটা গোল বাটি, ওপরে একটি বিন্দু — বাটির ওপর একটা আঙুর! বা-এর চ্যাপ্টা নৌকার চেয়ে নূনের বাটি গভীর।", "en": "A round bowl with one dot above — a grape over a bowl! Deeper than Baa's flat boat."}},
-{"id": "waw", "ar": "و", "name": {"bn": "ওয়াও", "en": "Waaw"}, "nameAr": "وَاوٌ", "tr": {"bn": "ও", "en": "w"}, "forms": {"isolated": "و", "initial": "و", "medial": "ـو", "final": "ـو"}, "connects": false, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "দুই ঠোঁট গোল করে (না মিলিয়ে)", "en": "Both lips rounded (not closed)"}, "sound": {"bn": "দুই ঠোঁট গোল করে, না মিলিয়ে 'ওয়া'। দাঁত দিয়ে ঠোঁট ছুঁয়ে 'ভ' (v) বলবেন না — বাংলাভাষীদের খুব সাধারণ ভুল।", "en": "Round the lips without closing them: 'w'. Never touch teeth to lip to make a 'v' — a very common slip."}, "family": "waw", "example": {"ar": "وَلَدٌ", "tr": {"bn": "ওয়ালাদুন", "en": "waladun"}, "mean": {"bn": "সন্তান, ছেলে", "en": "child, boy"}}, "mnemonic": {"bn": "গোল মাথা আর বাঁকা লেজ — দেখতে একটা বড় কমার (,) মতো। গোল মাথাটা মনে করিয়ে দেয়: ঠোঁট গোল করো!", "en": "A round head with a curved tail — like a giant comma. The round head reminds you: round your lips!"}},
-{"id": "ha", "ar": "ه", "name": {"bn": "হা (গোল হা)", "en": "Haa"}, "nameAr": "هَاءٌ", "tr": {"bn": "হ", "en": "h"}, "forms": {"isolated": "ه", "initial": "هـ", "medial": "ـهـ", "final": "ـه"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "গলার একদম গভীর অংশ (বুকের দিকের)", "en": "Deepest part of the throat (nearest the chest)"}, "sound": {"bn": "গলার একদম গভীর থেকে নরম, বাতাসভরা 'হ' — আয়নায় ভাপ দেওয়ার মতো 'হা'। শব্দের শেষে থাকলেও স্পষ্ট শোনাতে হবে।", "en": "From the deepest part of the throat: a soft, breathy 'h', like fogging a mirror. Say it clearly even at the end of a word."}, "family": "ha", "example": {"ar": "هُدًى", "tr": {"bn": "হুদান", "en": "hudan"}, "mean": {"bn": "হিদায়াত, পথনির্দেশ", "en": "guidance"}}, "mnemonic": {"bn": "এই অক্ষর সবচেয়ে বেশি রূপ বদলায়: ه هـ ـهـ ـه — যেন একজন অভিনেতা, প্রতি দৃশ্যে নতুন পোশাক!", "en": "This letter changes shape the most: ه هـ ـهـ ـه — an actor with a new costume in every scene!"}},
-{"id": "hamza", "ar": "ء", "name": {"bn": "হামযা", "en": "Hamzah"}, "nameAr": "هَمْزَةٌ", "tr": {"bn": "অ", "en": "ʼ"}, "forms": {"isolated": "ء", "initial": "ء", "medial": "ء", "final": "ء"}, "connects": false, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "গলার একদম গভীর অংশ (বুকের দিকের)", "en": "Deepest part of the throat (nearest the chest)"}, "sound": {"bn": "গলার গভীরে হঠাৎ একটা 'থামা' — যেমন 'আ-আ' বলতে গিয়ে মাঝখানে ক্ষণিক বিরতি। তারপর হরকত অনুযায়ী আ, ই বা উ। শব্দের শেষে থাকলে একে হারিয়ে ফেলবেন না।", "en": "A sudden catch deep in the throat — the little stop in 'uh-oh'. Then it takes its vowel: a, i or u. Don't swallow it at the end of a word."}, "family": "hamza", "example": {"ar": "سَمَاءٌ", "tr": {"bn": "সামা-উন", "en": "samāʼun"}, "mean": {"bn": "আকাশ", "en": "sky"}}, "mnemonic": {"bn": "দেখতে আইনের (ع) ছোট্ট মাথার মতো। সে একা বসতে পারে (ء), আবার আলিফ, ওয়াও বা ইয়ার পিঠে চড়েও বসে: أ إ ؤ ئ।", "en": "Looks like the little head of 'Ayn (ع). It can sit alone (ء) or ride on an Alif, Waaw or Yaa: أ إ ؤ ئ."}},
-{"id": "ya", "ar": "ي", "name": {"bn": "ইয়া", "en": "Yaa"}, "nameAr": "يَاءٌ", "tr": {"bn": "ই", "en": "y"}, "forms": {"isolated": "ي", "initial": "يـ", "medial": "ـيـ", "final": "ـي"}, "connects": true, "heavy": false, "sun": false, "qalqalah": false, "makhraj": {"bn": "জিভের মাঝখান + তালুর মাঝখান", "en": "Middle of the tongue + middle of the hard palate"}, "sound": {"bn": "জিভের মাঝখান তালুর দিকে তুলে 'ইয়া' (yes-এর y)। 'জ' বলবেন না।", "en": "Raise the middle of the tongue toward the palate: 'y' as in 'yes'. Don't turn it into 'j'."}, "family": "ya", "example": {"ar": "يَدٌ", "tr": {"bn": "ইয়াদুন", "en": "yadun"}, "mean": {"bn": "হাত", "en": "hand"}}, "mnemonic": {"bn": "শেষে বসলে হাঁসের মতো বাঁকা শরীর, নিচে দুই বিন্দু — যেন হাঁসের দুটো পা! ইয়া = নিচে ২ বিন্দু।", "en": "At the end it curves like a swan, with two dots underneath — the swan's two feet! Yaa = two dots below."}}
+ {
+  "id": "alif",
+  "ar": "ا",
+  "name": {
+   "bn": "আলিফ",
+   "en": "Alif"
+  },
+  "nameAr": "أَلِفْ",
+  "tr": {
+   "bn": "আ",
+   "en": "ā"
+  },
+  "forms": {
+   "isolated": "ا",
+   "initial": "ا",
+   "medial": "ـا",
+   "final": "ـا"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "মুখ ও গলার ফাঁকা জায়গা (জাওফ) — টানা 'আ' হলে",
+   "en": "The open space of mouth and throat (jawf), when it is a long 'ā'"
+  },
+  "sound": {
+   "bn": "আলিফের নিজের কোনো আলাদা আওয়াজ নেই: এটি হরকত বা হামযা বহন করে, আর যবরের পরে এলে 'আ'-কে লম্বা করে। বাংলাভাষীরা প্রায়ই একে 'অ' পড়েন — মুখ খুলে পরিষ্কার 'আ' বলুন।",
+   "en": "Alif has no sound of its own: it carries a vowel or a hamza, and after a fatha it stretches 'a' into a long 'ā'. Bangla speakers often say 'o' (অ) — open your mouth for a clear 'a'."
+  },
+  "family": "alif",
+  "example": {
+   "ar": "أَحَدٌ",
+   "tr": {
+    "bn": "আহাদুন",
+    "en": "aḥadun"
+   },
+   "mean": {
+    "bn": "এক",
+    "en": "one"
+   }
+  },
+  "mnemonic": {
+   "bn": "আলিফ দেখতে ইংরেজি সংখ্যা 1-এর মতো — আর এটিই আরবির ১ নম্বর অক্ষর! একটা সোজা দাঁড়ানো লাঠি।",
+   "en": "Alif looks like the number 1 — and it is letter number one! A straight, standing stick."
+  }
+ },
+ {
+  "id": "ba",
+  "ar": "ب",
+  "name": {
+   "bn": "বা",
+   "en": "Baa"
+  },
+  "nameAr": "بَاءْ",
+  "tr": {
+   "bn": "ব",
+   "en": "b"
+  },
+  "forms": {
+   "isolated": "ب",
+   "initial": "بـ",
+   "medial": "ـبـ",
+   "final": "ـب"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": true,
+  "makhraj": {
+   "bn": "দুই ঠোঁট (ভেতরের ভেজা অংশ)",
+   "en": "Both lips (the inner, wet part)"
+  },
+  "sound": {
+   "bn": "দুই ঠোঁট মিলিয়ে পরিষ্কার 'ব'। বাংলা 'ভ'-এর মতো বাতাস ছাড়বেন না, আর ইংরেজি v-এর মতো দাঁতে ঠোঁট লাগাবেন না।",
+   "en": "Close both lips for a clean 'b'. Don't add a puff of air like Bangla 'ভ', and never touch your teeth to your lip like a 'v'."
+  },
+  "family": "ba",
+  "example": {
+   "ar": "بَيْتٌ",
+   "tr": {
+    "bn": "বাইতুন",
+    "en": "baytun"
+   },
+   "mean": {
+    "bn": "ঘর",
+    "en": "house"
+   }
+  },
+  "mnemonic": {
+   "bn": "একটা নৌকা, নিচে একটি বিন্দু — যেন নৌকার নিচে একটা বল (ball)। বা = বল নিচে!",
+   "en": "A boat with one dot underneath — a ball under the boat. Baa = ball below!"
+  }
+ },
+ {
+  "id": "ta",
+  "ar": "ت",
+  "name": {
+   "bn": "তা",
+   "en": "Taa"
+  },
+  "nameAr": "تَاءْ",
+  "tr": {
+   "bn": "ত",
+   "en": "t"
+  },
+  "forms": {
+   "isolated": "ت",
+   "initial": "تـ",
+   "medial": "ـتـ",
+   "final": "ـت"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের গোড়া",
+   "en": "Tongue tip + roots of the upper front teeth"
+  },
+  "sound": {
+   "bn": "জিভের আগা ওপরের সামনের দাঁতের গোড়ায় লাগিয়ে পাতলা, নরম 'ত'। বাংলা 'ট'-এর মতো জিভ উল্টাবেন না, 'থ'-এর মতো বাতাসও ছাড়বেন না।",
+   "en": "Tongue tip on the gum-line behind the upper front teeth: a light, crisp 't'. Don't curl the tongue like Bangla 'ট', and no puff of air like 'থ'."
+  },
+  "family": "ba",
+  "example": {
+   "ar": "تُرَابٌ",
+   "tr": {
+    "bn": "তুরাবুন",
+    "en": "turābun"
+   },
+   "mean": {
+    "bn": "মাটি, ধুলা",
+    "en": "soil, dust"
+   }
+  },
+  "mnemonic": {
+   "bn": "নৌকার ওপরে দুটি বিন্দু — যেন দুটি চোখ ওপরে তাকিয়ে আছে। তা = দুই চোখ ওপরে!",
+   "en": "Two dots on top of the boat — two eyes looking up. Taa = two on top!"
+  }
+ },
+ {
+  "id": "tha",
+  "ar": "ث",
+  "name": {
+   "bn": "ছা",
+   "en": "Thaa"
+  },
+  "nameAr": "ثَاءْ",
+  "tr": {
+   "bn": "ছ",
+   "en": "th"
+  },
+  "forms": {
+   "isolated": "ث",
+   "initial": "ثـ",
+   "medial": "ـثـ",
+   "final": "ـث"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের মাথা",
+   "en": "Tongue tip + edges of the upper front teeth"
+  },
+  "sound": {
+   "bn": "জিভের আগা একটু বের করে ওপরের দাঁতের মাথায় লাগান, তারপর আলতো বাতাস ছাড়ুন — ইংরেজি think-এর th। বাংলাভাষীরা প্রায়ই 'স' বলে ফেলেন; জিভ যেন দাঁতের ফাঁকে উঁকি দেয়।",
+   "en": "Let the tongue tip peek out and touch the edges of the upper front teeth, then blow softly — the 'th' in 'think'. Bangla speakers often say 's'; let the tongue show between the teeth."
+  },
+  "family": "ba",
+  "example": {
+   "ar": "ثَلَاثَةٌ",
+   "tr": {
+    "bn": "ছালাছাতুন",
+    "en": "thalāthatun"
+   },
+   "mean": {
+    "bn": "তিন",
+    "en": "three"
+   }
+  },
+  "mnemonic": {
+   "bn": "নৌকার ওপরে তিনটি বিন্দু, ছোট্ট পাহাড়ের মতো সাজানো। ইংরেজি Three শুরু হয় th দিয়ে — Thaa-ও তাই, আর তার বিন্দুও ৩টা!",
+   "en": "Three dots piled like a little hill on the boat. 'Three' starts with 'th' — so does Thaa, and it has three dots!"
+  }
+ },
+ {
+  "id": "jim",
+  "ar": "ج",
+  "name": {
+   "bn": "জীম",
+   "en": "Jeem"
+  },
+  "nameAr": "جِيمْ",
+  "tr": {
+   "bn": "জ",
+   "en": "j"
+  },
+  "forms": {
+   "isolated": "ج",
+   "initial": "جـ",
+   "medial": "ـجـ",
+   "final": "ـج"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": true,
+  "makhraj": {
+   "bn": "জিভের মাঝখান + তালুর মাঝখান",
+   "en": "Middle of the tongue + middle of the hard palate"
+  },
+  "sound": {
+   "bn": "জিভের মাঝখান তালুতে চেপে পরিষ্কার 'জ', যেমন jam। নরম 'য' বা 'ঝ' বানাবেন না। জযম থাকলে আওয়াজ একটু লাফিয়ে ওঠে (কলকলা)।",
+   "en": "Press the middle of the tongue to the hard palate: a clear 'j' as in 'jam'. Don't soften it. With a sukun it gives a small bounce (qalqalah)."
+  },
+  "family": "jim",
+  "example": {
+   "ar": "جَنَّةٌ",
+   "tr": {
+    "bn": "জান্নাতুন",
+    "en": "jannatun"
+   },
+   "mean": {
+    "bn": "বাগান, জান্নাত",
+    "en": "garden, Paradise"
+   }
+  },
+  "mnemonic": {
+   "bn": "একটা খোলা মুখ বা বড়শির মতো, পেটের ভেতর একটি বিন্দু — যেন জীম একটা জাম গিলে ফেলেছে!",
+   "en": "An open mouth (or a hook) with a dot in its belly — Jeem swallowed a jam-berry!"
+  }
+ },
+ {
+  "id": "hha",
+  "ar": "ح",
+  "name": {
+   "bn": "হা",
+   "en": "Ḥaa"
+  },
+  "nameAr": "حَاءْ",
+  "tr": {
+   "bn": "হ",
+   "en": "ḥ"
+  },
+  "forms": {
+   "isolated": "ح",
+   "initial": "حـ",
+   "medial": "ـحـ",
+   "final": "ـح"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "গলার মাঝখান",
+   "en": "Middle of the throat"
+  },
+  "sound": {
+   "bn": "গলার মাঝখান একটু চেপে বাতাস ছাড়ুন — যেন গরম চা খেয়ে 'হাহ্' বলছেন। সাধারণ 'হ' (ه)-এর চেয়ে এটি বেশি ঘষা ও জোরালো; বাংলাভাষীরা প্রায়ই দুটো এক করে ফেলেন।",
+   "en": "Tighten the middle of the throat and push air through — like the 'ḥaah' after sipping hot tea. It is raspier than a normal 'h' (ه); Bangla speakers often mix the two."
+  },
+  "family": "jim",
+  "example": {
+   "ar": "حَمْدٌ",
+   "tr": {
+    "bn": "হামদুন",
+    "en": "ḥamdun"
+   },
+   "mean": {
+    "bn": "প্রশংসা",
+    "en": "praise"
+   }
+  },
+  "mnemonic": {
+   "bn": "জীমের মতোই শরীর, কিন্তু পেট খালি (বিন্দু নেই) — তাই সে ক্ষুধায় 'হাহ্' করে হাঁপাচ্ছে!",
+   "en": "Same body as Jeem but an empty belly (no dot) — so it pants 'ḥaah' with hunger!"
+  }
+ },
+ {
+  "id": "kha",
+  "ar": "خ",
+  "name": {
+   "bn": "খা",
+   "en": "Khaa"
+  },
+  "nameAr": "خَاءْ",
+  "tr": {
+   "bn": "খ",
+   "en": "kh"
+  },
+  "forms": {
+   "isolated": "خ",
+   "initial": "خـ",
+   "medial": "ـخـ",
+   "final": "ـخ"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "গলার ওপরের অংশ (মুখের দিকের)",
+   "en": "Top of the throat (nearest the mouth)"
+  },
+  "sound": {
+   "bn": "গলার ওপরের অংশ থেকে ঘষা আওয়াজ — যেন আলতো করে গলা পরিষ্কার করছেন। এটি বাংলা 'খ' (ক + বাতাস) নয়। এটি মোটা (ভারী) অক্ষর, তাই মুখ ভরে উচ্চারণ হয়।",
+   "en": "A scraping sound from the top of the throat, like gently clearing it (the 'ch' in Scottish 'loch'). It is not Bangla 'খ' (k + puff). It's a heavy letter, said with a full mouth."
+  },
+  "family": "jim",
+  "example": {
+   "ar": "خَيْرٌ",
+   "tr": {
+    "bn": "খাইরুন",
+    "en": "khayrun"
+   },
+   "mean": {
+    "bn": "ভালো, কল্যাণ",
+    "en": "good"
+   }
+  },
+  "mnemonic": {
+   "bn": "জীমের শরীর, বিন্দুটা মাথার ওপরে — যেন টুপি পরেছে। খা = খোলা মাথায় টুপি!",
+   "en": "Jeem's body with the dot on its head like a cap. Khaa wears a cap!"
+  }
+ },
+ {
+  "id": "dal",
+  "ar": "د",
+  "name": {
+   "bn": "দাল",
+   "en": "Daal"
+  },
+  "nameAr": "دَالْ",
+  "tr": {
+   "bn": "দ",
+   "en": "d"
+  },
+  "forms": {
+   "isolated": "د",
+   "initial": "د",
+   "medial": "ـد",
+   "final": "ـد"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": true,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের গোড়া",
+   "en": "Tongue tip + roots of the upper front teeth"
+  },
+  "sound": {
+   "bn": "জিভের আগা ওপরের দাঁতের গোড়ায় লাগিয়ে নরম 'দ'। বাংলা 'ড'-এর মতো জিভ পেছনে উল্টাবেন না। জযম থাকলে আওয়াজ লাফিয়ে ওঠে (কলকলা)।",
+   "en": "Tongue tip on the roots of the upper front teeth: a soft 'd'. Don't curl the tongue back like Bangla 'ড'. With a sukun it bounces (qalqalah)."
+  },
+  "family": "dal",
+  "example": {
+   "ar": "دِينٌ",
+   "tr": {
+    "bn": "দীনুন",
+    "en": "dīnun"
+   },
+   "mean": {
+    "bn": "দীন, জীবনব্যবস্থা",
+    "en": "religion, way of life"
+   }
+  },
+  "mnemonic": {
+   "bn": "দেখতে একটা ভাঁজ করা কনুই বা হাঁটুর মতো — দাল লাইনের ওপরেই ভাঁজ হয়ে বসে থাকে।",
+   "en": "Looks like a bent elbow sitting right on the line — Daal sits down."
+  }
+ },
+ {
+  "id": "dhal",
+  "ar": "ذ",
+  "name": {
+   "bn": "যাল",
+   "en": "Dhaal"
+  },
+  "nameAr": "ذَالْ",
+  "tr": {
+   "bn": "য",
+   "en": "dh"
+  },
+  "forms": {
+   "isolated": "ذ",
+   "initial": "ذ",
+   "medial": "ـذ",
+   "final": "ـذ"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দুই দাঁতের মাথা",
+   "en": "Tongue tip + edges of the upper front teeth"
+  },
+  "sound": {
+   "bn": "জিভের আগা ওপরের দাঁতের মাথায় লাগিয়ে গুনগুন কম্পনসহ আওয়াজ — ইংরেজি this-এর th। বাংলাভাষীরা প্রায়ই 'জ' বলেন; জিভ দাঁতের ফাঁকে রাখুন।",
+   "en": "Tongue tip touching the edges of the upper front teeth, with a buzz — the 'th' in 'this'. Saying 'j' is a common slip; keep the tongue between the teeth."
+  },
+  "family": "dal",
+  "example": {
+   "ar": "ذِكْرٌ",
+   "tr": {
+    "bn": "যিকরুন",
+    "en": "dhikrun"
+   },
+   "mean": {
+    "bn": "স্মরণ, যিকির",
+    "en": "remembrance"
+   }
+  },
+  "mnemonic": {
+   "bn": "দালের মাথায় একটি বিন্দু — দাল টুপি পরলেই যাল!",
+   "en": "Daal with a dot on its head — Daal puts on a cap and becomes Dhaal!"
+  }
+ },
+ {
+  "id": "ra",
+  "ar": "ر",
+  "name": {
+   "bn": "রা",
+   "en": "Raa"
+  },
+  "nameAr": "رَاءْ",
+  "tr": {
+   "bn": "র",
+   "en": "r"
+  },
+  "forms": {
+   "isolated": "ر",
+   "initial": "ر",
+   "medial": "ـر",
+   "final": "ـر"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা (একটু পিঠসহ) + ওপরের মাড়ি",
+   "en": "Tongue tip (with a little of its top) + the upper gum"
+  },
+  "sound": {
+   "bn": "জিভের আগা ওপরের মাড়িতে একবার আলতো ছুঁয়ে 'র'। বারবার কাঁপিয়ে 'র্‌র্‌র্' করবেন না। যবর বা পেশে সাধারণত মোটা, যেরে চিকন শোনায়।",
+   "en": "The tongue tip taps the upper gum once: 'r'. Don't roll it again and again. It usually sounds heavy with fatha or damma and light with kasra."
+  },
+  "family": "ra",
+  "example": {
+   "ar": "رَبٌّ",
+   "tr": {
+    "bn": "রাব্বুন",
+    "en": "rabbun"
+   },
+   "mean": {
+    "bn": "রব, প্রতিপালক",
+    "en": "Lord, Sustainer"
+   }
+  },
+  "mnemonic": {
+   "bn": "একটা ছোট্ট স্লিপার, যা লাইনের নিচে নেমে যায় — রা পিছলে নিচে যায়!",
+   "en": "A little slide that dips below the line — Raa slides down!"
+  }
+ },
+ {
+  "id": "zay",
+  "ar": "ز",
+  "name": {
+   "bn": "যা",
+   "en": "Zaay"
+  },
+  "nameAr": "زَايْ",
+  "tr": {
+   "bn": "য",
+   "en": "z"
+  },
+  "forms": {
+   "isolated": "ز",
+   "initial": "ز",
+   "medial": "ـز",
+   "final": "ـز"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + নিচের সামনের দাঁতের কাছে (শিস দেওয়া অক্ষর)",
+   "en": "Tongue tip near the lower front teeth (a whistling letter)"
+  },
+  "sound": {
+   "bn": "জিভের আগা নিচের দাঁতের কাছে রেখে মৌমাছির মতো 'য্‌য্‌য্' গুঞ্জন — ইংরেজি z। 'জ' (j) বলবেন না।",
+   "en": "Tongue tip near the lower front teeth with a bee-like buzz 'zzz' — English z. Don't say 'j'."
+  },
+  "family": "ra",
+  "example": {
+   "ar": "زَيْتُونٌ",
+   "tr": {
+    "bn": "যাইতূনুন",
+    "en": "zaytūnun"
+   },
+   "mean": {
+    "bn": "জলপাই",
+    "en": "olive"
+   }
+  },
+  "mnemonic": {
+   "bn": "রা-এর মাথায় একটি বিন্দু — যেন স্লিপারে একটা মৌমাছি বসে 'যযয' করছে!",
+   "en": "Raa with a dot on top — a bee sitting on the slide going 'zzz'!"
+  }
+ },
+ {
+  "id": "sin",
+  "ar": "س",
+  "name": {
+   "bn": "সীন",
+   "en": "Seen"
+  },
+  "nameAr": "سِينْ",
+  "tr": {
+   "bn": "স",
+   "en": "s"
+  },
+  "forms": {
+   "isolated": "س",
+   "initial": "سـ",
+   "medial": "ـسـ",
+   "final": "ـس"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + নিচের সামনের দাঁতের কাছে (শিস দেওয়া অক্ষর)",
+   "en": "Tongue tip near the lower front teeth (a whistling letter)"
+  },
+  "sound": {
+   "bn": "জিভের আগা নিচের দাঁতের কাছে রেখে পাতলা শিসের মতো 'স' — সাপের 'স্‌স্‌স্'। বাংলাভাষীরা প্রায়ই 'শ' বলে ফেলেন; আওয়াজ চিকন ও তীক্ষ্ণ রাখুন।",
+   "en": "Tongue tip near the lower front teeth: a thin, hissing 's', like a snake. Bangla speakers often slide into 'sh' — keep it thin and sharp."
+  },
+  "family": "sin",
+  "example": {
+   "ar": "سَلَامٌ",
+   "tr": {
+    "bn": "সালামুন",
+    "en": "salāmun"
+   },
+   "mean": {
+    "bn": "শান্তি",
+    "en": "peace"
+   }
+  },
+  "mnemonic": {
+   "bn": "তিনটি ছোট দাঁত আর একটা লেজ — যেন সাপ হাসছে তিন দাঁত বের করে: স্‌স্‌স্!",
+   "en": "Three little teeth and a tail — a smiling snake showing three teeth: sss!"
+  }
+ },
+ {
+  "id": "shin",
+  "ar": "ش",
+  "name": {
+   "bn": "শীন",
+   "en": "Sheen"
+  },
+  "nameAr": "شِينْ",
+  "tr": {
+   "bn": "শ",
+   "en": "sh"
+  },
+  "forms": {
+   "isolated": "ش",
+   "initial": "شـ",
+   "medial": "ـشـ",
+   "final": "ـش"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের মাঝখান + তালুর মাঝখান",
+   "en": "Middle of the tongue + middle of the hard palate"
+  },
+  "sound": {
+   "bn": "জিভের মাঝখান তালুর দিকে তুলে 'শ' — চুপ করানোর 'শ্‌শ্‌'। বাতাস মুখে ছড়িয়ে পড়ে।",
+   "en": "Raise the middle of the tongue toward the palate: 'sh' as in 'shush'. The air spreads through the mouth."
+  },
+  "family": "sin",
+  "example": {
+   "ar": "شَمْسٌ",
+   "tr": {
+    "bn": "শামসুন",
+    "en": "shamsun"
+   },
+   "mean": {
+    "bn": "সূর্য",
+    "en": "sun"
+   }
+  },
+  "mnemonic": {
+   "bn": "সীনের মাথায় তিনটি বিন্দু — যেন তিন বন্ধু ঠোঁটে আঙুল দিয়ে বলছে 'শ্‌শ্‌শ্, চুপ!'",
+   "en": "Seen with three dots on top — three friends saying 'shhh!'"
+  }
+ },
+ {
+  "id": "sad",
+  "ar": "ص",
+  "name": {
+   "bn": "সোয়াদ",
+   "en": "Ṣaad"
+  },
+  "nameAr": "صَادْ",
+  "tr": {
+   "bn": "স",
+   "en": "ṣ"
+  },
+  "forms": {
+   "isolated": "ص",
+   "initial": "صـ",
+   "medial": "ـصـ",
+   "final": "ـص"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা নিচের সামনের দাঁতের কাছে, সাথে জিভের পেছন ওপরে তোলা",
+   "en": "Tongue tip near the lower front teeth, with the back of the tongue raised"
+  },
+  "sound": {
+   "bn": "সীনের জায়গা থেকেই, কিন্তু জিভের পেছন ওপরে তুলে মুখ ভরে মোটা 'স'। এর সাথে যবর পড়লে আওয়াজ গভীর ও ভারী শোনায়।",
+   "en": "Same spot as Seen, but raise the back of the tongue for a full, heavy 's'. A fatha after it sounds deep and dark."
+  },
+  "family": "sad",
+  "example": {
+   "ar": "صَبْرٌ",
+   "tr": {
+    "bn": "সাবরুন",
+    "en": "ṣabrun"
+   },
+   "mean": {
+    "bn": "ধৈর্য",
+    "en": "patience"
+   }
+  },
+  "mnemonic": {
+   "bn": "একটা লম্বা মোটা লুপ আর ছোট্ট একটা দাঁত — মোটা লুপ = মোটা আওয়াজ!",
+   "en": "A long, fat loop with a tiny tooth — fat loop = fat (heavy) sound!"
+  }
+ },
+ {
+  "id": "dad",
+  "ar": "ض",
+  "name": {
+   "bn": "দোয়াদ",
+   "en": "Ḍaad"
+  },
+  "nameAr": "ضَادْ",
+  "tr": {
+   "bn": "দ",
+   "en": "ḍ"
+  },
+  "forms": {
+   "isolated": "ض",
+   "initial": "ضـ",
+   "medial": "ـضـ",
+   "final": "ـض"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের এক বা দুই পাশ + ওপরের মাড়ির দাঁত",
+   "en": "Side(s) of the tongue + the upper molars"
+  },
+  "sound": {
+   "bn": "জিভের পাশ ওপরের মাড়ির দাঁতে চেপে ভারী, মুখ-ভরা 'দ'-এর মতো আওয়াজ। এটি 'য/জ' নয়, আবার সাধারণ 'দ'-ও নয় — আরবির সবচেয়ে বিশেষ অক্ষর।",
+   "en": "Press the side(s) of the tongue against the upper molars for a heavy, full-mouthed 'd'-like sound. It is not 'z', and not a plain 'd' — Arabic's most special letter."
+  },
+  "family": "sad",
+  "example": {
+   "ar": "ضَعِيفٌ",
+   "tr": {
+    "bn": "দ'ঈফুন",
+    "en": "ḍa'īfun"
+   },
+   "mean": {
+    "bn": "দুর্বল",
+    "en": "weak"
+   }
+  },
+  "mnemonic": {
+   "bn": "সোয়াদের মাথায় একটি বিন্দু। আরবিকে বলা হয় 'দোয়াদের ভাষা' — কারণ এই আওয়াজ আর কোনো ভাষায় সহজে পাওয়া যায় না!",
+   "en": "Ṣaad with a dot. Arabic is nicknamed 'the language of Ḍaad' because this sound is so rare!"
+  }
+ },
+ {
+  "id": "tta",
+  "ar": "ط",
+  "name": {
+   "bn": "ত্বোয়া",
+   "en": "Ṭaa"
+  },
+  "nameAr": "طَاءْ",
+  "tr": {
+   "bn": "ত",
+   "en": "ṭ"
+  },
+  "forms": {
+   "isolated": "ط",
+   "initial": "طـ",
+   "medial": "ـطـ",
+   "final": "ـط"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": true,
+  "qalqalah": true,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দাঁতের গোড়া, জিভের পেছন ওপরে তোলা",
+   "en": "Tongue tip + roots of the upper front teeth, back of the tongue raised"
+  },
+  "sound": {
+   "bn": "তা-এর জায়গা থেকেই, কিন্তু জিভের পেছন তুলে মুখ ভরে মোটা 'ত'। বাংলা 'ট' নয়। জযম থাকলে লাফিয়ে ওঠে (কলকলা)।",
+   "en": "Same spot as Taa, but with the back of the tongue raised: a heavy, full 't'. Not Bangla 'ট'. With sukun it bounces (qalqalah)."
+  },
+  "family": "tta",
+  "example": {
+   "ar": "طَعَامٌ",
+   "tr": {
+    "bn": "ত্বা'আমুন",
+    "en": "ṭa'āmun"
+   },
+   "mean": {
+    "bn": "খাবার",
+    "en": "food"
+   }
+  },
+  "mnemonic": {
+   "bn": "একটা লুপের ওপর খাড়া একটা দণ্ড — যেন কেউ ছাতা ধরে দাঁড়িয়ে আছে!",
+   "en": "A loop with a tall pole standing up — like someone holding an umbrella!"
+  }
+ },
+ {
+  "id": "zza",
+  "ar": "ظ",
+  "name": {
+   "bn": "যোয়া",
+   "en": "Ẓaa"
+  },
+  "nameAr": "ظَاءْ",
+  "tr": {
+   "bn": "য",
+   "en": "ẓ"
+  },
+  "forms": {
+   "isolated": "ظ",
+   "initial": "ظـ",
+   "medial": "ـظـ",
+   "final": "ـظ"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দাঁতের মাথা, জিভের পেছন ওপরে তোলা",
+   "en": "Tongue tip + edges of the upper front teeth, back of the tongue raised"
+  },
+  "sound": {
+   "bn": "যালের জায়গা থেকে (জিভ দাঁতের মাথায়), কিন্তু জিভের পেছন তুলে মোটা ও গুনগুন আওয়াজ। 'জ' বলবেন না।",
+   "en": "Same spot as Dhaal (tongue on the tooth edges), but with the back of the tongue raised: a heavy, buzzing 'th' as in 'this'. Not 'j'."
+  },
+  "family": "tta",
+  "example": {
+   "ar": "ظِلٌّ",
+   "tr": {
+    "bn": "যিল্লুন",
+    "en": "ẓillun"
+   },
+   "mean": {
+    "bn": "ছায়া",
+    "en": "shade"
+   }
+  },
+  "mnemonic": {
+   "bn": "ত্বোয়ার পাশে একটি বিন্দু — ছাতার পাশে একটা বৃষ্টির ফোঁটা!",
+   "en": "Ṭaa with a dot beside the pole — a raindrop next to the umbrella!"
+  }
+ },
+ {
+  "id": "ain",
+  "ar": "ع",
+  "name": {
+   "bn": "আইন",
+   "en": "'Ayn"
+  },
+  "nameAr": "عَيْنْ",
+  "tr": {
+   "bn": "আ",
+   "en": "'"
+  },
+  "forms": {
+   "isolated": "ع",
+   "initial": "عـ",
+   "medial": "ـعـ",
+   "final": "ـع"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "গলার মাঝখান",
+   "en": "Middle of the throat"
+  },
+  "sound": {
+   "bn": "গলার মাঝখান চেপে স্বর বের করুন — গলা থেকে চাপা, গভীর 'আ'। বাংলাভাষীরা প্রায়ই সাধারণ 'আ' (হামযা) পড়েন; এতে শব্দের অর্থ বদলে যেতে পারে।",
+   "en": "Squeeze the middle of the throat while voicing — a tight, deep 'a' from the throat. Reading it as a plain 'a' (like hamza) is the commonest mistake and can change meaning."
+  },
+  "family": "ain",
+  "example": {
+   "ar": "عِلْمٌ",
+   "tr": {
+    "bn": "'ইলমুন",
+    "en": "'ilmun"
+   },
+   "mean": {
+    "bn": "জ্ঞান",
+    "en": "knowledge"
+   }
+  },
+  "mnemonic": {
+   "bn": "ওপরে ছোট্ট একটা খোলা মুখ, নিচে বড় একটা লেজ — যেন কেউ হাঁ করে গলা থেকে আওয়াজ বের করছে। মজার কথা: عَيْنٌ মানে 'চোখ'!",
+   "en": "A small open mouth on top and a big swoosh below — someone opening wide to make a throat sound. Fun fact: عَيْنٌ means 'eye'!"
+  }
+ },
+ {
+  "id": "ghain",
+  "ar": "غ",
+  "name": {
+   "bn": "গাইন",
+   "en": "Ghayn"
+  },
+  "nameAr": "غَيْنْ",
+  "tr": {
+   "bn": "গ",
+   "en": "gh"
+  },
+  "forms": {
+   "isolated": "غ",
+   "initial": "غـ",
+   "medial": "ـغـ",
+   "final": "ـغ"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "গলার ওপরের অংশ (মুখের দিকের)",
+   "en": "Top of the throat (nearest the mouth)"
+  },
+  "sound": {
+   "bn": "গলার ওপরের অংশ থেকে গার্গল করার মতো কম্পনসহ আওয়াজ। এটি সাধারণ বাংলা 'গ' নয়; এটি মোটা অক্ষর।",
+   "en": "From the top of the throat, a gargling, vibrating sound (like a French 'r'). Not a plain 'g'. A heavy letter."
+  },
+  "family": "ain",
+  "example": {
+   "ar": "غَفُورٌ",
+   "tr": {
+    "bn": "গাফূরুন",
+    "en": "ghafūrun"
+   },
+   "mean": {
+    "bn": "অতি ক্ষমাশীল",
+    "en": "Most Forgiving"
+   }
+  },
+  "mnemonic": {
+   "bn": "আইনের মাথায় একটি বিন্দু — গার্গল করার সময় যেন এক ফোঁটা পানি ছিটকে উঠেছে!",
+   "en": "'Ayn with a dot on its head — a drop of water splashing up while you gargle!"
+  }
+ },
+ {
+  "id": "fa",
+  "ar": "ف",
+  "name": {
+   "bn": "ফা",
+   "en": "Faa"
+  },
+  "nameAr": "فَاءْ",
+  "tr": {
+   "bn": "ফ",
+   "en": "f"
+  },
+  "forms": {
+   "isolated": "ف",
+   "initial": "فـ",
+   "medial": "ـفـ",
+   "final": "ـف"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "নিচের ঠোঁটের ভেতরের অংশ + ওপরের সামনের দাঁতের মাথা",
+   "en": "Inner lower lip + edges of the upper front teeth"
+  },
+  "sound": {
+   "bn": "ওপরের দাঁত নিচের ঠোঁটের ভেতরে ছুঁইয়ে বাতাস ছাড়ুন — ইংরেজি f। বাংলা 'ফ' (প + বাতাস) নয়।",
+   "en": "Upper teeth touch the inside of the lower lip, then blow: English 'f'. Not Bangla 'ফ' (a breathy p)."
+  },
+  "family": "fa",
+  "example": {
+   "ar": "فِيلٌ",
+   "tr": {
+    "bn": "ফীলুন",
+    "en": "fīlun"
+   },
+   "mean": {
+    "bn": "হাতি",
+    "en": "elephant"
+   }
+  },
+  "mnemonic": {
+   "bn": "ছোট্ট গোল মাথা, ওপরে এক বিন্দু, আর লম্বা চ্যাপ্টা শরীর। ফা = ১ বিন্দু, শরীর লাইনের ওপর।",
+   "en": "A small round head with one dot and a long flat body. Faa = one dot, body on the line."
+  }
+ },
+ {
+  "id": "qaf",
+  "ar": "ق",
+  "name": {
+   "bn": "ক্বাফ",
+   "en": "Qaaf"
+  },
+  "nameAr": "قَافْ",
+  "tr": {
+   "bn": "ক",
+   "en": "q"
+  },
+  "forms": {
+   "isolated": "ق",
+   "initial": "قـ",
+   "medial": "ـقـ",
+   "final": "ـق"
+  },
+  "connects": true,
+  "heavy": true,
+  "sun": false,
+  "qalqalah": true,
+  "makhraj": {
+   "bn": "জিভের একদম গোড়া + নরম তালু (আলজিভের কাছে)",
+   "en": "Very back of the tongue + soft palate (near the uvula)"
+  },
+  "sound": {
+   "bn": "জিভের একদম পেছন নরম তালুতে চেপে গভীর, মোটা 'ক' — কাফ (ك)-এর চেয়েও পেছন থেকে। জযম থাকলে লাফিয়ে ওঠে (কলকলা)।",
+   "en": "The very back of the tongue presses the soft palate: a deep, heavy 'q', further back than Kaaf (ك). With sukun it bounces (qalqalah)."
+  },
+  "family": "fa",
+  "example": {
+   "ar": "قَلَمٌ",
+   "tr": {
+    "bn": "ক্বালামুন",
+    "en": "qalamun"
+   },
+   "mean": {
+    "bn": "কলম",
+    "en": "pen"
+   }
+  },
+  "mnemonic": {
+   "bn": "ফা-এর মতো মাথা, কিন্তু দুই বিন্দু, আর লেজ লাইনের নিচে গভীর বাটির মতো — গভীর বাটি, গভীর আওয়াজ!",
+   "en": "Like Faa's head but with two dots, and its tail dips deep below the line like a bowl — deep bowl, deep sound!"
+  }
+ },
+ {
+  "id": "kaf",
+  "ar": "ك",
+  "name": {
+   "bn": "কাফ",
+   "en": "Kaaf"
+  },
+  "nameAr": "كَافْ",
+  "tr": {
+   "bn": "ক",
+   "en": "k"
+  },
+  "forms": {
+   "isolated": "ك",
+   "initial": "كـ",
+   "medial": "ـكـ",
+   "final": "ـك"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের পেছন (ক্বাফের একটু সামনে) + তালু",
+   "en": "Back of the tongue (a little forward of Qaaf) + the palate"
+  },
+  "sound": {
+   "bn": "জিভের পেছন তালুতে লাগিয়ে পাতলা, হালকা 'ক' — বাংলা 'ক'-এর কাছাকাছি। ক্বাফের মতো গভীর বা মোটা করবেন না।",
+   "en": "Back of the tongue against the palate: a light 'k', close to Bangla 'ক'. Don't make it deep and heavy like Qaaf."
+  },
+  "family": "kaf",
+  "example": {
+   "ar": "كِتَابٌ",
+   "tr": {
+    "bn": "কিতাবুন",
+    "en": "kitābun"
+   },
+   "mean": {
+    "bn": "বই",
+    "en": "book"
+   }
+  },
+  "mnemonic": {
+   "bn": "দেখতে একটা ঘরের কোণের মতো, ভেতরে ছোট্ট একটা আঁকাবাঁকা চিহ্ন — কাফ নিজের ঘরে ছোট্ট একটা কলম রাখে!",
+   "en": "Like the corner of a little room with a small squiggle inside — Kaaf keeps a tiny pen in its room!"
+  }
+ },
+ {
+  "id": "lam",
+  "ar": "ل",
+  "name": {
+   "bn": "লাম",
+   "en": "Laam"
+  },
+  "nameAr": "لَامْ",
+  "tr": {
+   "bn": "ল",
+   "en": "l"
+  },
+  "forms": {
+   "isolated": "ل",
+   "initial": "لـ",
+   "medial": "ـلـ",
+   "final": "ـل"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগার কিনারা + ওপরের সামনের দাঁতের মাড়ি",
+   "en": "Front edges of the tongue + gum above the front teeth"
+  },
+  "sound": {
+   "bn": "জিভের আগা ওপরের মাড়িতে লাগিয়ে 'ল'। সাধারণত পাতলা; শুধু 'আল্লাহ' শব্দে (যবর বা পেশের পরে) মোটা হয়।",
+   "en": "The tongue tip touches the gum above the front teeth: 'l'. Usually light; only in the word Allah (after fatha or damma) does it become heavy."
+  },
+  "family": "lam",
+  "example": {
+   "ar": "لَيْلٌ",
+   "tr": {
+    "bn": "লাইলুন",
+    "en": "laylun"
+   },
+   "mean": {
+    "bn": "রাত",
+    "en": "night"
+   }
+  },
+  "mnemonic": {
+   "bn": "আলিফের মতো লম্বা, কিন্তু নিচে একটা বাঁকা হুক — যেন একটা হকি স্টিক!",
+   "en": "Tall like Alif but with a hook at the bottom — like a hockey stick!"
+  }
+ },
+ {
+  "id": "mim",
+  "ar": "م",
+  "name": {
+   "bn": "মীম",
+   "en": "Meem"
+  },
+  "nameAr": "مِيمْ",
+  "tr": {
+   "bn": "ম",
+   "en": "m"
+  },
+  "forms": {
+   "isolated": "م",
+   "initial": "مـ",
+   "medial": "ـمـ",
+   "final": "ـم"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "দুই ঠোঁট (শুকনো অংশ), সাথে নাকের বাঁশি",
+   "en": "Both lips (the dry part), with the nasal passage"
+  },
+  "sound": {
+   "bn": "দুই ঠোঁট আলতো মিলিয়ে 'ম' — নাক দিয়েও একটু গুনগুন আওয়াজ বের হয়। বাংলা 'ম'-এর মতোই সহজ।",
+   "en": "Close both lips gently: 'm', with a little hum through the nose. Just like Bangla 'ম'."
+  },
+  "family": "mim",
+  "example": {
+   "ar": "مَسْجِدٌ",
+   "tr": {
+    "bn": "মাসজিদুন",
+    "en": "masjidun"
+   },
+   "mean": {
+    "bn": "মসজিদ",
+    "en": "mosque"
+   }
+  },
+  "mnemonic": {
+   "bn": "ছোট্ট গোল মাথা আর নিচে ঝুলে থাকা লেজ — যেন সুতায় বাঁধা একটা বেলুন!",
+   "en": "A small round head with a tail hanging down — like a balloon on a string!"
+  }
+ },
+ {
+  "id": "nun",
+  "ar": "ن",
+  "name": {
+   "bn": "নূন",
+   "en": "Noon"
+  },
+  "nameAr": "نُونْ",
+  "tr": {
+   "bn": "ন",
+   "en": "n"
+  },
+  "forms": {
+   "isolated": "ن",
+   "initial": "نـ",
+   "medial": "ـنـ",
+   "final": "ـن"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": true,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের আগা + ওপরের সামনের দাঁতের মাড়ি, সাথে নাকের বাঁশি",
+   "en": "Tongue tip + gum above the front teeth, with the nasal passage"
+  },
+  "sound": {
+   "bn": "জিভের আগা ওপরের মাড়িতে লাগিয়ে 'ন', সাথে নাকে গুনগুন। বাংলা 'ন'-এর মতোই।",
+   "en": "Tongue tip on the upper gum: 'n', with a nasal hum. Just like Bangla 'ন'."
+  },
+  "family": "nun",
+  "example": {
+   "ar": "نُورٌ",
+   "tr": {
+    "bn": "নূরুন",
+    "en": "nūrun"
+   },
+   "mean": {
+    "bn": "আলো",
+    "en": "light"
+   }
+  },
+  "mnemonic": {
+   "bn": "একটা গোল বাটি, ওপরে একটি বিন্দু — বাটির ওপর একটা আঙুর! বা-এর চ্যাপ্টা নৌকার চেয়ে নূনের বাটি গভীর।",
+   "en": "A round bowl with one dot above — a grape over a bowl! Deeper than Baa's flat boat."
+  }
+ },
+ {
+  "id": "waw",
+  "ar": "و",
+  "name": {
+   "bn": "ওয়াও",
+   "en": "Waaw"
+  },
+  "nameAr": "وَاوْ",
+  "tr": {
+   "bn": "ও",
+   "en": "w"
+  },
+  "forms": {
+   "isolated": "و",
+   "initial": "و",
+   "medial": "ـو",
+   "final": "ـو"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "দুই ঠোঁট গোল করে (না মিলিয়ে)",
+   "en": "Both lips rounded (not closed)"
+  },
+  "sound": {
+   "bn": "দুই ঠোঁট গোল করে, না মিলিয়ে 'ওয়া'। দাঁত দিয়ে ঠোঁট ছুঁয়ে 'ভ' (v) বলবেন না — বাংলাভাষীদের খুব সাধারণ ভুল।",
+   "en": "Round the lips without closing them: 'w'. Never touch teeth to lip to make a 'v' — a very common slip."
+  },
+  "family": "waw",
+  "example": {
+   "ar": "وَلَدٌ",
+   "tr": {
+    "bn": "ওয়ালাদুন",
+    "en": "waladun"
+   },
+   "mean": {
+    "bn": "সন্তান, ছেলে",
+    "en": "child, boy"
+   }
+  },
+  "mnemonic": {
+   "bn": "গোল মাথা আর বাঁকা লেজ — দেখতে একটা বড় কমার (,) মতো। গোল মাথাটা মনে করিয়ে দেয়: ঠোঁট গোল করো!",
+   "en": "A round head with a curved tail — like a giant comma. The round head reminds you: round your lips!"
+  }
+ },
+ {
+  "id": "ha",
+  "ar": "ه",
+  "name": {
+   "bn": "হা (গোল হা)",
+   "en": "Haa"
+  },
+  "nameAr": "هَاءْ",
+  "tr": {
+   "bn": "হ",
+   "en": "h"
+  },
+  "forms": {
+   "isolated": "ه",
+   "initial": "هـ",
+   "medial": "ـهـ",
+   "final": "ـه"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "গলার একদম গভীর অংশ (বুকের দিকের)",
+   "en": "Deepest part of the throat (nearest the chest)"
+  },
+  "sound": {
+   "bn": "গলার একদম গভীর থেকে নরম, বাতাসভরা 'হ' — আয়নায় ভাপ দেওয়ার মতো 'হা'। শব্দের শেষে থাকলেও স্পষ্ট শোনাতে হবে।",
+   "en": "From the deepest part of the throat: a soft, breathy 'h', like fogging a mirror. Say it clearly even at the end of a word."
+  },
+  "family": "ha",
+  "example": {
+   "ar": "هُدًى",
+   "tr": {
+    "bn": "হুদান",
+    "en": "hudan"
+   },
+   "mean": {
+    "bn": "হিদায়াত, পথনির্দেশ",
+    "en": "guidance"
+   }
+  },
+  "mnemonic": {
+   "bn": "এই অক্ষর সবচেয়ে বেশি রূপ বদলায়: ه هـ ـهـ ـه — যেন একজন অভিনেতা, প্রতি দৃশ্যে নতুন পোশাক!",
+   "en": "This letter changes shape the most: ه هـ ـهـ ـه — an actor with a new costume in every scene!"
+  }
+ },
+ {
+  "id": "hamza",
+  "ar": "ء",
+  "name": {
+   "bn": "হামযা",
+   "en": "Hamzah"
+  },
+  "nameAr": "هَمْزَةْ",
+  "tr": {
+   "bn": "অ",
+   "en": "ʼ"
+  },
+  "forms": {
+   "isolated": "ء",
+   "initial": "ء",
+   "medial": "ء",
+   "final": "ء"
+  },
+  "connects": false,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "গলার একদম গভীর অংশ (বুকের দিকের)",
+   "en": "Deepest part of the throat (nearest the chest)"
+  },
+  "sound": {
+   "bn": "গলার গভীরে হঠাৎ একটা 'থামা' — যেমন 'আ-আ' বলতে গিয়ে মাঝখানে ক্ষণিক বিরতি। তারপর হরকত অনুযায়ী আ, ই বা উ। শব্দের শেষে থাকলে একে হারিয়ে ফেলবেন না।",
+   "en": "A sudden catch deep in the throat — the little stop in 'uh-oh'. Then it takes its vowel: a, i or u. Don't swallow it at the end of a word."
+  },
+  "family": "hamza",
+  "example": {
+   "ar": "سَمَاءٌ",
+   "tr": {
+    "bn": "সামা-উন",
+    "en": "samāʼun"
+   },
+   "mean": {
+    "bn": "আকাশ",
+    "en": "sky"
+   }
+  },
+  "mnemonic": {
+   "bn": "দেখতে আইনের (ع) ছোট্ট মাথার মতো। সে একা বসতে পারে (ء), আবার আলিফ, ওয়াও বা ইয়ার পিঠে চড়েও বসে: أ إ ؤ ئ।",
+   "en": "Looks like the little head of 'Ayn (ع). It can sit alone (ء) or ride on an Alif, Waaw or Yaa: أ إ ؤ ئ."
+  }
+ },
+ {
+  "id": "ya",
+  "ar": "ي",
+  "name": {
+   "bn": "ইয়া",
+   "en": "Yaa"
+  },
+  "nameAr": "يَاءْ",
+  "tr": {
+   "bn": "ই",
+   "en": "y"
+  },
+  "forms": {
+   "isolated": "ي",
+   "initial": "يـ",
+   "medial": "ـيـ",
+   "final": "ـي"
+  },
+  "connects": true,
+  "heavy": false,
+  "sun": false,
+  "qalqalah": false,
+  "makhraj": {
+   "bn": "জিভের মাঝখান + তালুর মাঝখান",
+   "en": "Middle of the tongue + middle of the hard palate"
+  },
+  "sound": {
+   "bn": "জিভের মাঝখান তালুর দিকে তুলে 'ইয়া' (yes-এর y)। 'জ' বলবেন না।",
+   "en": "Raise the middle of the tongue toward the palate: 'y' as in 'yes'. Don't turn it into 'j'."
+  },
+  "family": "ya",
+  "example": {
+   "ar": "يَدٌ",
+   "tr": {
+    "bn": "ইয়াদুন",
+    "en": "yadun"
+   },
+   "mean": {
+    "bn": "হাত",
+    "en": "hand"
+   }
+  },
+  "mnemonic": {
+   "bn": "শেষে বসলে হাঁসের মতো বাঁকা শরীর, নিচে দুই বিন্দু — যেন হাঁসের দুটো পা! ইয়া = নিচে ২ বিন্দু।",
+   "en": "At the end it curves like a swan, with two dots underneath — the swan's two feet! Yaa = two dots below."
+  }
+ }
 ];
 
 AQ.units.push({
