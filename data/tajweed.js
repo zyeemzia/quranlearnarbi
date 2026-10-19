@@ -1,7 +1,7 @@
 window.AQ = window.AQ || { units: [], alphabet: [], vocab: [] };
 AQ.units.push({
   "id": "tajweed",
-  "order": 2,
+  "order": 3,
   "icon": "تَ",
   "color": "emerald",
   "title": { "bn": "সুন্দর তিলাওয়াত — তাজবীদ", "en": "Beautiful Recitation — Tajweed" },

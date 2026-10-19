@@ -9,7 +9,7 @@
 
   /* ---------------- state ---------------- */
   const KEY = 'quran-o-arbi-shikkha.v1', OLD_KEY = 'alif-to-quran.v1';
-  const defaults = () => ({ lang: 'both', theme: 'auto', arScale: 1, rate: 0.75, done: {}, quiz: {}, xp: 0, streak: { last: null, count: 0 }, srs: {}, best: {}, fcDir: 'ar' });
+  const defaults = () => ({ lang: 'both', theme: 'auto', arScale: 1, rate: 0.75, done: {}, quiz: {}, xp: 0, streak: { last: null, count: 0 }, srs: {}, best: {}, fcDir: 'ar', day: {}, checks: {}, memo: {}, certName: '' });
   let S = defaults();
   try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY) || '{}')); } catch (e) { /* storage blocked */ }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } };
@@ -20,6 +20,15 @@
     S.streak.count = S.streak.last === y ? S.streak.count + 1 : 1; S.streak.last = t;
   }
   function addXP(n) { S.xp += n; touchStreak(); save(); renderChrome(); }
+  /* daily missions: 1 lesson or quiz, 10 flashcards, 3 writing checks */
+  const MISSIONS = [['lesson', 1], ['cards', 10], ['write', 3]];
+  function today_() { if (S.day.date !== today()) S.day = { date: today(), lesson: 0, cards: 0, write: 0, quiz: 0 }; return S.day; }
+  function bumpDaily(k) {
+    const d = today_(); const before = MISSIONS.every(([m, n]) => (m === 'lesson' ? d.lesson + d.quiz : d[m]) >= n);
+    d[k] = (d[k] || 0) + 1; save();
+    const after = MISSIONS.every(([m, n]) => (m === 'lesson' ? d.lesson + d.quiz : d[m]) >= n);
+    if (!before && after) { addXP(30); confetti(); toast(L() ? 'All daily missions done! +30 XP' : 'আজকের সব মিশন শেষ! +৩০ এক্সপি', 3500); }
+  }
 
   /* ---------------- i18n ---------------- */
   const UI = {
@@ -44,7 +53,9 @@
     sun: ['শামসি (সূর্য)', 'Sun letter'], moon: ['কামারি (চাঁদ)', 'Moon letter'], heavy: ['মোটা (পুর)', 'Heavy'], light: ['পাতলা (বারীক)', 'Light'],
     qalqalah: ['কলকলা', 'Qalqalah'], nonjoin: ['পরের হরফে জোড়া লাগে না', "Doesn't join the next letter"], join: ['দুই দিকে জোড়া লাগে', 'Joins both sides'],
     all: ['সব', 'All'], families: ['আকৃতির পরিবার', 'Shape families'], close: ['বন্ধ করুন', 'Close'],
-    printBook: ['ছাপার উপযোগী বই খুলুন', 'Open the printable book'], quizBest: ['সেরা কুইজ', 'Best quiz']
+    printBook: ['ছাপার উপযোগী বই খুলুন', 'Open the printable book'], quizBest: ['সেরা কুইজ', 'Best quiz'],
+    write: ['লিখি', 'Write'], more: ['টুলস', 'Tools'], missions: ['আজকের মিশন', "Today's missions"], roots: ['মূলধাতু', 'Roots'],
+    makharij: ['মাখরাজ মানচিত্র', 'Makharij map'], cert: ['সনদপত্র', 'Certificate']
   };
   const L = () => S.lang === 'en' ? 1 : 0;
   const u = k => (UI[k] || [k, k])[L()];
@@ -78,6 +89,7 @@
     bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
     warn: '<path d="M12 3l10 18H2zM12 10v5M12 18h.01"/>', brain: '<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V5a3 3 0 0 0-3-1zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1"/>',
     spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>',
+    pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
     arrowL: '<path d="M15 5l-7 7 7 7"/>', arrowR: '<path d="M9 5l7 7-7 7"/>', gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
   };
   const icon = (n, extra) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra || ''}>${I[n] || ''}</svg>`;
@@ -141,7 +153,8 @@
   }
 
   /* ---------------- chrome ---------------- */
-  const NAV = [['home', 'home'], ['learn', 'learn'], ['alphabet', 'alphabet'], ['cards', 'cards'], ['games', 'games']];
+  const NAV = [['home', 'home', '#home'], ['learn', 'learn', '#learn'], ['write', 'pen', '#unit/writing'], ['alphabet', 'alphabet', '#alphabet'], ['games', 'games', '#games'], ['more', 'grid', '#tools']];
+  const TABS = ['home', 'learn', 'write', 'games', 'more'];
   function applyTheme() {
     const r = document.documentElement;
     if (S.theme === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', S.theme);
@@ -150,10 +163,14 @@
   }
   function isDark() { return S.theme === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); }
   function renderChrome() {
-    const cur = (location.hash.slice(1).split('/')[0]) || 'home';
-    const active = k => (k === cur || (k === 'learn' && (cur === 'unit' || cur === 'lesson'))) ? 'aria-current="page"' : '';
-    $('#mainnav').innerHTML = NAV.map(([k]) => `<a href="#${k}" ${active(k)}>${u(k)}</a>`).join('') + `<a href="book.html" target="_blank" rel="noopener">${u('book')}</a>`;
-    $('#tabbar').innerHTML = NAV.map(([k, ic]) => `<a href="#${k}" ${active(k)}>${icon(ic)}<span>${u(k)}</span></a>`).join('');
+    const [cur, arg] = location.hash.slice(1).split('/');
+    const r = cur || 'home';
+    const lessonUnit = r === 'lesson' && D.lessons.find(l => l.id === arg);
+    const inWriting = (r === 'unit' && arg === 'writing') || (lessonUnit && lessonUnit.unit.id === 'writing');
+    const owner = inWriting ? 'write' : (r === 'unit' || r === 'lesson') ? 'learn' : (['cards', 'roots', 'makharij', 'certificate', 'settings', 'search'].includes(r) ? 'more' : r === 'play' ? 'games' : r);
+    const active = k => k === owner ? 'aria-current="page"' : '';
+    $('#mainnav').innerHTML = NAV.map(([k, , href]) => `<a href="${href}" ${active(k)}>${u(k)}</a>`).join('');
+    $('#tabbar').innerHTML = NAV.filter(([k]) => TABS.includes(k)).map(([k, ic, href]) => `<a href="${href}" ${active(k)}>${icon(ic)}<span>${u(k)}</span></a>`).join('');
     $('#langSeg').innerHTML = [['bn', 'বাং'], ['both', 'বাং+EN'], ['en', 'EN']].map(([k, l]) => `<button type="button" data-lang="${k}" aria-pressed="${S.lang === k}">${l}</button>`).join('');
     $('#themeBtn').innerHTML = icon(isDark() ? 'sun' : 'moon');
     $('#xpChip').innerHTML = `${icon('flame')}<span>${num(S.streak.count)}</span> ${icon('star')}<span>${num(S.xp)}</span><span class="xp-label">${u('xp')}</span>`;
@@ -179,7 +196,7 @@
         <div class="pattern" style="opacity:.06"></div>
         <div class="hero-greet" lang="ar">السَّلَامُ عَلَيْكُمْ</div>
         <h1>${S.lang === 'en' ? 'Learn Arabic from the first letter to the Quran' : 'প্রথম হরফ থেকে কুরআন পর্যন্ত — আরবি শিখুন সহজে'}${S.lang === 'both' ? '<span class="sub">Learn Arabic from the first letter to the Quran</span>' : ''}</h1>
-        <p class="hero-lead">${tx({ bn: `${bnNum(D.units.length)}টি ইউনিট, ${bnNum(D.lessons.length)}টি পাঠ, ${bnNum(D.vocab.length)}+ কুরআনি ও দৈনন্দিন শব্দ, শব্দে শব্দে সূরা, তাজবীদ, ব্যাকরণ, খেলা ও ফ্ল্যাশকার্ড। প্রতিদিন মাত্র ১৫ মিনিট।`, en: `${D.units.length} units, ${D.lessons.length} lessons, ${D.vocab.length}+ Quranic and everyday words, surahs word by word, tajweed, grammar, games and flashcards. Just 15 minutes a day.` })}</p>
+        <p class="hero-lead">${tx({ bn: `${bnNum(D.units.length)}টি ইউনিট, ${bnNum(D.lessons.length)}টি পাঠ, ${bnNum(D.vocab.length)}+ কুরআনি ও দৈনন্দিন শব্দ, ধাপে ধাপে হাতের লেখা, শব্দে শব্দে সূরা, তাজবীদ, ব্যাকরণ, খেলা ও ফ্ল্যাশকার্ড। প্রতিদিন মাত্র ১৫ মিনিট।`, en: `${D.units.length} units, ${D.lessons.length} lessons, ${D.vocab.length}+ Quranic and everyday words, phase-by-phase handwriting, surahs word by word, tajweed, grammar, games and flashcards. Just 15 minutes a day.` })}</p>
         <div class="hero-actions">
           ${nl ? `<a class="btn btn-primary" href="#lesson/${nl.id}">${u(started ? 'cont' : 'start')} ${icon('arrowR')}</a>` : ''}
           <a class="btn" href="#alphabet">${u('alphabet')}</a>
@@ -202,6 +219,8 @@
       </aside>` : ''}
     </section>
 
+    ${missionsHTML()}
+
     <h2 class="section-title">${u('units')}</h2>
     ${D.units.length ? `<div class="unit-grid">${D.units.map(un => { const p = unitProgress(un); return `
       <a class="unit-card" href="#unit/${un.id}" data-c="${un.color}">
@@ -212,12 +231,39 @@
       </a>`; }).join('')}</div>` : `<div class="empty"><div class="ar">…</div>${u('loading')}</div>`}
 
     <h2 class="section-title">${u('tools')}</h2>
-    <div class="tools-grid">
-      <a class="tool" href="#alphabet"><span class="t-ar" lang="ar">أ ب ت</span><b>${u('alphabet')}</b><span>${t1({ bn: '২৯টি হরফ, রূপ, উচ্চারণ ও লেখা অনুশীলন', en: '29 letters, forms, sounds and tracing' })}</span></a>
-      <a class="tool" href="#cards"><span class="t-ar" lang="ar">كَلِمَة</span><b>${u('cards')}</b><span>${t1({ bn: `${bnNum(dueCards(null).length)}টি কার্ড আজ রিভিউর অপেক্ষায়`, en: `${dueCards(null).length} cards waiting for review` })}</span></a>
-      <a class="tool" href="#games"><span class="t-ar" lang="ar">لُعْبَة</span><b>${u('games')}</b><span>${t1({ bn: 'হরফ শিকার, হরকত হিরো, শব্দ মেলানো', en: 'Letter Hunt, Harakat Hero, Word Match' })}</span></a>
-      <a class="tool" href="book.html" target="_blank" rel="noopener"><span class="t-ar" lang="ar">كِتَاب</span><b>${u('book')}</b><span>${t1({ bn: 'পুরো কোর্স ছাপার উপযোগী বই আকারে', en: 'The whole course as a printable book' })}</span></a>
-    </div>`;
+    <div class="tools-grid">${toolCards().slice(0, 8).join('')}    </div>`;
+  }
+
+  function missionsHTML() {
+    const d = today_();
+    const items = [
+      ['lesson', 1, d.lesson + d.quiz, { bn: 'একটি পাঠ বা কুইজ শেষ করুন', en: 'Finish a lesson or quiz' }, nextLesson() ? '#lesson/' + nextLesson().id : '#learn'],
+      ['cards', 10, d.cards, { bn: '১০টি ফ্ল্যাশকার্ড রিভিউ করুন', en: 'Review 10 flashcards' }, '#cards'],
+      ['write', 3, d.write, { bn: '৩ বার লেখা মিলিয়ে দেখুন', en: 'Check your writing 3 times' }, '#unit/writing']
+    ];
+    const done = items.filter(x => x[2] >= x[1]).length;
+    return `<section class="missions">
+      <div class="m-head"><div class="m-ring" style="--p:${done / 3 * 100}"><b>${num(done)}/${num(3)}</b></div>
+        <div><div class="eyebrow">${u('missions')}</div><h2>${t1(done === 3 ? { bn: 'মাশাআল্লাহ! আজকের সব মিশন শেষ', en: 'MashaAllah! All missions done today' } : { bn: 'প্রতিদিন তিনটি ছোট কাজ — বড় অগ্রগতি', en: 'Three small tasks a day, big progress' })}</h2><p class="muted">${t1({ bn: 'সব শেষ করলে +৩০ এক্সপি বোনাস', en: 'Finish all three for a +30 XP bonus' })}</p></div></div>
+      <div class="m-list">${items.map(([k, n, v, label, href]) => `<a class="m-item ${v >= n ? 'done' : ''}" href="${href}"><span class="m-check">${v >= n ? icon('check') : ''}</span><span class="m-text">${t1(label)}</span><span class="m-count">${num(Math.min(v, n))}/${num(n)}</span></a>`).join('')}</div>
+    </section>`;
+  }
+  function toolCards() {
+    const due = dueCards(null).length;
+    const T = [
+      ['#unit/writing', 'خط', { bn: 'লেখার স্টুডিও', en: 'Writing studio' }, { bn: 'কলম দেখুন, ট্রেস করুন, তারকা জিতুন — ধাপে ধাপে', en: 'Watch the pen, trace and earn stars, phase by phase' }],
+      ['#alphabet', 'أ ب ت', { bn: 'বর্ণমালা', en: 'Alphabet' }, { bn: '২৯টি হরফ, রূপ, উচ্চারণ ও লেখা', en: '29 letters, forms, sounds and writing' }],
+      ['#cards', 'كَلِمَة', { bn: 'ফ্ল্যাশকার্ড', en: 'Flashcards' }, { bn: `${bnNum(due)}টি কার্ড আজ রিভিউর অপেক্ষায়`, en: `${due} cards waiting for review` }],
+      ['#games', 'لُعْبَة', { bn: 'খেলা', en: 'Games' }, { bn: 'আয়াত পাজল, শুনে চিনুন, হরফ শিকার আরও', en: 'Ayah Puzzle, Listen & Pick, Letter Hunt and more' }],
+      ['#roots', 'ك ت ب', { bn: 'মূলধাতু এক্সপ্লোরার', en: 'Root explorer' }, { bn: 'এক মূল থেকে শব্দের পুরো পরিবার', en: 'One root, a whole family of words' }],
+      ['#makharij', 'مَخْرَج', { bn: 'মাখরাজ মানচিত্র', en: 'Makharij map' }, { bn: 'কোন হরফ মুখের কোথা থেকে আসে', en: 'Where each letter comes from in the mouth' }],
+      ['#lesson/quran-fatiha', 'حِفْظ', { bn: 'মুখস্থ মোড', en: 'Memorise mode' }, { bn: 'আয়াতের শব্দ লুকিয়ে মুখস্থ যাচাই', en: 'Hide words of an ayah to test your memory' }],
+      ['#certificate', 'شَهَادَة', { bn: 'সনদপত্র', en: 'Certificate' }, { bn: 'আপনার নামে সনদ তৈরি ও ডাউনলোড', en: 'Make and download your own certificate' }],
+      ['book.html', 'كِتَاب', { bn: 'ছাপার বই', en: 'Printable book' }, { bn: 'পুরো কোর্স ও লেখার খাতা বই আকারে', en: 'The whole course and writing workbook as a book' }],
+      ['Quran-o-Arbi-Shikkha.pdf', 'PDF', { bn: 'PDF ডাউনলোড', en: 'Download PDF' }, { bn: 'অফলাইনে পড়ুন বা প্রিন্ট করুন', en: 'Read offline or print it' }],
+      ['#settings', '⚙', { bn: 'অগ্রগতি ও সেটিংস', en: 'Progress & settings' }, { bn: 'ভাষা, থিম, আরবির আকার, উচ্চারণের গতি', en: 'Language, theme, Arabic size, speech speed' }]
+    ];
+    return T.map(([href, ar, name, desc]) => `<a class="tool" href="${href}" ${href.endsWith('.html') ? 'target="_blank" rel="noopener"' : ''} ${href.endsWith('.pdf') ? 'download' : ''}><span class="t-ar" lang="ar">${esc(ar)}</span><b>${t1(name)}</b><span>${t1(desc)}</span></a>`);
   }
 
   function viewLearn() {
@@ -333,7 +379,8 @@
         const words = b.words || [];
         return `<section class="ayah" data-ar="${esc(b.ar)}">${T}
           <div class="ayah-top"><span class="ayah-ref">${S.lang === 'en' ? `Surah ${s} · Ayah ${a}` : `সূরা ${bnNum(s)} · আয়াত ${bnNum(a)}`}</span>
-            <span style="display:flex;gap:6px"><button class="btn btn-sm" type="button" data-wbw>${u('wbw')}</button><button class="btn btn-sm btn-primary" type="button" data-ayah="${esc(b.ref)}">${icon('play')} ${u('listen')}</button></span></div>
+            <span class="ayah-btns">${S.memo[b.ref] ? `<span class="chip memo-chip">${icon('check')} ${t1({ bn: 'মুখস্থ', en: 'Memorised' })}</span>` : ''}<button class="btn btn-sm" type="button" data-wbw>${u('wbw')}</button><button class="btn btn-sm" type="button" data-memo="${esc(b.ref)}">${icon('brain')} ${t1({ bn: 'মুখস্থ করুন', en: 'Memorise' })}</button><button class="btn btn-sm btn-primary" type="button" data-ayah="${esc(b.ref)}">${icon('play')} ${u('listen')}</button></span></div>
+          <div class="memo-bar" hidden><span class="memo-level"></span><span class="memo-actions"><button class="btn btn-sm" type="button" data-memorep="${esc(b.ref)}">${icon('play')} ×3</button><button class="btn btn-sm" type="button" data-memodone="${esc(b.ref)}">${icon('check')} ${t1({ bn: 'মুখস্থ হয়েছে', en: 'I know it' })}</button></span></div>
           <div class="ayah-ar" lang="ar">${words.length ? words.map((w, j) => `<span class="w" data-wi="${j}" data-say="${esc(w.ar)}">${esc(w.ar)}</span>`).join(' ') : esc(b.ar)} <span class="ayah-num">${esc(toArabicDigits(a))}</span></div>
           <div class="wbw" hidden>${words.map(w => `<div class="wbw-w" data-say="${esc(w.ar)}"><span class="ar" lang="ar">${esc(w.ar)}</span>${S.lang !== 'en' ? `<small>${md(w.bn)}</small>` : ''}${S.lang !== 'bn' ? `<small class="en" lang="en">${md(w.en)}</small>` : ''}</div>`).join('')}</div>
           <div class="ayah-tr">${esc(S.lang === 'en' ? b.tr.en : b.tr.bn)}${S.lang === 'both' ? `<span class="sub" lang="en">${esc(b.tr.en)}</span>` : ''}</div>
@@ -347,7 +394,22 @@
           ${x.mean ? `<div>${tx(x.mean)}</div>` : ''}
           ${x.desc ? `<div class="st-desc">${tx(x.desc)}</div>` : ''}
         </div></li>`).join('')}</ol></div>`;
-      case 'trace': return `<div>${T}${traceHTML(b.items, 'tr' + i)}</div>`;
+      case 'trace': return `<div>${T}${traceHTML(b.items, 'tr' + i, { lesson: lesson.id })}</div>`;
+      case 'strokes': return `<div>${T}<div class="stroke-row">${b.items.map(x => `<figure class="stroke-card">${strokeSVG(x.id, 'stk-card')}<figcaption>${t1(x.label)}</figcaption></figure>`).join('')}</div>
+        ${traceHTML(b.items.map(x => x.id), 'st' + i, { kind: 'stroke', lesson: lesson.id })}</div>`;
+      case 'howto': {
+        const a = (AQ.alphabet || []).find(x => x.ar === b.letter);
+        return `<section class="howto">${T}
+          <div class="howto-model"><span class="howto-ar" lang="ar" data-say="${esc(a ? a.nameAr : b.letter)}">${esc(b.letter)}</span>
+            <button class="btn btn-sm" type="button" data-howto>${icon('play')} ${t1({ bn: 'আবার দেখুন', en: 'Replay' })}</button></div>
+          <div class="howto-body"><h4>${a ? `${t1(a.name)} <span class="muted" lang="en">· ${esc(a.name.en)}</span>` : esc(b.letter)}</h4>
+            <ol class="howto-steps">${b.steps.map(st => `<li>${tx(st)}</li>`).join('')}</ol>
+            ${b.tip ? `<p class="howto-tip">${icon('bulb')} ${tx(b.tip)}</p>` : ''}</div></section>`;
+      }
+      case 'write': return `<div>${T}${b.note ? `<p class="b-text muted">${tx(b.note)}</p>` : ''}${traceHTML(b.items, 'wr' + i, { level: b.level, lesson: lesson.id })}</div>`;
+      case 'dictation': return `<div>${T}${traceHTML(b.items.map(x => x.ar), 'dc' + i, { blind: true, lesson: lesson.id })}</div>`;
+      case 'selfcheck': return `<section class="selfcheck">${T || `<h3 class="block-title">${t1({ bn: 'নিজেকে যাচাই করুন', en: 'Check yourself' })}</h3>`}
+        ${b.items.map((x, j) => { const key = lesson.id + ':' + i + ':' + j; return `<label class="sc-item"><input type="checkbox" data-check="${esc(key)}" ${S.checks[key] ? 'checked' : ''}><span>${tx(x)}</span></label>`; }).join('')}</section>`;
       case 'quiz': quizStates['q' + i] = { i: 0, picked: null, right: 0, results: [], items: b.items, lesson: lesson.id };
         return `<div>${T}<section class="quiz" id="q${i}">${quizInner('q' + i)}</section></div>`;
       default: return '';
@@ -394,62 +456,130 @@
     const st = quizStates[qid]; st.i++; st.picked = null;
     if (st.i >= st.items.length) {
       const pct = Math.round(st.right / st.items.length * 100);
-      S.quiz[st.lesson] = Math.max(S.quiz[st.lesson] || 0, pct);
+      S.quiz[st.lesson] = Math.max(S.quiz[st.lesson] || 0, pct); bumpDaily('quiz');
       addXP(st.right * 5);
       if (pct >= 80) confetti();
     }
     $('#' + qid).innerHTML = quizInner(qid);
   }
 
-  /* ---------- tracing ---------- */
-  function traceHTML(items, tid) {
-    return `<div class="trace" data-trace="${tid}" data-items="${esc(JSON.stringify(items))}">
-      <div class="trace-pad"><canvas class="t-guide"></canvas><canvas class="t-ink"></canvas></div>
+  /* ---------- writing pad (tracing, pen demo, dictation) ---------- */
+  const STK = window.AQX.STROKES;
+  const strokeSVG = (id, cls) => `<svg class="${cls || 'stk-mini'}" viewBox="0 0 200 120" aria-hidden="true"><path d="${STK[id] ? STK[id].d : ''}"/></svg>`;
+  function traceHTML(items, tid, opts) {
+    const o = opts || {}; const kind = o.kind || 'text';
+    const wide = o.level === 'line';
+    const label = x => kind === 'stroke' ? strokeSVG(x) : esc(x);
+    return `<div class="trace ${wide ? 'trace-wide' : ''}" data-trace="${tid}" data-kind="${kind}" data-items="${esc(JSON.stringify(items))}" ${o.blind ? 'data-blind="1"' : ''} ${o.lesson ? `data-lesson="${esc(o.lesson)}"` : ''}>
+      <div class="trace-pad"><canvas class="t-guide"></canvas><canvas class="t-demo"></canvas><canvas class="t-ink"></canvas></div>
       <div class="trace-side">
-        <div class="muted" style="font-size:.88rem">${u('traceHelp')}</div>
-        <div class="trace-letters">${items.map((x, k) => `<button type="button" data-tpick="${k}" aria-pressed="${k === 0}">${esc(x)}</button>`).join('')}</div>
+        <div class="muted" style="font-size:.88rem">${o.blind ? t1({ bn: 'শুনুন, তারপর না দেখে লিখুন। শেষে উত্তর দেখে মিলিয়ে নিন।', en: 'Listen, then write without looking. Reveal the answer to check.' }) : u('traceHelp')}</div>
+        ${items.length > 1 ? `<div class="trace-letters ${kind === 'stroke' ? 'trace-strokes' : ''}">${items.map((x, k) => `<button type="button" data-tpick="${k}" aria-pressed="${k === 0}" aria-label="${esc(x)}">${o.blind ? num(k + 1) : label(x)}</button>`).join('')}</div>` : ''}
         <div class="trace-score" aria-live="polite"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" type="button" data-tcheck>${u('checkTrace')}</button><button class="btn btn-sm" type="button" data-tclear>${u('clear')}</button></div>
+        <div class="trace-btns">
+          ${o.blind ? `<button class="btn btn-primary btn-sm" type="button" data-tsay>${icon('play')} ${u('listen')}</button><button class="btn btn-sm" type="button" data-treveal>${t1({ bn: 'উত্তর দেখুন', en: 'Show answer' })}</button>`
+            : `<button class="btn btn-sm" type="button" data-tdemo>${icon('play')} ${t1({ bn: 'কলম দেখুন', en: 'Watch the pen' })}</button>`}
+          <button class="btn btn-primary btn-sm" type="button" data-tcheck>${u('checkTrace')}</button>
+          <button class="btn btn-sm" type="button" data-tclear>${u('clear')}</button>
+          ${items.length > 1 ? `<button class="btn btn-sm btn-ghost" type="button" data-tnext>${t1({ bn: 'পরেরটি', en: 'Next' })} ${icon('arrowR')}</button>` : ''}
+        </div>
       </div></div>`;
   }
   function initTraces(root) {
     $$('.trace', root).forEach(box => {
       if (box._init) return; box._init = true;
-      const items = JSON.parse(box.dataset.items); let cur = 0;
-      const guide = $('.t-guide', box), ink = $('.t-ink', box), pad = $('.trace-pad', box);
-      const g = guide.getContext('2d'), k = ink.getContext('2d');
-      let W = 0, H = 0, dpr = 1, drawing = false, last = null, mask = null;
+      const items = JSON.parse(box.dataset.items); const kind = box.dataset.kind || 'text'; let cur = 0;
+      let revealed = !box.dataset.blind;
+      const guide = $('.t-guide', box), demo = $('.t-demo', box), ink = $('.t-ink', box), pad = $('.trace-pad', box);
+      const g = guide.getContext('2d'), dm = demo.getContext('2d'), k = ink.getContext('2d');
+      let W = 0, H = 0, dpr = 1, drawing = false, last = null, mask = null, geo = null, anim = 0;
+      const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+      const FONT = '"Amiri", "Noto Naskh Arabic", serif';
       function size() {
         const r = pad.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1);
         W = Math.max(10, r.width); H = Math.max(10, r.height);
-        [guide, ink].forEach(c => { c.width = W * dpr; c.height = H * dpr; });
-        g.setTransform(dpr, 0, 0, dpr, 0, 0); k.setTransform(dpr, 0, 0, dpr, 0, 0); drawGuide();
+        [guide, demo, ink].forEach(c => { c.width = W * dpr; c.height = H * dpr; });
+        [g, dm, k].forEach(c => c.setTransform(dpr, 0, 0, dpr, 0, 0)); drawGuide();
+      }
+      // where and how big the model sits
+      function layout(ctx) {
+        if (kind === 'stroke') { const sc = Math.min(W / 200, H / 120) * .92; return { sc, ox: (W - 200 * sc) / 2, oy: (H - 120 * sc) / 2 }; }
+        const txt = items[cur]; let fs = H * .5; ctx.font = `${fs}px ${FONT}`;
+        const w = ctx.measureText(txt).width; if (w > W * .86) fs *= (W * .86) / w;
+        return { fs, base: H * .64 };
+      }
+      // copybook guide lines: baseline (solid) plus dashed helper lines
+      function rules(ctx) {
+        ctx.save(); ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+        const base = kind === 'stroke' ? geo.oy + 80 * geo.sc : geo.base;
+        const step = kind === 'stroke' ? 26 * geo.sc : geo.fs * .34;
+        [base - step * 2, base - step, base + step].forEach(y => { ctx.setLineDash([3, 6]); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); });
+        ctx.setLineDash([]); ctx.strokeStyle = css('--ink-3'); ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(0, base); ctx.lineTo(W, base); ctx.stroke();
+        ctx.restore();
+      }
+      function model(ctx, color, alpha) {
+        ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.strokeStyle = color;
+        if (kind === 'stroke') {
+          ctx.translate(geo.ox, geo.oy); ctx.scale(geo.sc, geo.sc); ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          ctx.stroke(new Path2D(STK[items[cur]].d));
+        } else {
+          ctx.font = `${geo.fs}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.direction = 'rtl';
+          ctx.fillText(items[cur], W / 2, geo.base);
+        }
+        ctx.restore();
       }
       function drawGuide() {
-        const cs = getComputedStyle(document.documentElement);
-        g.clearRect(0, 0, W, H);
-        g.strokeStyle = cs.getPropertyValue('--line'); g.lineWidth = 1; g.setLineDash([6, 6]);
-        g.beginPath(); g.moveTo(0, H * .62); g.lineTo(W, H * .62); g.stroke(); g.setLineDash([]);
-        const txt = items[cur]; const fs = Math.min(H * .62, W * 1.3 / Math.max(1, txt.length * .8));
-        g.font = `${fs}px Amiri, "Noto Naskh Arabic", serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.direction = 'rtl';
-        g.fillStyle = cs.getPropertyValue('--ink-3'); g.globalAlpha = .35; g.fillText(txt, W / 2, H * .5); g.globalAlpha = 1;
-        // mask for scoring
-        const m = document.createElement('canvas'); m.width = Math.round(W / 4); m.height = Math.round(H / 4);
-        const mx = m.getContext('2d'); mx.font = `${fs / 4}px Amiri, "Noto Naskh Arabic", serif`; mx.textAlign = 'center'; mx.textBaseline = 'middle'; mx.direction = 'rtl';
-        mx.fillText(txt, m.width / 2, m.height * .5); mask = mx.getImageData(0, 0, m.width, m.height);
+        g.clearRect(0, 0, W, H); dm.clearRect(0, 0, W, H); geo = layout(g); rules(g);
+        if (revealed) model(g, css('--ink-3'), .3);
+        // scoring mask at quarter resolution
+        const m = document.createElement('canvas'); m.width = Math.max(4, Math.round(W / 4)); m.height = Math.max(4, Math.round(H / 4));
+        const mx = m.getContext('2d'); mx.scale(.25, .25); model(mx, '#000', 1); mask = mx.getImageData(0, 0, m.width, m.height);
+      }
+      // "watch the pen": reveal right to left for text, follow the path for strokes
+      function playDemo() {
+        cancelAnimationFrame(anim); const t0 = performance.now(); const dur = kind === 'stroke' ? 1300 : 900 + 260 * [...items[cur]].length;
+        const col = css('--primary');
+        let pts = null;
+        if (kind === 'stroke') {
+          const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); sv.setAttribute('style', 'position:absolute;width:0;height:0;overflow:hidden');
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', STK[items[cur]].d); sv.appendChild(p); document.body.appendChild(sv);
+          const len = p.getTotalLength(); pts = Array.from({ length: 80 }, (_, i) => p.getPointAtLength(len * i / 79)); sv.remove();
+        }
+        (function frame(now) {
+          const f = Math.min(1, (now - t0) / dur); dm.clearRect(0, 0, W, H);
+          if (kind === 'stroke') {
+            dm.save(); dm.translate(geo.ox, geo.oy); dm.scale(geo.sc, geo.sc); dm.strokeStyle = col; dm.lineWidth = 9; dm.lineCap = 'round'; dm.lineJoin = 'round';
+            const n = Math.max(2, Math.round(pts.length * f)); dm.beginPath(); dm.moveTo(pts[0].x, pts[0].y); for (let i = 1; i < n; i++) dm.lineTo(pts[i].x, pts[i].y); dm.stroke();
+            const tip = pts[n - 1]; dm.fillStyle = css('--gold'); dm.beginPath(); dm.arc(tip.x, tip.y, 7, 0, 7); dm.fill(); dm.restore();
+          } else {
+            dm.save(); dm.beginPath(); dm.rect(W * (1 - f), 0, W * f, H); dm.clip(); model(dm, col, .9); dm.restore();
+            dm.save(); dm.fillStyle = css('--gold'); dm.beginPath(); dm.arc(W * (1 - f) + 4, geo.base - geo.fs * .25, 6, 0, 7); dm.fill(); dm.restore();
+          }
+          if (f < 1) anim = requestAnimationFrame(frame); else setTimeout(() => dm.clearRect(0, 0, W, H), 700);
+        })(t0);
       }
       function pos(e) { const r = ink.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
       ink.addEventListener('pointerdown', e => { drawing = true; last = pos(e); ink.setPointerCapture(e.pointerId); dot(last); });
       ink.addEventListener('pointermove', e => { if (!drawing) return; const p = pos(e); line(last, p); last = p; });
       ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => ink.addEventListener(ev, () => { drawing = false; }));
-      function style() { const cs = getComputedStyle(document.documentElement); k.strokeStyle = cs.getPropertyValue('--primary'); k.fillStyle = k.strokeStyle; k.lineWidth = Math.max(10, W / 34); k.lineCap = 'round'; k.lineJoin = 'round'; }
+      function style() { k.strokeStyle = css('--primary'); k.fillStyle = k.strokeStyle; k.lineWidth = Math.max(8, Math.min(W, H * 1.4) / 30); k.lineCap = 'round'; k.lineJoin = 'round'; }
       function dot(p) { style(); k.beginPath(); k.arc(p.x, p.y, k.lineWidth / 2, 0, 7); k.fill(); }
       function line(a, b) { style(); k.beginPath(); k.moveTo(a.x, a.y); k.lineTo(b.x, b.y); k.stroke(); }
+      const sayItem = () => { if (kind !== 'stroke') say(items[cur]); };
+      function select(i) {
+        cur = (i + items.length) % items.length; revealed = !box.dataset.blind;
+        $$('[data-tpick]', box).forEach((b, j) => b.setAttribute('aria-pressed', j === cur));
+        k.clearRect(0, 0, W, H); drawGuide(); $('.trace-score', box).innerHTML = '';
+        sayItem();
+      }
       box.addEventListener('click', e => {
-        const pick = e.target.closest('[data-tpick]');
-        if (pick) { cur = +pick.dataset.tpick; $$('[data-tpick]', box).forEach(b => b.setAttribute('aria-pressed', b === pick)); k.clearRect(0, 0, W, H); drawGuide(); $('.trace-score', box).innerHTML = ''; say(items[cur]); }
+        const pick = e.target.closest('[data-tpick]'); if (pick) select(+pick.dataset.tpick);
+        if (e.target.closest('[data-tnext]')) select(cur + 1);
         if (e.target.closest('[data-tclear]')) { k.clearRect(0, 0, W, H); $('.trace-score', box).innerHTML = ''; }
         if (e.target.closest('[data-tcheck]')) score();
+        if (e.target.closest('[data-tdemo]')) playDemo();
+        if (e.target.closest('[data-tsay]')) sayItem();
+        if (e.target.closest('[data-treveal]')) { revealed = true; drawGuide(); $('.trace-score', box).innerHTML = `<span class="ar-in" lang="ar" style="font-size:1.6em">${esc(items[cur])}</span>`; }
       });
       function score() {
         const sw = mask.width, sh = mask.height; const small = document.createElement('canvas'); small.width = sw; small.height = sh;
@@ -462,12 +592,13 @@
         }
         function near(p) { const idx = (p - 3) / 4, x = idx % sw, y = (idx / sw) | 0; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const xx = x + dx, yy = y + dy; if (xx >= 0 && yy >= 0 && xx < sw && yy < sh && mD[(yy * sw + xx) * 4 + 3] > 80) return true; } return false; }
         const out = $('.trace-score', box);
-        if (inkPx < 5) { out.innerHTML = `<small>${t1({ bn: 'আগে হরফটির ওপর লিখুন', en: 'Write over the letter first' })}</small>`; return; }
+        if (inkPx < 5) { out.innerHTML = `<small>${t1({ bn: 'আগে লিখুন, তারপর মিলিয়ে দেখুন', en: 'Write first, then check' })}</small>`; return; }
         const cov = covered / Math.max(1, letterPx), prec = onLetter / inkPx;
         const sc = Math.round(Math.min(1, (2 * cov * prec) / Math.max(.01, cov + prec) * 1.45) * 100);
         const stars = sc >= 80 ? 3 : sc >= 55 ? 2 : sc >= 30 ? 1 : 0;
-        out.innerHTML = `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)} ${num(sc)}%<small>${t1(stars === 3 ? { bn: 'অসাধারণ হাতের লেখা!', en: 'Beautiful writing!' } : stars >= 1 ? { bn: 'ভালো! আরও একটু হরফের ওপর থাকুন।', en: 'Good! Stay a little closer to the letter.' } : { bn: 'আবার চেষ্টা করুন — ধীরে ধীরে লিখুন।', en: 'Try again, slowly.' })}</small>`;
-        if (stars === 3) addXP(2);
+        if (!revealed) { revealed = true; drawGuide(); }
+        out.innerHTML = `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)} ${num(sc)}%<small>${t1(stars === 3 ? { bn: 'অসাধারণ হাতের লেখা!', en: 'Beautiful writing!' } : stars >= 1 ? { bn: 'ভালো! আরও একটু রেখার ওপর থাকুন।', en: 'Good! Stay a little closer to the guide.' } : { bn: 'আবার চেষ্টা করুন — ধীরে ধীরে লিখুন।', en: 'Try again, slowly.' })}</small>`;
+        bumpDaily('write'); if (stars === 3) addXP(2);
       }
       size(); new ResizeObserver(() => { const r = pad.getBoundingClientRect(); if (Math.abs(r.width - W) > 2) size(); }).observe(pad);
       if (document.fonts) document.fonts.ready.then(drawGuide);
@@ -578,7 +709,7 @@
     if (g === 0) { c.box = 1; c.due = Date.now() + 60e3; fcQueue.splice(Math.min(3, fcQueue.length), 0, w); }
     else if (g === 1) { c.box = Math.max(1, c.box); c.due = Date.now() + 864e5; }
     else { c.box = Math.min(6, c.box + 1); c.due = Date.now() + INTERVALS[c.box] * 864e5; }
-    S.srs[w.ar] = c; fcFlip = false; addXP(g === 0 ? 0 : 1);
+    S.srs[w.ar] = c; fcFlip = false; addXP(g === 0 ? 0 : 1); bumpDaily('cards');
     $('#fcStage').innerHTML = fcStage();
   }
 
@@ -587,11 +718,14 @@
     const G = [
       ['hunt', 'ب', 'teal', { bn: 'হরফ শিকার', en: 'Letter Hunt' }, { bn: '৬০ সেকেন্ডে যত বেশি সম্ভব হরফ চিনুন। নাম দেখে সঠিক হরফটি ধরুন — একই রকম দেখতে হরফ দিয়ে ফাঁদ পাতা আছে!', en: 'Spot as many letters as you can in 60 seconds. Look-alike letters are there to trick you!' }],
       ['harakat', 'بُ', 'amber', { bn: 'হরকত হিরো', en: 'Harakat Hero' }, { bn: 'উচ্চারণ দেখে সঠিক যবর-যের-পেশ যুক্ত হরফ বেছে নিন। দ্রুত পড়ার দক্ষতা বাড়ান।', en: 'Read the sound and pick the letter with the right vowel mark. Builds fast reading.' }],
-      ['match', 'كَلِمَة', 'rose', { bn: 'শব্দ মেলাও', en: 'Word Match' }, { bn: 'আরবি শব্দ আর তার অর্থের জোড়া মেলান। কম চালে শেষ করলে বেশি স্কোর।', en: 'Match Arabic words with their meanings. Fewer moves means a higher score.' }]
+      ['match', 'كَلِمَة', 'rose', { bn: 'শব্দ মেলাও', en: 'Word Match' }, { bn: 'আরবি শব্দ আর তার অর্থের জোড়া মেলান। কম চালে শেষ করলে বেশি স্কোর।', en: 'Match Arabic words with their meanings. Fewer moves means a higher score.' }],
+      ['puzzle', 'آيَة', 'violet', { bn: 'আয়াত পাজল', en: 'Ayah Puzzle' }, { bn: 'এলোমেলো শব্দগুলো সঠিক ক্রমে সাজিয়ে আয়াত সম্পূর্ণ করুন। অর্থ দেখে বুঝে সাজান — মুখস্থও পাকা হবে।', en: 'Put the shuffled words back in order to rebuild the ayah. The meaning is your clue, and it locks in your memorisation.' }],
+      ['listen', 'سَمْع', 'indigo', { bn: 'শুনে চিনুন', en: 'Listen & Pick' }, { bn: 'শব্দটি শুনুন, তারপর চারটি আরবি শব্দ থেকে সঠিকটি বেছে নিন। কান ও চোখ একসাথে শেখে।', en: 'Hear a word, then pick it from four Arabic words. Trains your ears and eyes together.' }],
+      ['write', 'خط', 'cyan', { bn: 'লেখার চ্যালেঞ্জ', en: 'Writing Challenge' }, { bn: 'লেখার স্টুডিওতে যান — কলম দেখুন, ট্রেস করুন আর তিন তারকা জিতুন।', en: 'Go to the writing studio: watch the pen, trace and win three stars.' }]
     ];
     return `<div class="page-head"><div class="eyebrow">${u('games')}</div><h1 class="page-title">${tx({ bn: 'খেলতে খেলতে শিখি', en: 'Learn while you play' })}</h1></div>
       <div class="game-grid">${G.map(([id, ar, c, n, d]) => `<div class="game-card" data-c="${c}"><div class="pattern" style="background:var(--uc);opacity:.07"></div><div class="g-ar" lang="ar">${ar}</div><h3>${tx(n)}</h3><p>${t1(d)}</p>
-        <div style="display:flex;justify-content:space-between;align-items:center"><span class="chip">${u('best')}: ${num(S.best[id] || 0)}</span><a class="btn btn-primary" href="#play/${id}">${u('play')} ${icon('arrowR')}</a></div></div>`).join('')}</div>`;
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="chip">${u('best')}: ${num(S.best[id] || 0)}</span><a class="btn btn-primary" href="${id === 'write' ? '#unit/writing' : '#play/' + id}">${u('play')} ${icon('arrowR')}</a></div></div>`).join('')}</div>`;
   }
   let G = null;
   function stopGame() { if (G && G.timer) clearInterval(G.timer); G = null; }
@@ -599,7 +733,7 @@
     stopGame();
     if (!(AQ.alphabet || []).length) return `<div class="empty">${u('loading')}</div>`;
     G = { id, score: 0, combo: 0, time: 60, moves: 0 };
-    setTimeout(() => { if (id === 'match') matchStart(); else roundStart(); if (id !== 'match') G.timer = setInterval(tickGame, 1000); }, 0);
+    setTimeout(() => { if (id === 'match') matchStart(); else if (id === 'puzzle') puzzleStart(); else { roundStart(); G.timer = setInterval(tickGame, 1000); } }, 0);
     return `<div class="arena" id="arena"></div>`;
   }
   function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -608,6 +742,18 @@
     const A = AQ.alphabet.filter(a => a.id !== 'hamza');
     const a = A[Math.random() * A.length | 0];
     let opts, prompt, answer;
+    if (G.id === 'listen') {
+      const pool = D.vocab.filter(w => w.ar.length <= 16);
+      const w = pool[Math.random() * pool.length | 0];
+      const others = shuffle(pool.filter(x => x.ar !== w.ar)).slice(0, 3);
+      answer = w.ar; opts = shuffle([w].concat(others)).map(x => x.ar);
+      G.answer = answer;
+      $('#arena').innerHTML = `${arenaTop()}<div class="prompt"><div class="muted">${t1({ bn: 'শুনুন — কোন শব্দটি?', en: 'Listen: which word is it?' })}</div>
+        <button class="btn btn-primary listen-btn" type="button" data-say="${esc(w.ar)}">${icon('play')} ${u('listen')}</button><div class="muted" style="margin-top:8px">${t1(w.mean)}</div></div>
+        <div class="answers answers-words">${opts.map(o => `<button type="button" data-gans="${esc(o)}" lang="ar">${esc(o)}</button>`).join('')}</div>`;
+      setTimeout(() => say(w.ar), 250);
+      return;
+    }
     if (G.id === 'hunt') {
       const fam = shuffle(A.filter(x => x.family === a.family && x !== a));
       const rest = shuffle(A.filter(x => x !== a && !fam.includes(x)));
@@ -659,6 +805,38 @@
     $('#arena').innerHTML = `<div class="arena-top"><a class="btn btn-ghost btn-sm" href="#games">${icon('arrowL')} ${u('games')}</a><span id="gMoves">${S.lang === 'en' ? 'Moves' : 'চাল'}: ${num(0)}</span></div>
       <div class="memory">${tiles.map((t, i) => `<button class="mem" type="button" data-mem="${t.k}" ${t.ar ? `data-say="${esc(t.ar)}"` : ''}>${t.html}</button>`).join('')}</div>`;
   }
+  /* Ayah Puzzle: rebuild an ayah from shuffled words */
+  function puzzleStart() {
+    G.pool = shuffle(D.lessons.flatMap(l => l.blocks.filter(b => b.type === 'ayah' && b.words && b.words.length >= 3 && b.words.length <= 9)));
+    if (!G.pool.length) { $('#arena').innerHTML = `<div class="empty">${u('loading')}</div>`; return; }
+    G.round = 0; G.rounds = Math.min(5, G.pool.length); puzzleRound();
+  }
+  function puzzleRound() {
+    const b = G.pool[G.round]; G.ay = b; G.placed = []; G.tries = 0;
+    G.tiles = shuffle(b.words.map((w, i) => ({ i, ar: w.ar })));
+    if (G.tiles.every((t, k) => t.i === k)) G.tiles.reverse();
+    puzzleDraw();
+  }
+  function puzzleDraw(state) {
+    const b = G.ay, [su, ay] = b.ref.split(':');
+    $('#arena').innerHTML = `<div class="arena-top"><a class="btn btn-ghost btn-sm" href="#games">${icon('arrowL')} ${u('games')}</a><span>${t1({ bn: 'রাউন্ড', en: 'Round' })} ${num(G.round + 1)}/${num(G.rounds)} · ${u('score')}: ${num(G.score)}</span></div>
+      <div class="prompt puzzle-prompt"><div class="eyebrow">${S.lang === 'en' ? `Surah ${su} · Ayah ${ay}` : `সূরা ${bnNum(su)} · আয়াত ${bnNum(ay)}`}</div><p>${t1(b.mean)}</p></div>
+      <div class="pz-answer ${state || ''}" lang="ar" aria-label="Your answer">${G.placed.length ? G.placed.map((t, k) => `<button type="button" class="pz-tile" data-pans="${k}">${esc(t.ar)}</button>`).join('') : `<span class="pz-empty">${t1({ bn: 'ডান দিক থেকে শব্দ সাজান', en: 'Build the ayah from the right' })}</span>`}</div>
+      <div class="pz-bank" lang="ar">${G.tiles.map((t, k) => `<button type="button" class="pz-tile" data-ptile="${k}">${esc(t.ar)}</button>`).join('')}</div>
+      ${state === 'ok' ? `<div class="pz-foot"><button class="btn btn-primary" type="button" data-pnext>${G.round + 1 < G.rounds ? t1({ bn: 'পরের আয়াত', en: 'Next ayah' }) : u('finish')} ${icon('arrowR')}</button></div>` : ''}`;
+  }
+  function puzzleMove(from, k) {
+    if (!G || !G.tiles) return;
+    if (from === 'bank') G.placed.push(G.tiles.splice(k, 1)[0]); else G.tiles.push(G.placed.splice(k, 1)[0]);
+    if (!G.tiles.length) {
+      const ok = G.placed.every((t, j) => G.ay.words[t.i].ar === G.ay.words[j].ar);
+      if (ok) { G.score += Math.max(10, 30 - G.tries * 10); puzzleDraw('ok'); playAyah(G.ay.ref, null); confetti(); return; }
+      G.tries++; puzzleDraw('no'); setTimeout(() => { if (G && G.tiles) { G.tiles = G.placed.concat(G.tiles); G.placed = []; puzzleDraw(); } }, 1100);
+      toast(L() ? 'Not quite. Read the meaning again and retry.' : 'হয়নি — অর্থটি আবার পড়ে চেষ্টা করুন।'); return;
+    }
+    puzzleDraw();
+  }
+
   function memClick(b) {
     if (!G || b.classList.contains('matched') || b === G.sel) return;
     if (!G.sel) { G.sel = b; b.classList.add('sel'); return; }
@@ -706,15 +884,97 @@
     </div>`;
   }
 
+  function viewTools() {
+    return `<div class="page-head"><div class="eyebrow">${u('more')}</div><h1 class="page-title">${tx({ bn: 'সব শেখার টুলস', en: 'All learning tools' })}</h1></div>
+      ${missionsHTML()}<div class="tools-grid" style="margin-top:18px">${toolCards().join('')}</div>`;
+  }
+
+  function rootMap() {
+    const m = {}; D.vocab.forEach(w => { if (!w.root) return; const r = w.root.replace(/\s+/g, ' ').trim(); (m[r] = m[r] || []).push(w); });
+    return Object.entries(m).sort((a, b) => b[1].length - a[1].length);
+  }
+  let rootQuery = '';
+  function viewRoots() {
+    const all = rootMap(); if (!all.length) return `<div class="empty">${u('loading')}</div>`;
+    const featured = all.filter(([, ws]) => ws.length >= 2);
+    const pick = featured.length ? featured[dayIndex() % featured.length] : all[0];
+    return `<div class="page-head"><div class="eyebrow">${u('roots')}</div><h1 class="page-title">${tx({ bn: 'মূলধাতু এক্সপ্লোরার', en: 'Root explorer' })}</h1>
+      <p class="muted">${t1({ bn: 'আরবির বেশিরভাগ শব্দ তিন অক্ষরের একটি মূল থেকে আসে। একটি মূল চিনলে শব্দের পুরো পরিবার চেনা যায়।', en: 'Most Arabic words grow from a three-letter root. Learn one root and you recognise a whole family of words.' })}</p></div>
+      <section class="root-hero"><div class="pattern"></div><div class="eyebrow">${t1({ bn: 'আজকের মূল', en: 'Root of the day' })}</div>
+        <div class="root-big" lang="ar">${esc(pick[0])}</div>
+        <div class="root-fam">${pick[1].map(w => `<button class="root-w" type="button" data-say="${esc(w.ar)}"><span class="ar-in" lang="ar">${esc(w.ar)}</span><small>${t1(w.mean)}</small></button>`).join('')}</div></section>
+      <form class="search page-search" id="rootSearch" role="search"><input id="rootSearchInput" type="search" value="${esc(rootQuery)}" placeholder="${S.lang === 'en' ? 'Filter by root letters or meaning…' : 'মূল অক্ষর বা অর্থ দিয়ে খুঁজুন…'}" aria-label="Filter roots"></form>
+      <div class="root-grid" id="rootGrid">${rootGrid(all)}</div>`;
+  }
+  function rootGrid(all) {
+    const q = rootQuery.trim().toLowerCase(); const strip = window.AQX.stripMarks;
+    const list = (all || rootMap()).filter(([r, ws]) => !q || r.replace(/\s/g, '').includes(strip(q).replace(/\s/g, '')) || ws.some(w => (w.mean.bn + ' ' + w.mean.en + ' ' + strip(w.ar)).toLowerCase().includes(q)));
+    if (!list.length) return `<div class="empty">${u('nothing')}</div>`;
+    return list.map(([r, ws]) => `<details class="root-card"><summary><span class="root-letters" lang="ar">${esc(r)}</span><span class="chip">${num(ws.length)} ${t1({ bn: 'শব্দ', en: ws.length === 1 ? 'word' : 'words' })}</span><span class="root-hint">${t1(ws[0].mean)}</span></summary>
+      <div class="root-list">${ws.map(w => `<div class="root-row"><span class="ar" lang="ar" data-say="${esc(w.ar)}">${esc(w.ar)}</span><span><b>${t1(w.mean)}</b><small class="muted"> · ${esc(S.lang === 'en' ? w.tr.en : w.tr.bn)}</small></span>${playBtn(w.ar)}</div>`).join('')}</div></details>`).join('');
+  }
+
+  let mkZone = 'halq';
+  function viewMakharij() {
+    const labels = {}; window.AQX.MAKHARIJ.forEach(z => labels[z.id] = esc(plain(z.name).split(' — ')[0]));
+    return `<div class="page-head"><div class="eyebrow">${u('makharij')}</div><h1 class="page-title">${tx({ bn: 'হরফ কোথা থেকে আসে?', en: 'Where does each letter come from?' })}</h1>
+      <p class="muted">${t1({ bn: 'ছবির যেকোনো অংশে ট্যাপ করুন। তারপর হরফে ট্যাপ করলে তা "আ + হরফ + জযম" (যেমন أَبْ) আকারে শোনাবে — এটাই মাখরাজ যাচাইয়ের আসল কৌশল।', en: 'Tap any part of the picture. Then tap a letter to hear it as "a + letter + sukun" (like أَبْ), the classic way to find a makhraj.' })}</p></div>
+      <div class="mk-wrap"><div class="mk-figure" id="mkFigure">${window.AQX.makharijSVG(labels)}</div><div class="mk-panel" id="mkPanel">${mkPanel()}</div></div>`;
+  }
+  function mkPanel() {
+    const z = window.AQX.MAKHARIJ.find(x => x.id === mkZone);
+    const test = l => /^[اوي]$/.test(l) ? { ا: 'بَا', و: 'بُو', ي: 'بِي' }[l] : l.length > 1 ? l : 'أَ' + l + 'ْ';
+    return `<div class="eyebrow">${z.points.length} ${t1({ bn: 'মাখরাজ', en: z.points.length === 1 ? 'point' : 'points' })}</div>
+      <h2>${t1(z.name)} <span class="ar-in" lang="ar">${esc(z.ar)}</span></h2>${S.lang === 'both' ? `<p class="muted" lang="en">${esc(z.name.en)}</p>` : ''}
+      <ol class="mk-points">${z.points.map(pt => `<li><span class="mk-letters">${pt.letters.split(' ').map(l => `<button type="button" class="mk-l" data-say="${esc(test(l))}" lang="ar">${esc(l)}</button>`).join('')}</span><span>${tx(pt.desc)}</span></li>`).join('')}</ol>
+      <div class="mk-zones">${window.AQX.MAKHARIJ.map(x => `<button type="button" class="chip" data-zone="${x.id}" aria-pressed="${x.id === mkZone}">${esc(plain(x.name).split(' — ')[0])}</button>`).join('')}</div>`;
+  }
+  function markZone() { $$('#mkFigure [data-zone]').forEach(el => el.classList.toggle('on', el.dataset.zone === mkZone)); }
+
+  function viewCertificate() {
+    const doneN = Object.keys(S.done).length;
+    return `<div class="page-head"><div class="eyebrow">${u('cert')}</div><h1 class="page-title">${tx({ bn: 'আপনার সনদপত্র', en: 'Your certificate' })}</h1>
+      <p class="muted">${t1({ bn: `আপনি ${bnNum(D.lessons.length)}টির মধ্যে ${bnNum(doneN)}টি পাঠ শেষ করেছেন। নাম লিখুন, সনদ তৈরি হবে — ছবি হিসেবে ডাউনলোড করে শেয়ার বা প্রিন্ট করুন।`, en: `You have finished ${doneN} of ${D.lessons.length} lessons. Type your name to make your certificate, then download it as an image to share or print.` })}</p></div>
+      <div class="cert-tools"><label class="cert-name"><span>${t1({ bn: 'আপনার নাম', en: 'Your name' })}</span><input id="certName" type="text" maxlength="40" value="${esc(S.certName || '')}" placeholder="${S.lang === 'en' ? 'e.g. Fatima Rahman' : 'যেমন: ফাতিমা রহমান'}"></label>
+        <button class="btn btn-primary" type="button" data-certdl>${t1({ bn: 'ছবি ডাউনলোড (PNG)', en: 'Download image (PNG)' })}</button></div>
+      <canvas id="certCanvas" class="cert-canvas" width="1600" height="1130" aria-label="Certificate preview"></canvas>`;
+  }
+  function drawCert() {
+    const c = $('#certCanvas'); if (!c) return; const x = c.getContext('2d'); const W = c.width, H = c.height;
+    const doneN = Object.keys(S.done).length, all = D.lessons.length, finished = doneN >= all;
+    x.fillStyle = '#fbfaf5'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#b07a17'; x.lineWidth = 14; x.strokeRect(40, 40, W - 80, H - 80); x.lineWidth = 3; x.strokeRect(70, 70, W - 140, H - 140);
+    // corner stars
+    const star = (cx, cy, r) => { x.beginPath(); for (let i = 0; i < 16; i++) { const a = Math.PI / 8 * i - Math.PI / 2, rr = i % 2 ? r * .7 : r; x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.closePath(); x.fill(); };
+    x.fillStyle = '#0f6b5e'; [[120, 120], [W - 120, 120], [120, H - 120], [W - 120, H - 120]].forEach(([a, b]) => star(a, b, 34));
+    x.textAlign = 'center'; x.direction = 'rtl';
+    x.fillStyle = '#b07a17'; x.font = '700 70px Amiri, serif'; x.fillText('بَارَكَ اللّٰهُ فِيكَ', W / 2, 220);
+    x.direction = 'ltr'; x.fillStyle = '#0f6b5e'; x.font = '600 30px "Reem Kufi", "Hind Siliguri", sans-serif'; x.fillText('সনদপত্র · CERTIFICATE', W / 2, 290);
+    x.fillStyle = '#102f2a'; x.font = '700 64px "Hind Siliguri", sans-serif'; x.fillText('কুরআন ও আরবি শিক্ষা', W / 2, 390);
+    x.font = '500 34px Figtree, "Hind Siliguri", sans-serif'; x.fillStyle = '#4b635d'; x.fillText('Quran & Arabic Learning', W / 2, 440);
+    x.font = '400 32px "Hind Siliguri", sans-serif'; x.fillText('এই মর্মে প্রত্যয়ন করা হচ্ছে যে · This is to certify that', W / 2, 530);
+    x.fillStyle = '#102f2a'; x.font = '700 76px "Hind Siliguri", Figtree, sans-serif'; x.fillText(S.certName || '________________', W / 2, 640);
+    x.strokeStyle = '#b07a17'; x.lineWidth = 2; x.beginPath(); x.moveTo(W / 2 - 380, 665); x.lineTo(W / 2 + 380, 665); x.stroke();
+    x.fillStyle = '#4b635d'; x.font = '400 32px "Hind Siliguri", sans-serif';
+    x.fillText(finished ? `সফলভাবে ${bnNum(all)}টি পাঠ সম্পন্ন করেছেন` : `${bnNum(all)}টির মধ্যে ${bnNum(doneN)}টি পাঠ সম্পন্ন করেছেন — চলমান যাত্রা`, W / 2, 740);
+    x.font = '400 28px Figtree, sans-serif'; x.fillText(finished ? `has successfully completed all ${all} lessons` : `has completed ${doneN} of ${all} lessons, the journey continues`, W / 2, 785);
+    x.direction = 'rtl'; x.fillStyle = '#0f6b5e'; x.font = '400 46px Amiri, serif'; x.fillText('رَبِّ زِدْنِي عِلْمًا', W / 2, 880);
+    x.direction = 'ltr'; x.fillStyle = '#7a8f89'; x.font = '400 24px "Hind Siliguri", Figtree, sans-serif';
+    x.fillText(`${S.xp} XP · ${new Date().toLocaleDateString('en-GB')} · quranlearnarbi.zyeemzia.com`, W / 2, 960);
+    x.fillText('Copyright © ZyeemZia', W / 2, 1000);
+  }
+
   function notFound() { return `<div class="empty"><div class="ar">؟</div><p>${t1({ bn: 'পাতাটি পাওয়া যায়নি।', en: 'Page not found.' })}</p><a class="btn" href="#home">${u('home')}</a></div>`; }
 
   /* ---------------- router ---------------- */
   function route() {
     stopGame(); if ('speechSynthesis' in window) speechSynthesis.cancel();
     const [r, arg] = location.hash.slice(1).split('/');
-    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings }[r || ''] || notFound;
+    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate }[r || ''] || notFound;
     view.innerHTML = V(arg);
     renderChrome(); initTraces(view);
+    if (r === 'makharij') markZone();
+    if (r === 'certificate') { drawCert(); if (document.fonts) document.fonts.ready.then(drawCert); }
     window.scrollTo(0, 0); onScroll();
     document.title = (r === 'lesson' && D.lessons.find(l => l.id === arg)) ? plain(D.lessons.find(l => l.id === arg).title) + ' · কুরআন ও আরবি শিক্ষা' : 'কুরআন ও আরবি শিক্ষা · Quran & Arabic Learning';
   }
@@ -732,12 +992,33 @@
     if (t.closest('#themeBtn')) { S.theme = isDark() ? 'light' : 'dark'; save(); applyTheme(); renderChrome(); return; }
     const ts = t.closest('[data-theme-set]'); if (ts) { S.theme = ts.dataset.themeSet; save(); applyTheme(); rerender(); return; }
     if (t.closest('[data-close]')) { closeModal(); return; }
+    const pt = t.closest('[data-ptile]'); if (pt) { puzzleMove('bank', +pt.dataset.ptile); return; }
+    const pa = t.closest('[data-pans]'); if (pa) { puzzleMove('ans', +pa.dataset.pans); return; }
+    if (t.closest('[data-pnext]')) { G.round++; if (G.round >= G.rounds) endGame(); else puzzleRound(); return; }
+    const zn = t.closest('[data-zone]'); if (zn) { mkZone = zn.dataset.zone; $('#mkPanel').innerHTML = mkPanel(); markZone(); return; }
+    if (t.closest('[data-certdl]')) {
+      drawCert(); const a = document.createElement('a'); a.download = 'Quran-o-Arbi-Shikkha-certificate.png'; a.href = $('#certCanvas').toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    if (t.closest('[data-howto]')) { const el = $('.howto-ar', t.closest('.howto')); el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); return; }
+    const mm0 = t.closest('[data-memo]'); if (mm0) {
+      const ay = mm0.closest('.ayah'); const lvl = ((+ay.dataset.memo || 0) + 1) % 4; ay.dataset.memo = lvl;
+      const ws = $$('.ayah-ar .w', ay);
+      ws.forEach((w, j) => w.classList.toggle('hid', lvl === 3 || (lvl === 2 && j % 2 === 1) || (lvl === 1 && j % 3 === 2)));
+      const bar = $('.memo-bar', ay); bar.hidden = lvl === 0; $('.wbw', ay).hidden = true;
+      $('.memo-level', ay).textContent = [, t1({ bn: 'ধাপ ১: কিছু শব্দ লুকানো', en: 'Level 1: a few words hidden' }), t1({ bn: 'ধাপ ২: অর্ধেক শব্দ লুকানো', en: 'Level 2: half the words hidden' }), t1({ bn: 'ধাপ ৩: পুরো আয়াত মুখস্থ বলুন', en: 'Level 3: recite the whole ayah' })][lvl] || '';
+      mm0.classList.toggle('btn-primary', lvl > 0); return;
+    }
+    const mr = t.closest('[data-memorep]'); if (mr) {
+      let n = 0; const ref = mr.dataset.memorep; const go = () => { if (n++ >= 3) return; playAyah(ref, null); if (audioEl) audioEl.addEventListener('ended', go, { once: true }); }; go(); return;
+    }
+    const md0 = t.closest('[data-memodone]'); if (md0) { S.memo[md0.dataset.memodone] = today(); addXP(5); save(); toast(L() ? 'Marked as memorised. Revise it again tomorrow!' : 'মুখস্থ হিসেবে চিহ্নিত — আগামীকাল আবার ঝালিয়ে নিন!'); return; }
+    const hidw = t.closest('.ayah-ar .w.hid'); if (hidw) { hidw.classList.add('peek'); setTimeout(() => hidw.classList.remove('peek'), 1400); }
     const lt = t.closest('[data-letter]'); if (lt) { openLetter(lt.dataset.letter); return; }
     const qo = t.closest('[data-qopt]'); if (qo) { const [q, k] = qo.dataset.qopt.split(':'); quizPick(q, +k); return; }
     const qn = t.closest('[data-qnext]'); if (qn) { quizNext(qn.dataset.qnext); return; }
     const qr = t.closest('[data-qretry]'); if (qr) { const st = quizStates[qr.dataset.qretry]; Object.assign(st, { i: 0, picked: null, right: 0, results: [] }); $('#' + qr.dataset.qretry).innerHTML = quizInner(qr.dataset.qretry); return; }
     const cp = t.closest('[data-complete]'); if (cp) {
-      const id = cp.dataset.complete; if (!S.done[id]) { S.done[id] = today(); addXP(20); confetti(); }
+      const id = cp.dataset.complete; if (!S.done[id]) { S.done[id] = today(); addXP(20); confetti(); bumpDaily('lesson'); }
       $('#completeSlot').innerHTML = completeHTML(D.lessons.find(l => l.id === id));
       const nx = D.lessons[D.lessons.findIndex(l => l.id === id) + 1];
       toast(nx ? (L() ? `Well done! Next: ${plain(nx.title)}` : `চমৎকার! এবার: ${plain(nx.title)}`) : (L() ? 'You finished the whole course! Alhamdulillah.' : 'আপনি পুরো কোর্স শেষ করেছেন! আলহামদুলিল্লাহ।'), 3500);
@@ -771,9 +1052,15 @@
   document.addEventListener('input', e => {
     if (e.target.id === 'arScale') { S.arScale = +e.target.value; applyTheme(); save(); }
     if (e.target.id === 'rate') { S.rate = +e.target.value; save(); }
+    if (e.target.id === 'certName') { S.certName = e.target.value; save(); drawCert(); }
+    if (e.target.id === 'rootSearchInput') { rootQuery = e.target.value; $('#rootGrid').innerHTML = rootGrid(); }
   });
-  document.addEventListener('change', e => { if (e.target.id === 'fcDeck') { fcDeck = e.target.value; rerender(); } });
+  document.addEventListener('change', e => {
+    if (e.target.id === 'fcDeck') { fcDeck = e.target.value; rerender(); }
+    if (e.target.dataset && e.target.dataset.check) { S.checks[e.target.dataset.check] = e.target.checked; if (e.target.checked) addXP(1); save(); }
+  });
   document.addEventListener('submit', e => {
+    if (e.target.closest('#rootSearch')) { e.preventDefault(); return; }
     const f = e.target.closest('#searchForm, #learnSearch'); if (!f) return;
     e.preventDefault(); const q = $('input', f).value.trim(); if (q) location.hash = '#search/' + encodeURIComponent(q);
   });

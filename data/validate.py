@@ -4,7 +4,8 @@ where <JSON> is STRICT JSON (double quotes, no trailing commas, no comments)."""
 import json, re, sys, os
 
 ARABIC = re.compile(r'[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]')
-BLOCK_TYPES = {'text','tip','letters','examples','table','build','compare','rule','practice','vocab','ayah','steps','trace','quiz'}
+BLOCK_TYPES = {'text','tip','letters','examples','table','build','compare','rule','practice','vocab','ayah','steps','trace','quiz','strokes','howto','write','dictation','selfcheck'}
+STROKE_IDS = {'line-h','line-v','slant','cup','bowl','tail','hook','teeth','loop','wave','dot'}
 errors = []
 ALPHA_IDS = set()
 
@@ -95,6 +96,30 @@ def check_block(b, p):
                 if k in x: bi(x[k], f'{q}.{k}')
     elif t == 'trace':
         for x in b.get('items', []): ar(x, p + '.items')
+    elif t == 'strokes':
+        if not b.get('items'): err(p, 'strokes has no items')
+        for i, x in enumerate(b.get('items', [])):
+            if x.get('id') not in STROKE_IDS: err(f'{p}.items[{i}]', f'unknown stroke id {x.get("id")}')
+            bi(x.get('label'), f'{p}.items[{i}].label')
+    elif t == 'howto':
+        ar(b.get('letter'), p + '.letter')
+        if not 2 <= len(b.get('steps', [])) <= 6: err(p, 'howto needs 2-6 steps')
+        for x in b.get('steps', []): bi(x, p + '.steps')
+        if 'tip' in b: bi(b['tip'], p + '.tip')
+    elif t == 'write':
+        if b.get('level') not in ('letter', 'form', 'word', 'line'): err(p, 'write.level must be letter|form|word|line')
+        if not b.get('items'): err(p, 'write has no items')
+        for x in b.get('items', []): ar(x, p + '.items')
+        if 'reps' in b and not (isinstance(b['reps'], int) and 1 <= b['reps'] <= 8): err(p, 'write.reps must be 1-8')
+        if 'note' in b: bi(b['note'], p + '.note')
+    elif t == 'dictation':
+        if not b.get('items'): err(p, 'dictation has no items')
+        for i, x in enumerate(b.get('items', [])):
+            q = f'{p}.items[{i}]'; ar(x.get('ar'), q + '.ar'); bi(x.get('tr'), q + '.tr')
+            if 'mean' in x: bi(x['mean'], q + '.mean')
+    elif t == 'selfcheck':
+        if not b.get('items'): err(p, 'selfcheck has no items')
+        for x in b.get('items', []): bi(x, p + '.items')
     elif t == 'quiz':
         if not b.get('items'): err(p, 'quiz has no items')
         for i, x in enumerate(b.get('items', [])):

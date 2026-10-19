@@ -1,7 +1,7 @@
 window.AQ = window.AQ || { units: [], alphabet: [], vocab: [] };
 AQ.units.push({
 "id": "quran",
-"order": 6,
+"order": 7,
 "icon": "۝",
 "color": "violet",
 "title": { "bn": "কুরআন ও সালাত বুঝে পড়ি", "en": "Quran & Salah with Meaning" },

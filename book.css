@@ -243,3 +243,84 @@ td .sub, th .sub { font-size: .85em; }
 
 .cover-copy { text-align: center; font: 500 9pt var(--f-en); color: #cfe5df; letter-spacing: .06em; margin-top: 2mm; }
 .imprint { margin-top: 10mm; padding-top: 4mm; border-top: 1px solid var(--line); font-size: 8.5pt; color: var(--ink-2); }
+
+/* ---------- writing workbook ---------- */
+[data-c="cyan"] { --uc: #0b7189; }
+.wk-help { font-size: 9pt; color: var(--ink-2); margin-bottom: 2mm; }
+.wk { break-inside: auto; }
+/* copybook ruling: bold baseline, dashed helper lines above and below */
+.wk-copy, .wk-free {
+  position: relative; height: 18mm; border-bottom: 0;
+  background:
+    linear-gradient(var(--ink-3), var(--ink-3)) 0 64% / 100% 1.2px no-repeat,
+    repeating-linear-gradient(90deg, #c5d3cd 0 2mm, transparent 2mm 4mm) 0 22% / 100% .6px no-repeat,
+    repeating-linear-gradient(90deg, #c5d3cd 0 2mm, transparent 2mm 4mm) 0 43% / 100% .6px no-repeat,
+    repeating-linear-gradient(90deg, #c5d3cd 0 2mm, transparent 2mm 4mm) 0 86% / 100% .6px no-repeat;
+}
+.wk-free.tall { height: 22mm; margin-bottom: 3mm; }
+.wk-row { break-inside: avoid; margin-bottom: 3mm; border: 1px solid var(--line); border-radius: 2.5mm; padding: 1mm 3mm 2mm; }
+.wk-copy { display: flex; direction: rtl; align-items: flex-end; gap: 6mm; overflow: hidden; padding-bottom: 6.4mm; box-sizing: border-box; }
+.wk-copy span { font-family: var(--f-ar); line-height: 1; white-space: nowrap; }
+.wk-copy .m { color: var(--ink); }
+.wk-copy .g { color: #b8c8c1; }
+.lv-letter .wk-copy span { font-size: 34pt; }
+.lv-form .wk-copy span { font-size: 30pt; }
+.lv-word .wk-copy span { font-size: 26pt; }
+.wk-row.wide .wk-copy { height: 20mm; }
+.wk-row.wide .wk-copy span, .lv-line .wk-copy span { font-size: 24pt; }
+.wk-stroke { display: grid; grid-template-columns: 34mm 1fr; gap: 3mm; align-items: center; border: 1px solid var(--line); border-radius: 2.5mm; padding: 1.5mm 3mm; margin-bottom: 2mm; break-inside: avoid; }
+.wk-sl { font-size: 8.5pt; line-height: 1.3; }
+.wk-sl .sub { font-size: .85em; }
+.wk-sr { display: flex; direction: rtl; gap: 2mm; }
+.wk-s { width: 22mm; height: 13.2mm; }
+.wk-s .bl { stroke: var(--ink-3); stroke-width: 1.5; }
+.wk-s path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.wk-s.solid path { stroke: var(--primary); stroke-width: 8; }
+.wk-s.ghost path { stroke: #9fb1ab; stroke-width: 3; stroke-dasharray: 2 7; }
+.wk-howto { display: grid; grid-template-columns: 34mm 1fr; gap: 5mm; align-items: center; border: 1.5px solid var(--uc, var(--primary)); border-radius: 3mm; padding: 3mm 4mm; margin-bottom: 2mm; break-inside: avoid; }
+.wk-hm { text-align: center; display: grid; justify-items: center; }
+.wk-big { font: 400 50pt/1.3 var(--f-ar); color: var(--primary); }
+.wk-hm small { font: 8pt var(--f-en); color: var(--ink-2); }
+.wk-steps { margin: 0; padding-left: 5mm; font-size: 9.5pt; display: grid; gap: 1mm; }
+.wk-steps .sub { font-size: .88em; }
+.wk-tip { font-size: 8.5pt; color: var(--ink-2); margin-top: 1.5mm; }
+.wk-dl { margin: 0; padding-left: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 8mm; }
+.wk-dl li { break-inside: avoid; }
+.wk-line { display: block; height: 11mm; border-bottom: 1.2px solid var(--ink-3); }
+.wk-check { border-radius: 3mm; background: #e4f2f5; padding: 3mm 4mm; font-size: 9.5pt; display: grid; gap: 1mm; break-inside: avoid; }
+.wk-stars { margin-top: 1mm; font-size: 9pt; color: var(--gold); }
+.key-dict { columns: 3; }
+
+/* ---------- puzzles ---------- */
+.ws-wrap { display: grid; grid-template-columns: auto 1fr; gap: 7mm; align-items: start; }
+.ws { border-collapse: collapse; width: auto; }
+.ws td { width: 10.5mm; height: 10.5mm; text-align: center; font: 17pt/1 var(--f-ar); border: 1px solid var(--line); padding: 0; }
+.ws-list { margin: 0; padding-left: 5mm; font-size: 10pt; display: grid; gap: 2mm; }
+.ws-list .ar-in { font-size: 1.5em; }
+.ws-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+.ws-key { break-inside: avoid; font-size: 8.5pt; display: grid; gap: 1mm; }
+.ws-key .ws td { width: 4.6mm; height: 4.6mm; font-size: 8pt; }
+.ws-key .ws td.on { background: var(--gold-soft); font-weight: 700; }
+.ap { border: 1px solid var(--line); border-radius: 2.5mm; padding: 2mm 3mm; margin-bottom: 2.5mm; break-inside: avoid; }
+.ap-h { font-size: 9.5pt; }
+.ap-ref { color: var(--ink-3); font-size: 8pt; }
+.ap-words { display: flex; flex-wrap: wrap; gap: 3mm; direction: rtl; margin: 1.5mm 0; }
+.ap-w { display: grid; justify-items: center; gap: 1mm; border: 1px dashed var(--ink-3); border-radius: 2mm; padding: .5mm 3mm 1.5mm; }
+.ap-w .ar-in { font-size: 1.7em; }
+.ap-w i { width: 7mm; height: 7mm; border: 1.2px solid var(--ink-3); border-radius: 50%; display: block; }
+.rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.rt { border: 1px solid var(--line); border-radius: 3mm; padding: 2mm 3mm; break-inside: avoid; text-align: center; }
+.rt-root { font: 700 20pt/1.5 var(--f-ar); color: var(--c-amber); letter-spacing: .3em; border-bottom: 2px solid var(--c-amber); margin-bottom: 1mm; direction: rtl; }
+.rt ul { list-style: none; margin: 0; padding: 0; font-size: 8pt; display: grid; gap: .8mm; }
+.rt li .ar-in { font-size: 1.6em; }
+.rt-blank { color: var(--ink-3); }
+.mk-print { display: grid; grid-template-columns: 70mm 1fr; gap: 5mm; align-items: start; }
+.mk-svg { width: 100%; height: auto; }
+.mk-head { fill: #eef4f1; stroke: #8a9c97; stroke-width: 2; }
+.mk-line { fill: none; stroke: #8a9c97; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.mk-zone { fill: #0f6b5e; fill-opacity: .18; stroke: #0f6b5e; stroke-width: 1.5; }
+.mk-zone[data-zone="halq"] { fill: #a8720f; fill-opacity: .28; stroke: #a8720f; }
+.mk-tag line { stroke: #8a9c97; stroke-width: 1; }
+.mk-tag text { fill: #4f6660; font: 600 13px "Hind Siliguri", sans-serif; text-anchor: middle; }
+.mk-t td.arc { font-size: 15pt; white-space: nowrap; }
+.jr { margin-bottom: 4mm; break-inside: avoid; font-size: 10pt; }

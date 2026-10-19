@@ -44,7 +44,7 @@ AQ.units.push({
   id: "reading",                 // unique, kebab-case
   order: 1,                      // 1..5
   icon: "ا",                     // 1–2 characters shown big on the unit badge
-  color: "teal",                 // one of: teal, amber, rose, indigo, emerald
+  color: "teal",                 // one of: teal, emerald, amber, indigo, rose, violet, cyan
   title:    { bn, en },
   subtitle: { bn, en },          // one line
   lessons: [ Lesson, ... ]
@@ -92,3 +92,13 @@ Rules for good lessons:
 - Keep each block short. Prefer many small blocks over long text.
 - Be original — do not copy text from any existing book. Use your own explanations and examples.
 - Be accurate. If unsure about a Quranic word's vowelling, choose a different example you are sure of.
+
+## Writing-practice blocks (used by the Learn to Write unit)
+
+| type | fields | renders as |
+|---|---|---|
+| `strokes` | `items`: `[{ id, label:{bn,en} }]` where `id` is one of `line-h`, `line-v`, `slant`, `cup`, `bowl`, `tail`, `hook`, `teeth`, `loop`, `wave`, `dot` | web: animated pen demo + tracing pad per stroke; print: rows of dotted strokes to trace |
+| `howto` | `letter` (one Arabic letter, e.g. `"ب"`), `steps`: `[{bn,en}]` (2–5 short steps in writing order, right to left, dots last), `tip?`: `{bn,en}` | web: big letter with "watch the pen" animation + numbered steps; print: model letter + numbered steps |
+| `write` | `level`: `"letter"` \| `"form"` \| `"word"` \| `"line"`, `items`: array of Arabic strings, `reps?`: 2–8 (ghost copies per row in print, default by level), `note?`: `{bn,en}` | web: tracing pad with baseline, pen demo, star score; print: model + traceable ghost copies + empty ruled line |
+| `dictation` | `items`: `[{ ar, tr:{bn,en}, mean?:{bn,en} }]` | web: listen → write on pad → reveal → self-grade; print: numbered blank lines, answers in the unit answer key |
+| `selfcheck` | `items`: `[{bn,en}]` | web: checklist saved on the device; print: ☐ checklist |

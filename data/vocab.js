@@ -2,7 +2,7 @@ window.AQ = window.AQ || { units: [], alphabet: [], vocab: [] };
 
 AQ.units.push({
   "id": "vocab",
-  "order": 3,
+  "order": 4,
   "icon": "ك",
   "color": "amber",
   "title": {

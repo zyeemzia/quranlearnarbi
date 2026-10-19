@@ -1,7 +1,7 @@
 window.AQ = window.AQ || { units: [], alphabet: [], vocab: [] };
 AQ.units.push({
 "id": "daily",
-"order": 5,
+"order": 6,
 "icon": "ح",
 "color": "rose",
 "title": {"bn": "দৈনন্দিন আরবি", "en": "Everyday Arabic"},
