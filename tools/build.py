@@ -4,6 +4,7 @@
 
 1. Validates every file in data/ (stops on any problem).
 2. Bundles all data files into one minified data.bundle.js (what the site and book load).
+   It also bundles audio/manifest.json (from tools/audio.py) so the app knows which voice files exist.
 3. Stamps a content hash into index.html / book.html (?v=...) and into sw.js,
    so browsers and the offline cache pick up the new version.
 
@@ -48,6 +49,10 @@ def main():
             out.append('AQ.alphabet=' + json.dumps(al, ensure_ascii=False, separators=(',', ':')) + ';')
         unit = extract(src, r'AQ\.units\.push\(\s*')
         out.append('AQ.units.push(' + json.dumps(unit, ensure_ascii=False, separators=(',', ':')) + ');')
+    man = os.path.join(ROOT, 'audio', 'manifest.json')   # pronunciation audio, made by tools/audio.py
+    if os.path.exists(man):
+        with open(man, encoding='utf-8') as f:
+            out.append('AQ.audio=' + json.dumps(json.load(f), ensure_ascii=False, separators=(',', ':')) + ';')
     write(os.path.join(ROOT, 'data.bundle.js'), '\n'.join(out) + '\n')
 
     assets = ['app.css', 'app.js', 'common.js', 'data.bundle.js', 'book.css', 'book.js', 'fonts.css']

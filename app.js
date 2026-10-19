@@ -151,22 +151,79 @@
       <span class="sb-actions">${edgeBtn}<a class="btn btn-sm" href="#sound">${t1({ bn: 'কীভাবে ঠিক করবেন', en: 'How to fix' })}</a><button class="icon-btn" type="button" data-sbclose aria-label="${u('close')}">${icon('x')}</button></span>`;
     document.body.appendChild(el);
   }
-  function say(text, rate) {
-    if (!text) return;
+  /* Built-in voices: every text the app speaks has a recorded male (audio/m) and female (audio/f) file, made by
+     tools/audio.py and listed in AQ.audio.tts. Tapped Quran words play the human word-by-word recitation from
+     Quran.com (AQ.audio.wbw). The device's own voice is only a fallback for a text without a file. */
+  const AUD = (window.AQ && AQ.audio) || {};
+  const HAVE = new Set(AUD.tts || []);
+  const sayText = t => String(t).replace(/ـ/g, '').replace(/[◌]/g, '').replace(/\s+/g, ' ').trim();
+  function akey(s) { // file name of a text's audio (cyrb53 hash, base 36)
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+  /* Auto: the female voice for everyday conversation (the Daily Arabic unit and its flashcard deck),
+     the male voice for letters, reading, tajweed, grammar and the Quran. */
+  function voiceFor() {
+    const v = S.voice || 'auto'; if (v === 'm' || v === 'f') return v;
+    const [r, arg] = location.hash.slice(1).split('/');
+    const l = r === 'lesson' && D.lessons.find(x => x.id === arg);
+    return (l && l.unit.id === 'daily') || ((r === 'cards' || r === 'unit') && arg === 'daily') ? 'f' : 'm';
+  }
+  const pad3 = n => String(n).padStart(3, '0');
+  const qwUrls = q => { if (!q) return null; const [s, a, ps] = q.split(':'); return ps.split(',').map(p => `https://audio.qurancdn.com/wbw/${pad3(s)}_${pad3(a)}_${pad3(p)}.mp3`); };
+  let voiceEl = null, voiceQ = [], quiet = false;
+  function stopVoice() { voiceQ = []; if (voiceEl) { voiceEl.onended = voiceEl.onerror = null; voiceEl.pause(); } }
+  function playFiles(urls, rate, fallback) {
+    stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel();
+    if (!voiceEl) { voiceEl = new Audio(); voiceEl.crossOrigin = 'anonymous'; voiceEl.preload = 'auto'; }
+    const el = voiceEl, pr = Math.min(1.6, Math.max(0.5, (rate || S.rate) / 0.75));
+    voiceQ = urls.slice();
+    urls.slice(1).forEach(u => fetch(u, { mode: 'cors', credentials: 'omit' }).catch(() => { /* only a warm-up */ }));   // no gap between words
+    const next = () => {
+      const url = voiceQ.shift(); if (!url) { el.onended = el.onerror = null; return; }
+      el.src = url; el.defaultPlaybackRate = pr; el.playbackRate = pr;
+      el.onended = next; el.onerror = () => { stopVoice(); fallback(); };
+      const p = el.play(); if (p && p.catch) p.catch(() => { /* a newer tap replaced it, or the error handler takes over */ });
+    };
+    next();
+  }
+  /* say(text): speak Arabic. A word or phrase found in the Quran (AQ.audio.qw, matched letter and haraka by
+     tools/audio.py) plays its human recitation; an everyday phrase plays its synthetic file; anything else
+     uses the device voice. */
+  function say(text, rate, vo) {
+    if (!text || quiet) return;
+    const clean = sayText(text), k = akey(clean), q = (AUD.qw || {})[k];
+    if (q && !vo) playFiles(qwUrls(q), rate, () => speak(clean, rate));   // a Quran word or phrase: its human recitation
+    else if (HAVE.has(k)) playFiles([`audio/${vo || voiceFor()}/${k}.mp3`], rate, () => speak(clean, rate)); else speak(clean, rate);
+  }
+  /* A tapped Quran word is only ever heard as human recitation: its word-by-word clips (data-qw, checked letter
+     and haraka for haraka against the ayah by tools/audio.py), or else the whole-ayah recitation. Never synthetic. */
+  function sayQuranWord(el) {
+    if (quiet) return;
+    const ref = el.closest('[data-aref]').dataset.aref, urls = qwUrls(el.dataset.qw);
+    if (urls) playFiles(urls, null, () => playAyah(ref, null)); else { stopVoice(); playAyah(ref, null); }
+  }
+  function speak(clean, rate) {
     if (!('speechSynthesis' in window)) { soundBanner(); return; }
     if (!arVoice) pickVoice();
-    const clean = String(text).replace(/ـ/g, '').replace(/[◌]/g, '');
     const ut = new SpeechSynthesisUtterance(clean);
     ut.lang = arVoice ? arVoice.lang : 'ar-SA'; if (arVoice) ut.voice = arVoice; ut.rate = rate || S.rate;
     if (!arVoice && !voiceWarned) { voiceWarned = true; soundBanner(); }
-    speechSynthesis.cancel(); speechSynthesis.speak(ut);
+    stopVoice(); speechSynthesis.cancel(); speechSynthesis.speak(ut);
     return ut;
   }
   function soundStatusHTML() {
-    const ok = !!arVoice;
-    return `<div id="soundStatus" class="sound-status ${ok ? 'ok' : 'no'}">${icon(ok ? 'check' : 'warn')}<div><b>${ok ? t1({ bn: 'আরবি কণ্ঠ পাওয়া গেছে', en: 'Arabic voice found' }) : t1({ bn: 'এই ব্রাউজারে আরবি কণ্ঠ নেই', en: 'No Arabic voice in this browser' })}</b>
-      <small>${ok ? esc(arVoice.name) + ' · ' + esc(arVoice.lang) : (voicesLoaded ? t1({ bn: 'নিচের সহজ ধাপগুলো অনুসরণ করুন।', en: 'Follow the easy steps below.' }) : t1({ bn: 'কণ্ঠের তালিকা লোড হচ্ছে…', en: 'Loading the voice list…' }))}</small></div></div>`;
+    const own = HAVE.size > 0;
+    const dev = arVoice ? esc(arVoice.name) : (voicesLoaded ? t1({ bn: 'নেই', en: 'none' }) : '…');
+    return `<div id="soundStatus" class="sound-status ${own || arVoice ? 'ok' : 'no'}">${icon(own || arVoice ? 'check' : 'warn')}<div><b>${own ? t1({ bn: 'কুরআন: মানব তিলাওয়াত · দৈনন্দিন বাক্য: সাইটের কণ্ঠ', en: 'Quran: human recitation · everyday phrases: the site’s voice' }) : arVoice ? t1({ bn: 'আরবি কণ্ঠ পাওয়া গেছে', en: 'Arabic voice found' }) : t1({ bn: 'এই ব্রাউজারে আরবি কণ্ঠ নেই', en: 'No Arabic voice in this browser' })}</b>
+      <small>${own ? t1({ bn: 'যেকোনো ব্রাউজারে চলে, কিছু ইনস্টল করতে হয় না। একক হরফ ও হরকতের অনুশীলন এখনো ডিভাইসের কণ্ঠে।', en: 'Works in every browser, nothing to install. Single letters and harakat drills still use the device voice.' }) + ' · ' : ''}${t1({ bn: 'ডিভাইসের কণ্ঠ (ব্যাকআপ)', en: 'Device voice (backup)' })}: ${dev}</small></div></div>`;
   }
+  const VOICES = [['auto', { bn: 'স্বয়ংক্রিয়', en: 'Auto' }], ['m', { bn: 'পুরুষ', en: 'Male' }], ['f', { bn: 'নারী', en: 'Female' }]];
+  const voiceSeg = () => `<div class="seg" role="group" aria-label="${t1({ bn: 'কণ্ঠ', en: 'Voice' })}">${VOICES.map(([k, l]) => `<button type="button" data-voice-set="${k}" aria-pressed="${(S.voice || 'auto') === k}">${t1(l)}</button>`).join('')}</div>`;
+  const voiceHint = () => t1({ bn: 'দৈনন্দিন আরবির কৃত্রিম কণ্ঠের জন্য। স্বয়ংক্রিয়: কথোপকথনের পাঠে নারী কণ্ঠ, ফ্ল্যাশকার্ড ও খেলায় পুরুষ কণ্ঠ। কুরআন সবসময় মানব তিলাওয়াত।', en: 'For the synthetic voice of everyday Arabic. Auto: female in the conversation lessons, male in flashcards and games. The Quran is always human recitation.' });
   function viewSound() {
     const step = (n, bn, en) => `<li><span class="sn">${num(n)}</span><span>${tx({ bn, en })}</span></li>`;
     const cards = [];
@@ -190,12 +247,69 @@
     const order = ENV.android ? [android, ios, win, mac] : ENV.ios ? [ios, android, mac, win] : ENV.mac ? [mac, win, android, ios] : [win, android, ios, mac];
     cards.push(...order);
     return `<div class="page-head"><div class="eyebrow">${t1({ bn: 'উচ্চারণ সেটআপ', en: 'Sound setup' })}</div><h1 class="page-title">${tx({ bn: 'আরবি উচ্চারণ শোনার ব্যবস্থা', en: 'Hear the Arabic pronunciation' })}</h1>
-      <p class="muted">${t1({ bn: 'শব্দ ও হরফের উচ্চারণ আপনার ডিভাইসের নিজস্ব আরবি কণ্ঠে বাজে। কুরআনের তিলাওয়াত আলাদা — সেটি মিশারি আল-আফাসির আসল রেকর্ডিং, যেকোনো ডিভাইসে ইন্টারনেটে চলে।', en: "Words and letters are spoken by your device's own Arabic voice. Quran recitation is separate: real recordings by Mishary Alafasy that play on any device with internet." })}</p></div>
+      <p class="muted">${t1({ bn: 'কুরআনের প্রতিটি শব্দ ও আয়াত শুধু মানব তিলাওয়াতে বাজে: শব্দে চাপলে Quran.com-এর শব্দে-শব্দে তিলাওয়াত, পুরো আয়াত মিশারি আল-আফাসির তিলাওয়াত — কখনো কম্পিউটার কণ্ঠ নয়। দৈনন্দিন আরবির বাক্যগুলো সাইটের নিজস্ব কৃত্রিম (কম্পিউটার) কণ্ঠে বাজে, পুরুষ বা নারী, যেকোনো ব্রাউজারে। শব্দভাণ্ডার, তাজবীদ, ব্যাকরণ ও পড়ার যে শব্দ বা বাক্য হুবহু কুরআনে আছে, সেগুলোও সেই শব্দের আসল তিলাওয়াতে বাজে। একক হরফ, হরকত ও মাখরাজের অনুশীলন আপাতত ডিভাইসের কণ্ঠে বাজে, মানব রেকর্ডিং যোগ না হওয়া পর্যন্ত।', en: 'Every Quran word and ayah plays only as human recitation: tap a word for Quran.com’s word-by-word recitation, or play the whole ayah by Mishary Alafasy, never a computer voice. Everyday Arabic phrases play in the site’s own synthetic (computer) voice, male or female, in any browser. Vocabulary, tajweed, grammar and reading words or phrases found exactly in the Quran also play that word’s real recitation. Single letters, harakat and makharij drills use your device’s voice for now, until human recordings are added.' })}</p>
+      <p><a class="btn btn-sm" href="#audio">${icon('check')} ${t1({ bn: 'প্রতিটি অডিও শুনে যাচাই করুন (শিক্ষকদের জন্য)', en: 'Check every sound (for teachers)' })}</a></p></div>
       ${soundStatusHTML()}
-      <div class="sound-test"><button class="btn btn-primary" type="button" data-say="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ">${icon('play')} ${t1({ bn: 'কণ্ঠ পরীক্ষা করুন', en: 'Test the voice' })}</button>
+      <div class="sound-voice"><div><b>${t1({ bn: 'কণ্ঠ বেছে নিন', en: 'Choose the voice' })}</b><small>${voiceHint()}</small></div>${voiceSeg()}</div>
+      <div class="sound-test"><button class="btn btn-primary" type="button" data-ayah="1:1">${icon('play')} ${t1({ bn: 'তিলাওয়াত পরীক্ষা করুন', en: 'Test the recitation' })}</button>
+        <button class="btn" type="button" data-say="صَبَاحُ الْخَيْرِ">${icon('play')} صَبَاحُ الْخَيْرِ</button>
         <button class="btn" type="button" data-say="أَبْ أَتْ أَثْ">${icon('play')} أَبْ · أَتْ · أَثْ</button></div>
-      <div class="sound-grid">${cards.join('')}</div>`;
+      <details class="sound-more"><summary>${t1({ bn: 'ঐচ্ছিক: ডিভাইসে আরবি কণ্ঠ যোগ করুন (শুধু ব্যাকআপ)', en: 'Optional: add an Arabic voice to your device (backup only)' })}</summary>
+        <p class="muted">${t1({ bn: 'দরকার নেই — শুধু কোনো লেখার রেকর্ডিং না থাকলে বা প্রথমবার অফলাইনে থাকলে ডিভাইসের কণ্ঠ ব্যবহার হয়।', en: 'Not needed. The device voice is used only for a text without a recording, or offline before a sound was ever played.' })}</p>
+        <div class="sound-grid">${cards.join('')}</div></details>`;
   }
+  /* #audio: every clip the app can play, with its source, for a teacher to check (marks are kept on this device). */
+  const REVIEW_KEY = 'quran-o-arbi-shikkha.audio-review';
+  const reviewMarks = () => { try { return JSON.parse(localStorage.getItem(REVIEW_KEY) || '{}'); } catch (e) { return {}; } };
+  let reviewFilter = 'all';
+  const SRC = {
+    wbw: { bn: 'মানব তিলাওয়াত · Quran.com শব্দে শব্দে', en: 'Human recitation · Quran.com word by word' },
+    ayah: { bn: 'মানব তিলাওয়াত · পুরো আয়াত (মিশারি আল-আফাসি)', en: 'Human recitation · whole ayah (Mishary Alafasy)' },
+    syn: { bn: 'কৃত্রিম (কম্পিউটার) কণ্ঠ · পুরুষ ও নারী', en: 'Synthetic (computer) voice · male and female' },
+    dev: { bn: 'ডিভাইসের কণ্ঠ (কৃত্রিম, যাচাই হয়নি)', en: 'Device voice (synthetic, not checked)' }
+  };
+  const PLACES = { letters: { bn: 'হরফ', en: 'Letters' }, makharij: { bn: 'মাখরাজ', en: 'Makharij' }, roots: { bn: 'মূলধাতু', en: 'Roots' }, tools: { bn: 'টুলস', en: 'Tools' } };
+  function viewAudio() {
+    const marks = reviewMarks();
+    const where = c => [...c].map(x => { const un = AQ.units.find(u => u.id === x); return un ? t1(un.title) : t1(PLACES[x] || { bn: x, en: x }); }).join(', ');
+    const markBtns = k => `<span class="rv-mark">${['ok', 'bad'].map(m => `<button type="button" class="chip" data-rvmark="${k}:${m}" aria-pressed="${marks[k] === m}" aria-label="${m === 'ok' ? 'Correct' : 'Wrong'}">${m === 'ok' ? '✓' : '✗'}</button>`).join('')}</span>`;
+    const ayahs = new Map();
+    D.lessons.forEach(l => l.blocks.forEach(b => { if (b.type === 'ayah' && b.words && b.words.length) { const key = b.ref + '|' + b.words.map(w => w.ar).join('+'); if (!ayahs.has(key)) ayahs.set(key, b); } }));
+    let nW = 0, nA = 0, nS = 0, nD = 0;
+    const qrows = [...ayahs].map(([key, b]) => {
+      const [su, ay] = b.ref.split(':'); const spans = (AUD.wbw || {})[key] || [];
+      return `<div class="rv-ayah" data-aref="${esc(b.ref)}"><div class="rv-ref">${S.lang === 'en' ? `Surah ${su} · Ayah ${ay}` : `সূরা ${bnNum(su)} · আয়াত ${bnNum(ay)}`}</div>${b.words.map((w, j) => {
+        const sp = spans[j]; if (sp) nW++; else nA++; const k = 'q' + akey(b.ref + ' ' + w.ar);
+        return `<div class="rv-row" data-src="${sp ? 'wbw' : 'ayah'}"><button type="button" class="rv-ar" lang="ar" data-say="${esc(w.ar)}"${sp ? ` data-qw="${su}:${ay}:${sp.join(',')}"` : ''}>${icon('play')} ${esc(w.ar)}</button>
+          <span class="rv-tr">${md(S.lang === 'en' ? w.en : w.bn)}</span><span class="rv-src">${t1(SRC[sp ? 'wbw' : 'ayah'])}${sp ? ` · ${S.lang === 'en' ? 'word' : 'শব্দ'} ${sp.join(', ')}` : ''}</span>${markBtns(k)}</div>`;
+      }).join('')}</div>`;
+    }).join('');
+    const rows = sayEntries().map(e => {
+      const q = (AUD.qw || {})[e.k];
+      if (q) {
+        nW++; const [su, ay, ps] = q.split(':');
+        return `<div class="rv-row" data-src="wbw"><span class="rv-ar" lang="ar">${esc(e.t)}</span><span class="rv-tr">${e.tr ? esc(S.lang === 'en' ? e.tr.en : (e.tr.bn || e.tr.en)) : ''}</span><span class="rv-src">${t1(SRC.wbw)} · ${su}:${ay} ${S.lang === 'en' ? 'word' : 'শব্দ'} ${ps.split(',').join(', ')} · ${esc(where(e.c))}</span><span class="rv-play"><button type="button" class="play" data-say="${esc(e.t)}" aria-label="${u('listen')}">${icon('play')}</button></span>${markBtns(e.k)}</div>`;
+      }
+      const syn = HAVE.has(e.k); if (syn) nS++; else nD++;
+      const tr = e.tr ? esc(S.lang === 'en' ? e.tr.en : (e.tr.bn || e.tr.en)) : '';
+      const play = syn ? ['m', 'f'].map(v => `<button type="button" class="play" data-say="${esc(e.t)}" data-vo="${v}" aria-label="${v === 'm' ? 'Male voice' : 'Female voice'}">${v === 'm' ? '♂' : '♀'}</button>`).join('') : `<button type="button" class="play" data-say="${esc(e.t)}" aria-label="${u('listen')}">${icon('play')}</button>`;
+      return `<div class="rv-row" data-src="${syn ? 'syn' : 'dev'}"><span class="rv-ar" lang="ar">${esc(e.t)}</span><span class="rv-tr">${tr}</span><span class="rv-src">${t1(SRC[syn ? 'syn' : 'dev'])} · ${esc(where(e.c))}</span><span class="rv-play">${play}</span>${markBtns(e.k)}</div>`;
+    }).join('');
+    const vals = Object.values(marks), ok = vals.filter(m => m === 'ok').length, bad = vals.filter(m => m === 'bad').length;
+    const F = [['all', { bn: 'সব', en: 'All' }], ['wbw', { bn: 'শব্দে শব্দে তিলাওয়াত', en: 'Word recitation' }], ['ayah', { bn: 'পুরো আয়াত', en: 'Whole ayah' }], ['syn', { bn: 'কৃত্রিম কণ্ঠ', en: 'Synthetic' }], ['dev', { bn: 'ডিভাইসের কণ্ঠ', en: 'Device voice' }]];
+    return `<div class="page-head"><div class="eyebrow">${t1({ bn: 'অডিও যাচাই', en: 'Audio check' })}</div><h1 class="page-title">${tx({ bn: 'প্রতিটি উচ্চারণ শুনে যাচাই করুন', en: 'Listen to and check every sound' })}</h1>
+      <p class="muted">${t1({ bn: 'শিক্ষক বা অভিজ্ঞ কারির জন্য: প্রতিটি অডিও শুনে ✓ বা ✗ দিন। চিহ্নগুলো এই ডিভাইসেই থাকে; “ভুলগুলোর তালিকা কপি করুন” চেপে পাঠিয়ে দিন। কুরআনের শব্দ সবসময় মানব তিলাওয়াত (হাফস আন আসিম); Quran.com তাদের শব্দে-শব্দে কারির নাম প্রকাশ করে না।', en: 'For a teacher or qualified qari: play each sound and mark it ✓ or ✗. Marks stay on this device; use “Copy the problem list” to send them. Quran words are always human recitation (Hafs ‘an ‘Asim); Quran.com does not name its word-by-word reciter.' })}</p></div>
+      <div class="rv-stats"><span class="chip">${t1(F[1][1])}: ${num(nW)}</span><span class="chip">${t1(F[2][1])}: ${num(nA)}</span><span class="chip">${t1(F[3][1])}: ${num(nS)}</span><span class="chip">${t1(F[4][1])}: ${num(nD)}</span><span class="chip">✓ ${num(ok)} · ✗ ${num(bad)}</span>
+        <button class="btn btn-sm" type="button" data-rvcopy>${t1({ bn: 'ভুলগুলোর তালিকা কপি করুন', en: 'Copy the problem list' })}</button></div>
+      <div class="seg rv-filter" role="group">${F.map(([k, l]) => `<button type="button" data-rvfilter="${k}" aria-pressed="${reviewFilter === k}">${t1(l)}</button>`).join('')}</div>
+      <div class="rv-list" data-filter="${reviewFilter}"><h2>${t1({ bn: 'কুরআনের শব্দ', en: 'Quran words' })}</h2>${qrows}<h2>${t1({ bn: 'হরফ, শব্দ ও বাক্য', en: 'Letters, words and phrases' })}</h2>${rows}</div>`;
+  }
+  function reviewReport() {
+    const marks = reviewMarks(), lines = [];
+    $$('.rv-row').forEach(r => { const b = $('[data-rvmark]', r); if (b && marks[b.dataset.rvmark.split(':')[0]] === 'bad') lines.push([$('.rv-ar', r).textContent.trim(), $('.rv-tr', r).textContent.trim(), $('.rv-src', r).textContent.trim()].filter(Boolean).join(' — ')); });
+    return lines.join('\n');
+  }
+
   let audioEl = null;
   function playAyah(ref, btn) {
     const [s, a] = ref.split(':').map(Number);
@@ -204,9 +318,11 @@
     audioEl = new Audio(url); audioEl._url = url; audioEl._btn = btn;
     btn && btn.classList.add('on');
     audioEl.onended = () => { btn && btn.classList.remove('on'); audioEl = null; };
-    audioEl.play().catch(() => {
-      toast(L() ? 'Recitation audio could not load here (it needs internet and may be blocked in some viewers). Using the device voice instead.' : 'তিলাওয়াতের অডিও এখানে চালানো গেল না (ইন্টারনেট লাগে, কিছু ভিউয়ারে বন্ধ থাকে)। আপাতত ডিভাইসের ভয়েসে শোনানো হচ্ছে।', 5500);
-      const blk = btn && btn.closest('.ayah'); if (blk) say(blk.dataset.ar);
+    const el = audioEl;
+    el.play().catch(e => {
+      if (e && e.name === 'AbortError') return;                    // stopped by a newer tap
+      if (el._btn) el._btn.classList.remove('on'); if (audioEl === el) audioEl = null;
+      toast(L() ? 'Recitation audio could not load here (it needs internet and may be blocked in some viewers).' : 'তিলাওয়াতের অডিও এখানে চালানো গেল না (ইন্টারনেট লাগে, কিছু ভিউয়ারে বন্ধ থাকে)।', 5500);
     });
   }
 
@@ -401,6 +517,7 @@
         <h1>${tx(l.title)}</h1><p>${t1(l.subtitle)}</p>
         ${l.goals && l.goals.length ? `<ul class="goals" aria-label="${u('goals')}">${l.goals.map(g => `<li><span>${tx(g)}</span></li>`).join('')}</ul>` : ''}</div>
       </header>
+      ${un.id === 'daily' && HAVE.size ? `<p class="voice-note">${icon('warn')} ${t1({ bn: 'এই পাঠের বাক্যগুলোর উচ্চারণ কৃত্রিম (কম্পিউটার) কণ্ঠে; কুরআনের শব্দ সবসময় মানব তিলাওয়াতে।', en: 'Phrases in this lesson are spoken by a synthetic (computer) voice; Quran words are always human recitation.' })} <a href="#sound">${t1({ bn: 'বিস্তারিত', en: 'Details' })}</a></p>` : ''}
       <div class="blocks">${l.blocks.map((b, i) => renderBlock(b, i, l)).join('')}</div>
       <footer class="lesson-foot">
         ${prev ? `<a class="btn btn-ghost" href="#lesson/${prev.id}">${icon('arrowL')} ${u('prev')}</a>` : '<span></span>'}
@@ -469,12 +586,14 @@
       case 'ayah': {
         const [s, a] = b.ref.split(':');
         const words = b.words || [];
-        return `<section class="ayah" data-ar="${esc(b.ar)}">${T}
+        const spans = (AUD.wbw || {})[b.ref + '|' + words.map(w => w.ar).join('+')] || [];
+        const qw = j => spans[j] ? ` data-qw="${s}:${a}:${spans[j].join(',')}"` : '';
+        return `<section class="ayah" data-aref="${esc(b.ref)}" data-ar="${esc(b.ar)}">${T}
           <div class="ayah-top"><span class="ayah-ref">${S.lang === 'en' ? `Surah ${s} · Ayah ${a}` : `সূরা ${bnNum(s)} · আয়াত ${bnNum(a)}`}</span>
             <span class="ayah-btns">${S.memo[b.ref] ? `<span class="chip memo-chip">${icon('check')} ${t1({ bn: 'মুখস্থ', en: 'Memorised' })}</span>` : ''}<button class="btn btn-sm" type="button" data-wbw>${u('wbw')}</button><button class="btn btn-sm" type="button" data-memo="${esc(b.ref)}">${icon('brain')} ${t1({ bn: 'মুখস্থ করুন', en: 'Memorise' })}</button><button class="btn btn-sm btn-primary" type="button" data-ayah="${esc(b.ref)}">${icon('play')} ${u('listen')}</button></span></div>
           <div class="memo-bar" hidden><span class="memo-level"></span><span class="memo-actions"><button class="btn btn-sm" type="button" data-memorep="${esc(b.ref)}">${icon('play')} ×3</button><button class="btn btn-sm" type="button" data-memodone="${esc(b.ref)}">${icon('check')} ${t1({ bn: 'মুখস্থ হয়েছে', en: 'I know it' })}</button></span></div>
-          <div class="ayah-ar" lang="ar">${words.length ? words.map((w, j) => `<span class="w" data-wi="${j}" data-say="${esc(waqf(w.ar))}">${esc(w.ar)}</span>`).join(' ') : esc(b.ar)} <span class="ayah-num">${esc(toArabicDigits(a))}</span></div>
-          <div class="wbw" hidden>${words.map(w => `<div class="wbw-w" data-say="${esc(waqf(w.ar))}"><span class="ar" lang="ar">${esc(w.ar)}</span>${S.lang !== 'en' ? `<small>${md(w.bn)}</small>` : ''}${S.lang !== 'bn' ? `<small class="en" lang="en">${md(w.en)}</small>` : ''}</div>`).join('')}</div>
+          <div class="ayah-ar" lang="ar">${words.length ? words.map((w, j) => `<span class="w" data-wi="${j}" data-say="${esc(waqf(w.ar))}"${qw(j)}>${esc(w.ar)}</span>`).join(' ') : esc(b.ar)} <span class="ayah-num">${esc(toArabicDigits(a))}</span></div>
+          <div class="wbw" hidden>${words.map((w, j) => `<div class="wbw-w" data-say="${esc(waqf(w.ar))}"${qw(j)}><span class="ar" lang="ar">${esc(w.ar)}</span>${S.lang !== 'en' ? `<small>${md(w.bn)}</small>` : ''}${S.lang !== 'bn' ? `<small class="en" lang="en">${md(w.en)}</small>` : ''}</div>`).join('')}</div>
           <div class="ayah-tr">${esc(S.lang === 'en' ? b.tr.en : b.tr.bn)}${S.lang === 'both' ? `<span class="sub" lang="en">${esc(b.tr.en)}</span>` : ''}</div>
           <div class="ayah-mean">${tx(b.mean)}</div>
         </section>`;
@@ -966,9 +1085,9 @@
       </div>
       <div class="set-row"><div><b>${S.lang === 'en' ? 'Arabic text size' : 'আরবি লেখার আকার'}</b><small>${S.lang === 'en' ? 'Make Arabic bigger for easier reading' : 'সহজে পড়ার জন্য আরবি বড় করুন'}</small></div>
         <input id="arScale" type="range" min="0.8" max="1.6" step="0.1" value="${S.arScale}"></div>
-      <div class="set-row"><div><b>${S.lang === 'en' ? 'Sound setup' : 'উচ্চারণ সেটআপ'}</b><small>${arVoice ? esc(arVoice.name) : (S.lang === 'en' ? 'No Arabic voice in this browser' : 'এই ব্রাউজারে আরবি কণ্ঠ নেই')}</small></div><a class="btn" href="#sound">${S.lang === 'en' ? 'Open sound setup' : 'সেটআপ খুলুন'}</a></div>
-      <div class="set-row"><div><b>${S.lang === 'en' ? 'Speech speed' : 'উচ্চারণের গতি'}</b><small>${arVoice ? (S.lang === 'en' ? 'Voice: ' : 'ভয়েস: ') + esc(arVoice.name) : (S.lang === 'en' ? 'No Arabic voice detected on this device' : 'এই ডিভাইসে আরবি ভয়েস পাওয়া যায়নি')}</small></div>
-        <span style="display:flex;gap:8px;align-items:center"><input id="rate" type="range" min="0.4" max="1.1" step="0.05" value="${S.rate}"><button class="play" type="button" data-say="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ">${icon('play')}</button></span></div>
+      <div class="set-row"><div><b>${t1({ bn: 'কণ্ঠ', en: 'Voice' })}</b><small>${voiceHint()} <a href="#sound">${t1({ bn: 'উচ্চারণ সেটআপ', en: 'Sound setup' })}</a></small></div>${voiceSeg()}</div>
+      <div class="set-row"><div><b>${S.lang === 'en' ? 'Speech speed' : 'উচ্চারণের গতি'}</b><small>${t1({ bn: 'ধীরে শুনলে শেখা সহজ হয়', en: 'Slower is easier for learning' })}</small></div>
+        <span style="display:flex;gap:8px;align-items:center"><input id="rate" type="range" min="0.4" max="1.1" step="0.05" value="${S.rate}"><button class="play" type="button" data-say="صَبَاحُ الْخَيْرِ">${icon('play')}</button></span></div>
       <div class="set-row"><div><b>${S.lang === 'en' ? 'Theme' : 'থিম'}</b></div>
         <div class="seg" role="group">${[['auto', S.lang === 'en' ? 'System' : 'সিস্টেম'], ['light', S.lang === 'en' ? 'Light' : 'আলো'], ['dark', S.lang === 'en' ? 'Dark' : 'অন্ধকার']].map(([k, l]) => `<button type="button" data-theme-set="${k}" aria-pressed="${S.theme === k}">${l}</button>`).join('')}</div></div>
       <div class="set-row"><div><b>${u('book')}</b><small>${S.lang === 'en' ? 'Print it or save as PDF from your browser' : 'ব্রাউজার থেকে প্রিন্ট বা PDF হিসেবে সেভ করুন'}</small></div><span style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="book.html" target="_blank" rel="noopener">${u('printBook')}</a><a class="btn btn-primary" href="Quran-o-Arbi-Shikkha.pdf" download>${S.lang === 'en' ? 'Download PDF' : 'PDF ডাউনলোড'}</a></span></div>
@@ -1061,9 +1180,9 @@
 
   /* ---------------- router ---------------- */
   function route() {
-    stopGame(); if ('speechSynthesis' in window) speechSynthesis.cancel();
+    stopGame(); stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel();
     const [r, arg] = location.hash.slice(1).split('/');
-    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate, sound: viewSound }[r || ''] || notFound;
+    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate, sound: viewSound, audio: viewAudio }[r || ''] || notFound;
     view.innerHTML = V(arg);
     renderChrome(); initTraces(view);
     if (r === 'makharij') markZone();
@@ -1083,6 +1202,19 @@
     const t = e.target;
     const lang = t.closest('[data-lang]'); if (lang) { S.lang = lang.dataset.lang; save(); applyTheme(); rerender(); return; }
     if (t.closest('#themeBtn')) { S.theme = isDark() ? 'light' : 'dark'; save(); applyTheme(); renderChrome(); return; }
+    const rm = t.closest('[data-rvmark]'); if (rm) {
+      const [k, m] = rm.dataset.rvmark.split(':'); const ms = reviewMarks(); if (ms[k] === m) delete ms[k]; else ms[k] = m;
+      try { localStorage.setItem(REVIEW_KEY, JSON.stringify(ms)); } catch (e) { /* storage blocked */ }
+      $$(`[data-rvmark^="${k}:"]`).forEach(b => b.setAttribute('aria-pressed', b.dataset.rvmark === k + ':' + ms[k])); return;
+    }
+    const rf = t.closest('[data-rvfilter]'); if (rf) { reviewFilter = rf.dataset.rvfilter; $('.rv-list').dataset.filter = reviewFilter; $$('[data-rvfilter]').forEach(b => b.setAttribute('aria-pressed', b === rf)); return; }
+    const rc = t.closest('[data-rvcopy]'); if (rc) {
+      const txt = reviewReport(); if (!txt) { toast(L() ? 'No sound is marked ✗ yet.' : 'এখনো কোনো অডিওতে ✗ দেওয়া হয়নি।'); return; }
+      const done = () => toast(L() ? 'Copied.' : 'কপি হয়েছে।');
+      const old = () => { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); };
+      if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, old); else old(); return;
+    }
+    const vs = t.closest('[data-voice-set]'); if (vs) { S.voice = vs.dataset.voiceSet; save(); rerender(); say('صَبَاحُ الْخَيْرِ'); return; }
     const ts = t.closest('[data-theme-set]'); if (ts) { S.theme = ts.dataset.themeSet; save(); applyTheme(); rerender(); return; }
     if (t.closest('[data-close]')) { closeModal(); return; }
     if (t.closest('[data-sbclose]')) { const sb = document.getElementById('soundBanner'); if (sb) sb.remove(); return; }
@@ -1134,7 +1266,7 @@
       return;
     }
     const sy = t.closest('[data-say]'); if (sy) {
-      say(sy.dataset.say);
+      if (sy.closest('[data-aref]')) sayQuranWord(sy); else say(sy.dataset.say, null, sy.dataset.vo);
       const w = sy.closest('.ayah-ar .w'); if (w) { $$('.ayah-ar .w.on').forEach(x => x.classList.remove('on')); w.classList.add('on'); const ayah = w.closest('.ayah'); const box = $('.wbw', ayah); if (box.hidden) { box.hidden = false; $('[data-wbw]', ayah).classList.add('btn-primary'); } const tgt = box.children[+w.dataset.wi]; if (tgt) { tgt.style.outline = '2px solid var(--gold)'; setTimeout(() => { tgt.style.outline = ''; }, 1200); } }
       return;
     }
@@ -1162,7 +1294,47 @@
   addEventListener('scroll', onScroll, { passive: true });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (S.theme === 'auto') renderChrome(); });
 
+  /* index.html?saylist: lists every text the app can speak, for tools/audio.py to record (not linked anywhere). */
+  /* Every text the app can speak, with where it is used (unit id, or letters / makharij / roots / tools)
+     and its transliteration when the content has one. Used by tools/audio.py (index.html?saylist) and #audio. */
+  function sayEntries() {
+    const q0 = quiet; quiet = true;
+    const E = new Map(), TR = new Map();
+    const add = (t, ctx, tr) => {
+      const c = sayText(t || ''); if (!/[ء-ي]/.test(c)) return;
+      const k = akey(c); const e = E.get(k) || { k, t: c, c: new Set(), tr: null }; e.c.add(ctx); if (tr && !e.tr) e.tr = tr; E.set(k, e);
+    };
+    (function walk(o) {                                   // transliterations from the content: any { ar, tr: { en, bn } }
+      if (Array.isArray(o)) return o.forEach(walk);
+      if (!o || typeof o !== 'object') return;
+      if (typeof o.ar === 'string' && o.tr && o.tr.en) { TR.set(sayText(o.ar), o.tr); TR.set(sayText(pz(o.ar, o.tr)), o.tr); }
+      Object.keys(o).forEach(k => { if (k !== 'unit' && k !== 'lesson') walk(o[k]); });
+    })(AQ.units);
+    AQ.alphabet.forEach(a => { TR.set(sayText(a.ar), a.tr); TR.set(sayText(a.nameAr), { en: a.name.en, bn: a.name.bn }); });
+    const pages = [[viewAlphabet(), 'letters'], [viewRoots(), 'roots'], [viewSound(), 'tools'], [viewSettings(), 'tools']];
+    D.lessons.forEach(l => pages.push([viewLesson(l.id), l.unit.id]));
+    AQ.alphabet.forEach(a => { openLetter(a.id); pages.push([$('#modalCard').innerHTML, 'letters']); }); closeModal();
+    const z0 = mkZone; window.AQX.MAKHARIJ.forEach(z => { mkZone = z.id; pages.push([mkPanel(), 'makharij']); }); mkZone = z0;
+    D.vocab.forEach(w => { add(w.ar, w.unit.id, w.tr); add(pz(w.ar, w.tr), w.unit.id, w.tr); });      // flashcards and games
+    AQ.alphabet.forEach(a => { add(a.ar, 'letters', a.tr); add(a.nameAr, 'letters'); 'َ ِ ُ ْ ً ٍ ٌ'.split(' ').forEach(m => add(a.ar + m, 'letters', syllableTr(a.ar, m))); });
+    const box = document.createElement('div');
+    pages.forEach(([html, ctx]) => {
+      box.innerHTML = html;
+      $$('[data-say]', box).forEach(el => { if (!el.closest('[data-aref]')) add(el.dataset.say, ctx); });   // ayah words: recitation only
+      $$('[data-items]', box).forEach(el => { if (el.dataset.kind !== 'stroke') JSON.parse(el.dataset.items).forEach(x => add(x, ctx)); });
+    });
+    E.forEach(e => { if (!e.tr) e.tr = TR.get(e.t) || null; });
+    quiet = q0;
+    return [...E.values()];
+  }
+  function sayList() {
+    const out = {}; sayEntries().forEach(e => { out[e.k] = { t: e.t, c: [...e.c] }; });
+    const pre = document.createElement('pre'); pre.id = 'saylist'; pre.textContent = JSON.stringify(out);
+    document.body.appendChild(pre);
+  }
+
   applyTheme(); route();
+  if (/[?&]saylist\b/.test(location.search)) sayList();
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { /* offline cache is optional */ }));
   }

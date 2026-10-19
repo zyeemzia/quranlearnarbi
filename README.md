@@ -29,6 +29,8 @@ One set of content powers two outputs: an interactive web app and a printable bo
 daily missions with XP and streaks, memorise mode for every ayah (progressive word hiding, ×3 recitation repeat),
 Ayah Puzzle, Listen & Pick, Letter Hunt, Harakat Hero and Word Match games, a root explorer, an interactive makharij map,
 spaced-repetition flashcards, a downloadable certificate, word-by-word ayahs with Mishary Alafasy recitation,
+tap-a-word human Quran recitation (Quran.com word-by-word audio, checked against the ayah text),
+male and female synthetic voices for everyday phrases (labelled), an audio check page (#audio) for teachers,
 Bangla / English / both, light and dark theme, adjustable Arabic size.
 
 **Book extras:** a full phase-by-phase handwriting workbook (stroke rows, letter guides, copybook lines, dictation with answers),
@@ -46,6 +48,13 @@ python tools/build.py
 It checks every file, bundles them into one compact `data.bundle.js` (what the site and book load) and stamps a new
 version so browsers and the offline cache pick up the change. Then commit and push.
 
+If you added or changed Arabic text, remake the pronunciation audio (needs Google Chrome, ffmpeg and
+`pip install edge-tts`; only new texts are recorded) and build again:
+
+```bash
+python tools/audio.py all
+```
+
 To rebuild the PDF, run a local server in this folder (`python -m http.server 8765`) and print
 `http://localhost:8765/book.html` from Chrome (A4, background graphics on).
 
@@ -53,6 +62,8 @@ To rebuild the PDF, run a local server in this folder (`python -m http.server 87
 the online book draws its pages in chunks so phones stay responsive.
 
 Fonts (Amiri, Hind Siliguri, Reem Kufi, Figtree) are bundled in `fonts/` under the SIL Open Font License.
+Audio: whole-ayah recitation by Mishary Alafasy (everyayah.com) and word-by-word recitation from Quran.com
+(Quran Foundation), both streamed, not copied; synthetic everyday-phrase voices in `audio/` recorded with Microsoft neural voices. Quran text is never synthetic.
 
 ---
 
