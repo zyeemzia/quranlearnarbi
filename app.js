@@ -119,26 +119,82 @@
   const playBtn = (text, label) => `<button class="play" type="button" data-say="${esc(text)}" aria-label="${esc(label || u('listen'))}">${icon('play')}</button>`;
 
   /* ---------------- speech & audio ---------------- */
-  let arVoice = null, voiceWarned = false;
+  /* Words are spoken by the device's own text-to-speech. We pick the most natural Arabic voice available;
+     if there is none (e.g. Chrome on Windows), a one-time banner points to the Sound setup page. */
+  const UA = navigator.userAgent;
+  const ENV = {
+    windows: /Windows/i.test(UA), android: /Android/i.test(UA), ios: /iPhone|iPad|iPod/i.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1),
+    mac: /Macintosh/.test(UA) && !(navigator.maxTouchPoints > 1), edge: /Edg\//.test(UA), samsung: /SamsungBrowser/i.test(UA)
+  };
+  let arVoice = null, voiceWarned = false, voicesLoaded = false;
+  function voiceScore(v) {
+    if (!/^ar/i.test(v.lang)) return -1;
+    let s = 10;
+    if (/^ar[-_]SA/i.test(v.lang)) s += 3;
+    if (/natural|neural|premium|enhanced/i.test(v.name)) s += 6;
+    if (/online/i.test(v.name)) s += 2;
+    if (/google/i.test(v.name)) s += 2;
+    return s;
+  }
   function pickVoice() {
     if (!('speechSynthesis' in window)) return;
-    const vs = speechSynthesis.getVoices();
-    arVoice = vs.find(v => /^ar(-|_)SA/i.test(v.lang)) || vs.find(v => /^ar/i.test(v.lang)) || null;
+    const vs = speechSynthesis.getVoices(); if (vs.length) voicesLoaded = true;
+    arVoice = vs.filter(v => voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
+    const st = document.getElementById('soundStatus'); if (st) st.outerHTML = soundStatusHTML();
   }
-  if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener('voiceschanged', pickVoice) : (speechSynthesis.onvoiceschanged = pickVoice); }
+  function soundBanner() {
+    if (document.getElementById('soundBanner')) return;
+    const el = document.createElement('div'); el.id = 'soundBanner'; el.className = 'sound-banner'; el.setAttribute('role', 'status');
+    const edgeBtn = ENV.windows && !ENV.edge ? `<a class="btn btn-primary btn-sm" href="microsoft-edge:${esc(location.href)}">${t1({ bn: 'Microsoft Edge-এ খুলুন', en: 'Open in Microsoft Edge' })}</a>` : '';
+    el.innerHTML = `<span>${icon('warn')} ${t1({ bn: 'এই ব্রাউজারে আরবি কণ্ঠ নেই, তাই উচ্চারণ ঠিকমতো শোনা যাবে না।', en: 'This browser has no Arabic voice, so pronunciation will not sound right.' })}</span>
+      <span class="sb-actions">${edgeBtn}<a class="btn btn-sm" href="#sound">${t1({ bn: 'কীভাবে ঠিক করবেন', en: 'How to fix' })}</a><button class="icon-btn" type="button" data-sbclose aria-label="${u('close')}">${icon('x')}</button></span>`;
+    document.body.appendChild(el);
+  }
   function say(text, rate) {
     if (!text) return;
-    if (!('speechSynthesis' in window)) { toast(L() ? 'Speech is not supported in this browser.' : 'এই ব্রাউজারে কথা বলার সুবিধা নেই।'); return; }
+    if (!('speechSynthesis' in window)) { soundBanner(); return; }
+    if (!arVoice) pickVoice();
     const clean = String(text).replace(/ـ/g, '').replace(/[◌]/g, '');
     const ut = new SpeechSynthesisUtterance(clean);
-    ut.lang = 'ar-SA'; if (arVoice) ut.voice = arVoice; ut.rate = rate || S.rate;
-    if (!arVoice && !voiceWarned) {
-      voiceWarned = true;
-      toast(L() ? 'No Arabic voice found on this device. Install an Arabic voice (Windows: Settings → Time & language → Speech) or use Chrome/Edge for better sound.'
-        : 'এই ডিভাইসে আরবি ভয়েস নেই। ভালো উচ্চারণের জন্য আরবি ভয়েস ইনস্টল করুন (Windows: Settings → Time & language → Speech) অথবা Chrome/Edge ব্যবহার করুন।', 6500);
-    }
+    ut.lang = arVoice ? arVoice.lang : 'ar-SA'; if (arVoice) ut.voice = arVoice; ut.rate = rate || S.rate;
+    if (!arVoice && !voiceWarned) { voiceWarned = true; soundBanner(); }
     speechSynthesis.cancel(); speechSynthesis.speak(ut);
     return ut;
+  }
+  function soundStatusHTML() {
+    const ok = !!arVoice;
+    return `<div id="soundStatus" class="sound-status ${ok ? 'ok' : 'no'}">${icon(ok ? 'check' : 'warn')}<div><b>${ok ? t1({ bn: 'আরবি কণ্ঠ পাওয়া গেছে', en: 'Arabic voice found' }) : t1({ bn: 'এই ব্রাউজারে আরবি কণ্ঠ নেই', en: 'No Arabic voice in this browser' })}</b>
+      <small>${ok ? esc(arVoice.name) + ' · ' + esc(arVoice.lang) : (voicesLoaded ? t1({ bn: 'নিচের সহজ ধাপগুলো অনুসরণ করুন।', en: 'Follow the easy steps below.' }) : t1({ bn: 'কণ্ঠের তালিকা লোড হচ্ছে…', en: 'Loading the voice list…' }))}</small></div></div>`;
+  }
+  function viewSound() {
+    const step = (n, bn, en) => `<li><span class="sn">${num(n)}</span><span>${tx({ bn, en })}</span></li>`;
+    const cards = [];
+    const win = `<section class="sound-card ${ENV.windows ? 'mine' : ''}"><h3>Windows ${ENV.windows ? `<span class="chip">${t1({ bn: 'আপনার ডিভাইস', en: 'Your device' })}</span>` : ''}</h3>
+      <p class="sc-best">${tx({ bn: '**সবচেয়ে সহজ:** Microsoft Edge-এ সাইটটি খুলুন — Edge-এ সুন্দর আরবি কণ্ঠ আগে থেকেই আছে, কিছু ইনস্টল করতে হবে না।', en: '**Easiest:** open the site in Microsoft Edge. Edge already has natural Arabic voices, nothing to install.' })}</p>
+      ${ENV.windows && !ENV.edge ? `<a class="btn btn-primary" href="microsoft-edge:${esc(location.origin + location.pathname)}">${t1({ bn: 'এক ক্লিকে Edge-এ খুলুন', en: 'Open in Edge with one click' })}</a>` : ''}
+      <details><summary>${t1({ bn: 'অথবা Windows-এ আরবি কণ্ঠ যোগ করুন', en: 'Or add an Arabic voice to Windows' })}</summary>
+        <ol class="sound-steps"><li><span class="sn">${num(1)}</span><span><a href="ms-settings:speech">${t1({ bn: 'Windows Speech সেটিংস খুলুন', en: 'Open Windows Speech settings' })}</a> (Settings → Time &amp; language → Speech)</span></li>
+          ${step(2, '"Add voices" চাপুন → "Arabic" খুঁজে নির্বাচন করে Add করুন।', 'Click "Add voices", search "Arabic", select it and click Add.')}
+          ${step(3, 'ব্রাউজার বন্ধ করে আবার খুলুন। দ্রষ্টব্য: Chrome অনেক সময় এই কণ্ঠ দেখায় না — তখন Edge ব্যবহার করুন।', 'Close and reopen the browser. Note: Chrome often does not see these voices; if so, use Edge.')}</ol></details></section>`;
+    const android = `<section class="sound-card ${ENV.android ? 'mine' : ''}"><h3>Android ${ENV.android ? `<span class="chip">${t1({ bn: 'আপনার ডিভাইস', en: 'Your device' })}</span>` : ''}</h3>
+      <ol class="sound-steps">${step(1, 'Settings → Accessibility (বা General management) → Text-to-speech output।', 'Settings → Accessibility (or General management) → Text-to-speech output.')}
+        ${step(2, 'Preferred engine: "Speech Services by Google" বেছে নিন।', 'Choose "Speech Services by Google" as the preferred engine.')}
+        ${step(3, 'ইঞ্জিনের পাশের ⚙ → Install voice data → "العربية / Arabic" নামিয়ে নিন। তারপর Chrome-এ সাইটটি আবার খুলুন।', 'Tap ⚙ next to the engine → Install voice data → download "Arabic". Then reopen the site in Chrome.')}</ol></section>`;
+    const ios = `<section class="sound-card ${ENV.ios ? 'mine' : ''}"><h3>iPhone / iPad ${ENV.ios ? `<span class="chip">${t1({ bn: 'আপনার ডিভাইস', en: 'Your device' })}</span>` : ''}</h3>
+      <ol class="sound-steps">${step(1, 'Settings → Accessibility → Spoken Content → Voices।', 'Settings → Accessibility → Spoken Content → Voices.')}
+        ${step(2, '"Arabic" → "Majed" (বা অন্য কণ্ঠ) নামিয়ে নিন, তারপর Safari-তে সাইটটি আবার খুলুন।', 'Arabic → download "Majed" (or another voice), then reopen the site in Safari.')}</ol></section>`;
+    const mac = `<section class="sound-card ${ENV.mac ? 'mine' : ''}"><h3>Mac ${ENV.mac ? `<span class="chip">${t1({ bn: 'আপনার ডিভাইস', en: 'Your device' })}</span>` : ''}</h3>
+      <ol class="sound-steps">${step(1, 'System Settings → Accessibility → Spoken Content → System voice → Manage Voices।', 'System Settings → Accessibility → Spoken Content → System voice → Manage Voices.')}
+        ${step(2, '"Arabic" থেকে একটি কণ্ঠ নামিয়ে ব্রাউজার আবার খুলুন।', 'Download an Arabic voice, then reopen the browser.')}</ol></section>`;
+    const order = ENV.android ? [android, ios, win, mac] : ENV.ios ? [ios, android, mac, win] : ENV.mac ? [mac, win, android, ios] : [win, android, ios, mac];
+    cards.push(...order);
+    return `<div class="page-head"><div class="eyebrow">${t1({ bn: 'উচ্চারণ সেটআপ', en: 'Sound setup' })}</div><h1 class="page-title">${tx({ bn: 'আরবি উচ্চারণ শোনার ব্যবস্থা', en: 'Hear the Arabic pronunciation' })}</h1>
+      <p class="muted">${t1({ bn: 'শব্দ ও হরফের উচ্চারণ আপনার ডিভাইসের নিজস্ব আরবি কণ্ঠে বাজে। কুরআনের তিলাওয়াত আলাদা — সেটি মিশারি আল-আফাসির আসল রেকর্ডিং, যেকোনো ডিভাইসে ইন্টারনেটে চলে।', en: "Words and letters are spoken by your device's own Arabic voice. Quran recitation is separate: real recordings by Mishary Alafasy that play on any device with internet." })}</p></div>
+      ${soundStatusHTML()}
+      <div class="sound-test"><button class="btn btn-primary" type="button" data-say="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ">${icon('play')} ${t1({ bn: 'কণ্ঠ পরীক্ষা করুন', en: 'Test the voice' })}</button>
+        <button class="btn" type="button" data-say="أَبْ أَتْ أَثْ">${icon('play')} أَبْ · أَتْ · أَثْ</button></div>
+      <div class="sound-grid">${cards.join('')}</div>`;
   }
   let audioEl = null;
   function playAyah(ref, btn) {
@@ -190,7 +246,7 @@
     const r = cur || 'home';
     const lessonUnit = r === 'lesson' && D.lessons.find(l => l.id === arg);
     const inWriting = (r === 'unit' && arg === 'writing') || (lessonUnit && lessonUnit.unit.id === 'writing');
-    const owner = inWriting ? 'write' : (r === 'unit' || r === 'lesson') ? 'learn' : (['cards', 'roots', 'makharij', 'certificate', 'settings', 'search'].includes(r) ? 'more' : r === 'play' ? 'games' : r);
+    const owner = inWriting ? 'write' : (r === 'unit' || r === 'lesson') ? 'learn' : (['cards', 'roots', 'makharij', 'certificate', 'settings', 'search', 'sound'].includes(r) ? 'more' : r === 'play' ? 'games' : r);
     const active = k => k === owner ? 'aria-current="page"' : '';
     $('#mainnav').innerHTML = NAV.map(([k, , href]) => `<a href="${href}" ${active(k)}>${u(k)}</a>`).join('') + `<a class="nav-book" href="book.html" target="_blank" rel="noopener">${icon('book')}${u('book')}</a>`;
     $('#tabbar').innerHTML = NAV.filter(([k]) => TABS.includes(k)).map(([k, ic, href]) => `<a href="${href}" ${active(k)}>${icon(ic)}<span>${u(k)}</span></a>`).join('');
@@ -296,6 +352,7 @@
       ['#certificate', 'شَهَادَة', { bn: 'সনদপত্র', en: 'Certificate' }, { bn: 'আপনার নামে সনদ তৈরি ও ডাউনলোড', en: 'Make and download your own certificate' }],
       ['book.html', 'كِتَاب', { bn: 'ছাপার বই', en: 'Printable book' }, { bn: 'পুরো কোর্স ও লেখার খাতা বই আকারে', en: 'The whole course and writing workbook as a book' }],
       ['Quran-o-Arbi-Shikkha.pdf', 'PDF', { bn: 'PDF ডাউনলোড', en: 'Download PDF' }, { bn: 'অফলাইনে পড়ুন বা প্রিন্ট করুন', en: 'Read offline or print it' }],
+      ['#sound', 'صَوْت', { bn: 'উচ্চারণ সেটআপ', en: 'Sound setup' }, { bn: 'আরবি কণ্ঠ চালু করার সহজ উপায়', en: 'The easy way to turn on the Arabic voice' }],
       ['#settings', '⚙', { bn: 'অগ্রগতি ও সেটিংস', en: 'Progress & settings' }, { bn: 'ভাষা, থিম, আরবির আকার, উচ্চারণের গতি', en: 'Language, theme, Arabic size, speech speed' }]
     ];
     return T.map(([href, ar, name, desc]) => `<a class="tool" href="${href}" ${href.endsWith('.html') ? 'target="_blank" rel="noopener"' : ''} ${href.endsWith('.pdf') ? 'download' : ''}><span class="t-ar" lang="ar">${esc(ar)}</span><b>${t1(name)}</b><span>${t1(desc)}</span></a>`);
@@ -909,6 +966,7 @@
       </div>
       <div class="set-row"><div><b>${S.lang === 'en' ? 'Arabic text size' : 'আরবি লেখার আকার'}</b><small>${S.lang === 'en' ? 'Make Arabic bigger for easier reading' : 'সহজে পড়ার জন্য আরবি বড় করুন'}</small></div>
         <input id="arScale" type="range" min="0.8" max="1.6" step="0.1" value="${S.arScale}"></div>
+      <div class="set-row"><div><b>${S.lang === 'en' ? 'Sound setup' : 'উচ্চারণ সেটআপ'}</b><small>${arVoice ? esc(arVoice.name) : (S.lang === 'en' ? 'No Arabic voice in this browser' : 'এই ব্রাউজারে আরবি কণ্ঠ নেই')}</small></div><a class="btn" href="#sound">${S.lang === 'en' ? 'Open sound setup' : 'সেটআপ খুলুন'}</a></div>
       <div class="set-row"><div><b>${S.lang === 'en' ? 'Speech speed' : 'উচ্চারণের গতি'}</b><small>${arVoice ? (S.lang === 'en' ? 'Voice: ' : 'ভয়েস: ') + esc(arVoice.name) : (S.lang === 'en' ? 'No Arabic voice detected on this device' : 'এই ডিভাইসে আরবি ভয়েস পাওয়া যায়নি')}</small></div>
         <span style="display:flex;gap:8px;align-items:center"><input id="rate" type="range" min="0.4" max="1.1" step="0.05" value="${S.rate}"><button class="play" type="button" data-say="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ">${icon('play')}</button></span></div>
       <div class="set-row"><div><b>${S.lang === 'en' ? 'Theme' : 'থিম'}</b></div>
@@ -1005,7 +1063,7 @@
   function route() {
     stopGame(); if ('speechSynthesis' in window) speechSynthesis.cancel();
     const [r, arg] = location.hash.slice(1).split('/');
-    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate }[r || ''] || notFound;
+    const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate, sound: viewSound }[r || ''] || notFound;
     view.innerHTML = V(arg);
     renderChrome(); initTraces(view);
     if (r === 'makharij') markZone();
@@ -1027,6 +1085,7 @@
     if (t.closest('#themeBtn')) { S.theme = isDark() ? 'light' : 'dark'; save(); applyTheme(); renderChrome(); return; }
     const ts = t.closest('[data-theme-set]'); if (ts) { S.theme = ts.dataset.themeSet; save(); applyTheme(); rerender(); return; }
     if (t.closest('[data-close]')) { closeModal(); return; }
+    if (t.closest('[data-sbclose]')) { const sb = document.getElementById('soundBanner'); if (sb) sb.remove(); return; }
     const pt = t.closest('[data-ptile]'); if (pt) { puzzleMove('bank', +pt.dataset.ptile); return; }
     const pa = t.closest('[data-pans]'); if (pa) { puzzleMove('ans', +pa.dataset.pans); return; }
     if (t.closest('[data-pnext]')) { G.round++; if (G.round >= G.rounds) endGame(); else puzzleRound(); return; }
