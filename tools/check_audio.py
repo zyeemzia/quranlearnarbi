@@ -3,7 +3,7 @@
     python tools/check_audio.py            (needs: pip install faster-whisper; first run downloads the
                                             Whisper "medium" model, about 1.5 GB)
 
-Transcribes audio/m and audio/f for each everyday phrase in audio/manifest.json, compares the letters with
+Transcribes audio/m and audio/f (several clips at a time, with a spoken separator word between them) for each everyday phrase in audio/manifest.json, compares the letters with
 the text (vowel marks are not compared: Whisper writes none), and lists the files that do not match.
 It cannot judge tajweed or fine pronunciation; a teacher should still listen on the site's #audio page.
 The full result is written to tools/.cache/check.json.
@@ -24,41 +24,50 @@ def letters(s):
     return re.sub(r'[^ء-ي]', '', s)
 
 
-GAP = 1.5      # seconds of silence between clips that share one recognition window
-WINDOW = 28    # Whisper listens in 30-second windows; packing short clips into one is many times faster
+SEP_TEXT = 'فَاصِلْ'   # فَاصِلْ: a spoken word placed between clips
+PER_WINDOW = 6   # Whisper always listens to a 30-second window; several short clips per window is much faster
 
 
 def main():
-    import numpy as np
+    import asyncio, numpy as np, edge_tts
     from faster_whisper import WhisperModel, decode_audio
     model = WhisperModel('medium', device='cpu', compute_type='int8')
     man = json.load(open(os.path.join(ROOT, 'audio', 'manifest.json'), encoding='utf-8'))
     texts = {k: e['t'] for k, e in json.load(open(os.path.join(CACHE, 'saylist.json'), encoding='utf-8')).items()}
     clips = [(v, k) for k in man.get('tts', []) for v in ('m', 'f') if os.path.exists(os.path.join(ROOT, 'audio', v, k + '.mp3'))]
-    heard, done = {c: [] for c in clips}, 0
-    batch, parts, t = [], [], 0.0
+    if len(sys.argv) > 1:
+        clips = clips[:int(sys.argv[1])]                  # a quick sample run
+    sep_file = os.path.join(CACHE, 'separator.mp3')       # spoken by a third voice, so it is never confused with a clip
+    if not os.path.exists(sep_file):
+        os.makedirs(CACHE, exist_ok=True)
+        asyncio.run(edge_tts.Communicate(SEP_TEXT, 'ar-EG-SalmaNeural').save(sep_file))
+    sep = decode_audio(sep_file, sampling_rate=16000)
+    sil = np.zeros(8000, dtype=sep.dtype)
+    sep_l = letters(SEP_TEXT)
 
-    def run():
-        segs, _ = model.transcribe(np.concatenate(parts), language='ar', beam_size=5, word_timestamps=True,
-                                   vad_filter=False, condition_on_previous_text=False)
-        for seg in segs:
-            for w in seg.words:                               # each heard word belongs to the clip playing at that time
-                c = next((c for c, a, b in batch if a - 0.3 <= w.start <= b + GAP / 2), None)
-                if c:
-                    heard[c].append(w.word.strip())
+    def hear(audio):
+        segs, _ = model.transcribe(audio, language='ar', beam_size=5, vad_filter=False,
+                                   condition_on_previous_text=False, without_timestamps=True)
+        return ' '.join(s.text.strip() for s in segs)
 
-    for c in clips:
-        a = decode_audio(os.path.join(ROOT, 'audio', c[0], c[1] + '.mp3'), sampling_rate=16000)
-        d = len(a) / 16000
-        if batch and t + d > WINDOW:
-            run(); done += len(batch); batch, parts, t = [], [], 0.0
-            print(f'  {done}/{len(clips)}', flush=True)
-        batch.append((c, t, t + d)); parts += [a, np.zeros(int(GAP * 16000), dtype=a.dtype)]; t += d + GAP
-    if batch:
-        run()
+    heard = {}
+    for n in range(0, len(clips), PER_WINDOW):
+        group = clips[n:n + PER_WINDOW]
+        audios = [decode_audio(os.path.join(ROOT, 'audio', v, k + '.mp3'), sampling_rate=16000) for v, k in group]
+        parts = []
+        for a in audios:
+            parts += [a, sil, sep, sil]
+        out = hear(np.concatenate(parts))
+        pieces = [p.strip() for p in re.split(r'\s*' + r'\s*'.join(sep_l) + r'\S*\s*', out)]
+        pieces = [p for p in pieces if p or True][:len(group) + 1]
+        if len([p for p in re.findall(r'\S+', out) if letters(p) == sep_l or letters(p).startswith(sep_l)]) != len(group):
+            pieces = [hear(a) for a in audios]            # the separators were not all heard: check one by one
+        for c, p in zip(group, pieces):
+            heard[c] = p
+        print(f'  {min(n + PER_WINDOW, len(clips))}/{len(clips)}', flush=True)
     res, bad, digits = {}, [], []
     for v, k in clips:
-        h = ' '.join(heard[(v, k)])
+        h = heard[(v, k)]
         want, got = letters(texts.get(k, '')), letters(h)
         score = difflib.SequenceMatcher(None, want, got).ratio() if want else 0
         res[f'{v}/{k}'] = {'text': texts.get(k), 'heard': h, 'score': round(score, 3)}
