@@ -44,7 +44,7 @@ mark[class^="tj-"] { border-bottom: 1.5px solid currentColor; }
   #book { max-width: none; }
   .page, .flow { margin: 0; padding: 0; box-shadow: none; min-height: 0; }
   .page { break-before: page; break-after: page; }
-  .page.cover { break-before: auto; }
+  .page.cover { break-before: auto; height: 300mm; min-height: 300mm; }   /* fills the paper edge to edge (clipped to the page) */
   .flow { break-before: page; }
 }
 
@@ -64,7 +64,7 @@ mark[class^="tj-"] { border-bottom: 1.5px solid currentColor; }
 .cover h1 .sub { color: #cfe5df; font: 600 20pt var(--f-display); margin-top: 3mm; letter-spacing: .02em; }
 .cover-lead { text-align: center; font-size: 13pt; color: #e6f1ee; max-width: 140mm; margin: 0 auto; }
 .cover-lead .sub { color: #b8d3cc; }
-.cover-units { margin-top: auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4mm; }
+.cover-units { margin-top: auto; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4mm; }
 .cover-units div { border: 1px solid rgba(242, 199, 107, .5); border-radius: 4mm; padding: 4mm 2mm; text-align: center; font-size: 8.5pt; color: #e6f1ee; }
 .cover-units b { display: block; font: 700 20pt/1.4 var(--f-ar); color: #f2c76b; }
 
@@ -80,7 +80,7 @@ mark[class^="tj-"] { border-bottom: 1.5px solid currentColor; }
 .learner { margin-top: 8mm; border: 1.5px solid var(--line); border-radius: 4mm; padding: 6mm; display: grid; gap: 6mm; }
 .learner div { display: flex; gap: 4mm; align-items: flex-end; }
 .learner span.line { flex: 1; border-bottom: 1px dotted var(--ink-3); height: 6mm; }
-.routine { margin-top: 6mm; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.routine { margin-top: 6mm; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3mm; }
 .routine div { border: 1px solid var(--line); border-radius: 3mm; padding: 3mm; text-align: center; font-size: 9pt; }
 .routine b { display: block; font: 700 16pt var(--f-display); color: var(--primary); }
 
@@ -97,7 +97,7 @@ mark[class^="tj-"] { border-bottom: 1.5px solid currentColor; }
 [data-c="indigo"] { --uc: var(--c-indigo); } [data-c="rose"] { --uc: var(--c-rose); } [data-c="violet"] { --uc: var(--c-violet); }
 
 /* alphabet chart */
-.alpha { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.5mm; direction: rtl; }
+.alpha { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2.5mm; direction: rtl; }
 .alpha div { border: 1px solid var(--line); border-radius: 3mm; text-align: center; padding: 1.5mm 1mm 2mm; direction: ltr; break-inside: avoid; }
 .alpha .a { font: 400 30pt/1.45 var(--f-ar); }
 .alpha .heavy .a { color: var(--c-rose); }
@@ -135,7 +135,7 @@ mark[class^="tj-"] { border-bottom: 1.5px solid currentColor; }
 .tip-memory { background: var(--gold-soft); border-color: #ecd6a6; } .tip-memory .tip-label { color: var(--gold); }
 .tip-fun { background: #efe6f7; border-color: #dccbed; } .tip-fun .tip-label { color: var(--c-violet); }
 
-.lgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; }
+.lgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.5mm; }
 .lcard { border: 1px solid var(--line); border-radius: 3mm; padding: 2mm 3mm; break-inside: avoid; display: grid; grid-template-columns: auto 1fr; gap: 0 3mm; align-items: center; }
 .lcard .a { font: 400 30pt/1.4 var(--f-ar); grid-row: span 3; }
 .lcard.heavy .a { color: var(--c-rose); }
@@ -143,7 +143,7 @@ mark[class^="tj-"] { border-bottom: 1.5px solid currentColor; }
 .lcard small { font: 8pt var(--f-en); color: var(--ink-2); }
 .lcard .f { grid-column: 1 / -1; font: 13pt/1.6 var(--f-ar); direction: rtl; color: var(--ink-2); border-top: 1px dotted var(--line); margin-top: 1mm; letter-spacing: .3em; }
 
-.exg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; }
+.exg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2mm; }
 .ex { border: 1px solid var(--line); border-radius: 3mm; padding: 1.5mm 2mm; text-align: center; break-inside: avoid; }
 .ex .ar { font-size: 18pt; line-height: 1.6; display: block; }
 .ex .t { font-size: 8.5pt; font-weight: 600; color: var(--primary); display: block; }
@@ -241,6 +241,7 @@ td .sub, th .sub { font-size: .85em; }
 .opener .badge.bx3 { font-size: 38pt; } .opener .badge.bx4 { font-size: 30pt; }
 .lesson-h .badge.bx3 { font-size: 14pt; } .lesson-h .badge.bx4 { font-size: 11pt; }
 
+.cover-brand { text-align: center; font: 700 15pt var(--f-display); letter-spacing: .32em; text-transform: uppercase; color: #f2c76b; margin-top: 2mm; }
 .cover-copy { text-align: center; font: 500 9pt var(--f-en); color: #cfe5df; letter-spacing: .06em; margin-top: 2mm; }
 .imprint { margin-top: 10mm; padding-top: 4mm; border-top: 1px solid var(--line); font-size: 8.5pt; color: var(--ink-2); }
 
@@ -297,7 +298,7 @@ td .sub, th .sub { font-size: .85em; }
 .ws td { width: 10.5mm; height: 10.5mm; text-align: center; font: 17pt/1 var(--f-ar); border: 1px solid var(--line); padding: 0; }
 .ws-list { margin: 0; padding-left: 5mm; font-size: 10pt; display: grid; gap: 2mm; }
 .ws-list .ar-in { font-size: 1.5em; }
-.ws-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+.ws-keys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4mm; }
 .ws-key { break-inside: avoid; font-size: 8.5pt; display: grid; gap: 1mm; }
 .ws-key .ws td { width: 4.6mm; height: 4.6mm; font-size: 8pt; }
 .ws-key .ws td.on { background: var(--gold-soft); font-weight: 700; }
@@ -308,7 +309,7 @@ td .sub, th .sub { font-size: .85em; }
 .ap-w { display: grid; justify-items: center; gap: 1mm; border: 1px dashed var(--ink-3); border-radius: 2mm; padding: .5mm 3mm 1.5mm; }
 .ap-w .ar-in { font-size: 1.7em; }
 .ap-w i { width: 7mm; height: 7mm; border: 1.2px solid var(--ink-3); border-radius: 50%; display: block; }
-.rt-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.rt-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3mm; }
 .rt { border: 1px solid var(--line); border-radius: 3mm; padding: 2mm 3mm; break-inside: avoid; text-align: center; }
 .rt-root { font: 700 20pt/1.5 var(--f-ar); color: var(--c-amber); letter-spacing: .3em; border-bottom: 2px solid var(--c-amber); margin-bottom: 1mm; direction: rtl; }
 .rt ul { list-style: none; margin: 0; padding: 0; font-size: 8pt; display: grid; gap: .8mm; }

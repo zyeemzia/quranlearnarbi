@@ -27,8 +27,8 @@
       <h1>কুরআন ও আরবি শিক্ষা<span class="sub">Quran &amp; Arabic Learning</span></h1>
       <p class="cover-lead">বাংলা ও ইংরেজিতে আরবি পড়া, হাতের লেখা, তাজবীদ, কুরআনের শব্দ, ব্যাকরণ, দৈনন্দিন আরবি ও সালাত — শব্দে শব্দে, ধাপে ধাপে।
         <span class="sub">Reading, handwriting, tajweed, Quranic words, grammar, everyday Arabic and salah, word by word and step by step.</span></p>
-      <div class="cover-units" style="grid-template-columns:repeat(${D.units.length},1fr)">${D.units.map(u => `<div><b>${esc(u.icon)}</b>${t1(u.title)}</div>`).join('')}</div>
-      <div class="cover-copy">Copyright © ZyeemZia</div>
+      <div class="cover-units" style="grid-template-columns:repeat(${D.units.length},minmax(0,1fr))">${D.units.map(u => `<div><b>${esc(u.icon)}</b>${t1(u.title)}</div>`).join('')}</div>
+      <div class="cover-brand">ZyeemZia</div><div class="cover-copy">Copyright © ZyeemZia · quranlearnarbi.zyeemzia.com</div>
     </div></section>`;
   }
 

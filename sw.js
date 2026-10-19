@@ -1,7 +1,7 @@
 /* Offline cache for কুরআন ও আরবি শিক্ষা · Quran & Arabic Learning. Copyright © ZyeemZia
    Pages and files open instantly from the cache and are refreshed in the background.
    VERSION is stamped by tools/build.py; a new version clears the old cache. */
-const VERSION = '4e17740718';
+const VERSION = '8f4eeb0e2c';
 const CACHE = 'qas-' + VERSION;
 const CORE = ['./', 'index.html', 'app.css', 'fonts.css', 'common.js', 'data.bundle.js', 'app.js', 'favicon.svg', 'book.html', 'book.css', 'book.js'];
 
@@ -12,11 +12,12 @@ self.addEventListener('install', e => {
 /* Pronunciation audio is cached as it is played, in caches that outlive a site update:
    our own voice files (audio/m, audio/f) for good, and Quran.com's word-by-word recitation for at most
    7 days (Quran Foundation's terms allow caching their content for up to a week, so it is re-fetched after that). */
-const VOICE = 'qa-voice', WBW = 'qa-wbw', WEEK = 7 * 864e5;
+const VOICE_VER = 'b49b086e';
+const VOICE = 'qa-voice-' + VOICE_VER, WBW = 'qa-wbw', WEEK = 7 * 864e5;
 const saved = r => +(r.headers.get('x-saved') || 0);
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('qas-') && k !== CACHE).map(k => caches.delete(k))))
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => (k.startsWith('qas-') && k !== CACHE) || (k.startsWith('qa-voice') && k !== VOICE)).map(k => caches.delete(k))))
     .then(() => caches.open(WBW)).then(c => c.keys().then(ks => Promise.all(ks.map(k => c.match(k).then(r => { if (!r || Date.now() - saved(r) > WEEK) return c.delete(k); })))))
     .then(() => self.clients.claim()));
 });
@@ -48,7 +49,7 @@ self.addEventListener('fetch', e => {
   if (url.pathname.endsWith('.pdf')) return; // the large PDF is never cached
   e.respondWith(caches.open(CACHE).then(async cache => {
     const hit = await cache.match(req, { ignoreSearch: true });
-    const fresh = fetch(req).then(res => { if (res && res.ok && res.type === 'basic') cache.put(req, res.clone()); return res; }).catch(() => hit);
+    const fresh = fetch(req).then(res => { if (res && res.status === 200 && res.type === 'basic') cache.put(req, res.clone()).catch(() => {}); return res; }).catch(() => hit);
     return hit || fresh;
   }));
 });

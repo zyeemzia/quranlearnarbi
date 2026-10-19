@@ -13,10 +13,13 @@
   let S = defaults();
   try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(OLD_KEY) || '{}')); } catch (e) { /* storage blocked */ }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } };
-  const today = () => new Date().toISOString().slice(0, 10);
+  const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const today = () => ymd(new Date());
+  const yesterday = () => { const d = new Date(); d.setDate(d.getDate() - 1); return ymd(d); };
+  const streakNow = () => (S.streak.last === today() || S.streak.last === yesterday()) ? S.streak.count : 0;
   function touchStreak() {
     const t = today(); if (S.streak.last === t) return;
-    const y = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    const y = yesterday();
     S.streak.count = S.streak.last === y ? S.streak.count + 1 : 1; S.streak.last = t;
   }
   function addXP(n) { S.xp += n; touchStreak(); save(); renderChrome(); }
@@ -176,7 +179,14 @@
   const qwUrls = q => { if (!q) return null; const [s, a, ps] = q.split(':'); return ps.split(',').map(p => `https://audio.qurancdn.com/wbw/${pad3(s)}_${pad3(a)}_${pad3(p)}.mp3`); };
   let voiceEl = null, voiceQ = [], quiet = false;
   function stopVoice() { voiceQ = []; if (voiceEl) { voiceEl.onended = voiceEl.onerror = null; voiceEl.pause(); } }
+  let memoRun = 0;
+  function stopAyah() {
+    memoRun++;
+    if (audioEl) { audioEl.onended = null; audioEl.pause(); if (audioEl._btn) audioEl._btn.classList.remove('on'); audioEl = null; }
+  }
+  function stopAllAudio() { stopAyah(); stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
   function playFiles(urls, rate, fallback) {
+    stopAyah();
     stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel();
     if (!voiceEl) { voiceEl = new Audio(); voiceEl.crossOrigin = 'anonymous'; voiceEl.preload = 'auto'; }
     const el = voiceEl, pr = Math.min(1.6, Math.max(0.5, (rate || S.rate) / 0.75));
@@ -312,6 +322,7 @@
 
   let audioEl = null;
   function playAyah(ref, btn) {
+    stopVoice();
     const [s, a] = ref.split(':').map(Number);
     const url = `https://everyayah.com/data/Alafasy_128kbps/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`;
     if (audioEl) { audioEl.pause(); if (audioEl._btn) audioEl._btn.classList.remove('on'); if (audioEl._url === url) { audioEl = null; return; } }
@@ -368,7 +379,7 @@
     $('#tabbar').innerHTML = NAV.filter(([k]) => TABS.includes(k)).map(([k, ic, href]) => `<a href="${href}" ${active(k)}>${icon(ic)}<span>${u(k)}</span></a>`).join('');
     $('#langSeg').innerHTML = [['bn', 'বাং'], ['both', 'বাং+EN'], ['en', 'EN']].map(([k, l]) => `<button type="button" data-lang="${k}" aria-pressed="${S.lang === k}">${l}</button>`).join('');
     $('#themeBtn').innerHTML = icon(isDark() ? 'sun' : 'moon');
-    $('#xpChip').innerHTML = `${icon('flame')}<span>${num(S.streak.count)}</span> ${icon('star')}<span>${num(S.xp)}</span><span class="xp-label">${u('xp')}</span>`;
+    $('#xpChip').innerHTML = `${icon('flame')}<span>${num(streakNow())}</span> ${icon('star')}<span>${num(S.xp)}</span><span class="xp-label">${u('xp')}</span>`;
   }
 
   /* ---------------- helpers ---------------- */
@@ -376,7 +387,7 @@
   const unitProgress = un => { const n = un.lessons.length; const d = un.lessons.filter(l => S.done[l.id]).length; return { n, d, pct: n ? Math.round(d / n * 100) : 0 }; };
   const baseLen = s => String(s).replace(/[ً-ٰٟـ◌\s]/g, '').length;
   const badge = (unit, extra, txt) => { const t = txt || unit.icon; const n = baseLen(t); return `<span class="u-badge star-clip ${n >= 4 ? 'bx4' : n === 3 ? 'bx3' : ''}" data-c="${unit.color}" ${extra || ''} lang="ar">${esc(t)}</span>`; };
-  const masteredCount = () => Object.values(S.srs).filter(c => c.box >= 4).length;
+  const masteredCount = () => Object.values(S.srs).filter(c => c.box >= 5).length;
   function dayIndex() { return Math.floor(Date.now() / 864e5); }
 
   /* ---------------- views ---------------- */
@@ -399,7 +410,7 @@
         ${nl ? `<div class="muted" style="font-size:.88rem">${u('lesson')} ${num(nl.gi + 1)}: <b>${t1(nl.title)}</b></div>` : ''}
         <div class="stats">
           <div class="stat"><b>${num(S.xp)}</b><span>${u('xp')}</span></div>
-          <div class="stat"><b>${num(S.streak.count)}</b><span>${u('streak')}</span></div>
+          <div class="stat"><b>${num(streakNow())}</b><span>${u('streak')}</span></div>
           <div class="stat"><b>${num(doneN)}/${num(D.lessons.length)}</b><span>${u('lessonsDone')}</span></div>
           <div class="stat"><b>${num(masteredCount())}</b><span>${u('words')}</span></div>
         </div>
@@ -433,7 +444,7 @@
 
   function bookBanner() {
     return `<section class="book-banner">
-      <a class="bb-cover" href="book.html" target="_blank" rel="noopener" aria-label="${esc(plain({ bn: 'বই খুলুন', en: 'Open the book' }))}"><span class="pattern"></span><span class="bb-cal" lang="ar">تَعَلُّمُ الْقُرْآنِ وَالْعَرَبِيَّةِ</span><b>কুরআন ও আরবি শিক্ষা</b><small>Quran &amp; Arabic Learning</small></a>
+      <a class="bb-cover" href="book.html" target="_blank" rel="noopener" aria-label="${esc(plain({ bn: 'বই খুলুন', en: 'Open the book' }))}"><span class="pattern"></span><span class="bb-cal" lang="ar">تَعَلُّمُ الْقُرْآنِ وَالْعَرَبِيَّةِ</span><b>কুরআন ও আরবি শিক্ষা</b><small>Quran &amp; Arabic Learning</small><small class="bb-brand">ZyeemZia</small></a>
       <div class="bb-text"><div class="eyebrow">${t1({ bn: 'ছাপার বই ও লেখার খাতা', en: 'Printable book & writing workbook' })}</div>
         <h2>${t1({ bn: 'পুরো কোর্স এক বইয়ে — ৫১১ পৃষ্ঠা', en: 'The whole course in one book: 511 pages' })}</h2>
         <p class="muted">${t1({ bn: 'সব পাঠ, ধাপে ধাপে আরবি হাতের লেখার খাতা, শব্দ খোঁজ ও আয়াত পাজল, মাখরাজ মানচিত্র, মুখস্থের খাতা, উত্তরমালা ও সনদপত্র। অনলাইনে পড়ুন বা PDF নামিয়ে প্রিন্ট করুন।', en: 'Every lesson, a phase-by-phase handwriting workbook, word searches and ayah puzzles, the makharij map, a memorisation tracker, answer keys and a certificate. Read it online or download the PDF to print.' })}</p>
@@ -708,8 +719,10 @@
       const FONT = '"Amiri", "Noto Naskh Arabic", serif';
       function size() {
         const r = pad.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1);
+        const keep = ink.width && ink.height ? (() => { const c = document.createElement('canvas'); c.width = ink.width; c.height = ink.height; c.getContext('2d').drawImage(ink, 0, 0); return c; })() : null;
         W = Math.max(10, r.width); H = Math.max(10, r.height);
         [guide, demo, ink].forEach(c => { c.width = W * dpr; c.height = H * dpr; });
+        if (keep) ink.getContext('2d').drawImage(keep, 0, 0, ink.width, ink.height);   // the learner's ink survives a rotation
         [g, dm, k].forEach(c => c.setTransform(dpr, 0, 0, dpr, 0, 0)); drawGuide();
       }
       // where and how big the model sits
@@ -770,9 +783,10 @@
         })(t0);
       }
       function pos(e) { const r = ink.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
-      ink.addEventListener('pointerdown', e => { drawing = true; last = pos(e); ink.setPointerCapture(e.pointerId); dot(last); });
-      ink.addEventListener('pointermove', e => { if (!drawing) return; const p = pos(e); line(last, p); last = p; });
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => ink.addEventListener(ev, () => { drawing = false; }));
+      let pid = null, fresh = false;
+      ink.addEventListener('pointerdown', e => { if (drawing && e.pointerId !== pid) return; drawing = true; pid = e.pointerId; fresh = true; last = pos(e); ink.setPointerCapture(e.pointerId); dot(last); });
+      ink.addEventListener('pointermove', e => { if (!drawing || e.pointerId !== pid) return; const p = pos(e); line(last, p); last = p; });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => ink.addEventListener(ev, e => { if (e.pointerId === pid) { drawing = false; pid = null; } }));
       function style() { k.strokeStyle = css('--primary'); k.fillStyle = k.strokeStyle; k.lineWidth = Math.max(8, Math.min(W, H * 1.4) / 30); k.lineCap = 'round'; k.lineJoin = 'round'; }
       function dot(p) { style(); k.beginPath(); k.arc(p.x, p.y, k.lineWidth / 2, 0, 7); k.fill(); }
       function line(a, b) { style(); k.beginPath(); k.moveTo(a.x, a.y); k.lineTo(b.x, b.y); k.stroke(); }
@@ -809,7 +823,7 @@
         const stars = sc >= 80 ? 3 : sc >= 55 ? 2 : sc >= 30 ? 1 : 0;
         if (!revealed) { revealed = true; drawGuide(); }
         out.innerHTML = `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)} ${num(sc)}%<small>${t1(stars === 3 ? { bn: 'অসাধারণ হাতের লেখা!', en: 'Beautiful writing!' } : stars >= 1 ? { bn: 'ভালো! আরও একটু রেখার ওপর থাকুন।', en: 'Good! Stay a little closer to the guide.' } : { bn: 'আবার চেষ্টা করুন — ধীরে ধীরে লিখুন।', en: 'Try again, slowly.' })}</small>`;
-        bumpDaily('write'); if (stars === 3) addXP(2);
+        if (fresh) { fresh = false; bumpDaily('write'); if (stars === 3) addXP(2); }   // one count per new drawing
       }
       size(); new ResizeObserver(() => { const r = pad.getBoundingClientRect(); if (Math.abs(r.width - W) > 2) size(); }).observe(pad);
       if (document.fonts) document.fonts.ready.then(drawGuide);
@@ -861,9 +875,17 @@
         <div class="lm-nav"><button class="btn" type="button" data-letter="${prev.id}">${icon('arrowL')} ${t1(prev.name)}</button><button class="btn" type="button" data-letter="${next.id}">${t1(next.name)} ${icon('arrowR')}</button></div>
       </div>`;
     $('#modal').hidden = false; initTraces($('#modalCard')); say(a.nameAr);
+    if (!modalReturn) modalReturn = document.activeElement;
     $('.lm-close').focus();
   }
-  function closeModal() { $('#modal').hidden = true; $('#modalCard').innerHTML = ''; }
+  let modalReturn = null;
+  function closeModal() {
+    $('#modal').hidden = true; $('#modalCard').innerHTML = '';
+    if (modalReturn && document.contains(modalReturn)) modalReturn.focus(); modalReturn = null;
+  }
+  /* keyboard: every speakable word or line can be focused and played with Enter or Space */
+  function a11ySay(root) { $$('[data-say]:not(button):not(a)', root).forEach(el => { el.tabIndex = 0; el.setAttribute('role', 'button'); }); }
+
 
   /* ---------- flashcards (Leitner SRS) ---------- */
   const INTERVALS = [0, 1, 2, 4, 8, 16, 32]; // days per box
@@ -904,8 +926,8 @@
       ${w.root ? `<span class="root">${esc(w.root)}</span>` : ''}
       ${w.example ? `<div class="muted" style="font-size:.9rem"><span class="ar-in" lang="ar">${esc(w.example.ar)}</span> — ${t1(w.example.mean)}</div>` : ''}`;
     return `<div class="muted" style="text-align:center;font-size:.85rem;margin-bottom:8px">${num(fcQueue.length)} ${S.lang === 'en' ? 'cards left today' : 'টি কার্ড বাকি'}</div>
-      <div class="card3d ${fcFlip ? 'flip' : ''}" id="fcCard" role="button" tabindex="0" aria-label="${u('flip')}">
-        <div class="card3d-in"><div class="face"><div class="pattern"></div>${front}<span class="hint">${u('flip')}</span></div><div class="face back"><div class="pattern"></div>${back}</div></div>
+      <div class="card3d ${fcFlip ? 'flip' : ''}" id="fcCard" role="button" tabindex="0" aria-describedby="fcHint">
+        <div class="card3d-in"><div class="face"><div class="pattern"></div>${front}<span class="hint" id="fcHint">${u('flip')}</span></div><div class="face back"><div class="pattern"></div>${back}</div></div>
       </div>
       <div style="display:flex;justify-content:center;margin:12px 0">${playBtn(pz(w.ar, w.tr))}</div>
       <div class="fc-actions">
@@ -962,7 +984,7 @@
       $('#arena').innerHTML = `${arenaTop()}<div class="prompt"><div class="muted">${t1({ bn: 'শুনুন — কোন শব্দটি?', en: 'Listen: which word is it?' })}</div>
         <button class="btn btn-primary listen-btn" type="button" data-say="${esc(pz(w.ar, w.tr))}">${icon('play')} ${u('listen')}</button><div class="muted" style="margin-top:8px">${t1(w.mean)}</div></div>
         <div class="answers answers-words">${opts.map(o => `<button type="button" data-gans="${esc(o)}" lang="ar">${esc(o)}</button>`).join('')}</div>`;
-      setTimeout(() => say(pz(w.ar, w.tr)), 250);
+      const g = G; setTimeout(() => { if (G === g) say(pz(w.ar, w.tr)); }, 250);
       return;
     }
     if (G.id === 'hunt') {
@@ -1037,12 +1059,12 @@
       ${state === 'ok' ? `<div class="pz-foot"><button class="btn btn-primary" type="button" data-pnext>${G.round + 1 < G.rounds ? t1({ bn: 'পরের আয়াত', en: 'Next ayah' }) : u('finish')} ${icon('arrowR')}</button></div>` : ''}`;
   }
   function puzzleMove(from, k) {
-    if (!G || !G.tiles) return;
+    if (!G || !G.tiles || G.solved) return;
     if (from === 'bank') G.placed.push(G.tiles.splice(k, 1)[0]); else G.tiles.push(G.placed.splice(k, 1)[0]);
     if (!G.tiles.length) {
       const ok = G.placed.every((t, j) => G.ay.words[t.i].ar === G.ay.words[j].ar);
-      if (ok) { G.score += Math.max(10, 30 - G.tries * 10); puzzleDraw('ok'); playAyah(G.ay.ref, null); confetti(); return; }
-      G.tries++; puzzleDraw('no'); setTimeout(() => { if (G && G.tiles) { G.tiles = G.placed.concat(G.tiles); G.placed = []; puzzleDraw(); } }, 1100);
+      if (ok) { G.solved = true; G.score += Math.max(10, 30 - G.tries * 10); puzzleDraw('ok'); playAyah(G.ay.ref, null); confetti(); return; }
+      G.tries++; puzzleDraw('no'); const g = G; setTimeout(() => { if (G === g && G.tiles) { G.tiles = G.placed.concat(G.tiles); G.placed = []; puzzleDraw(); } }, 1100);
       toast(L() ? 'Not quite. Read the meaning again and retry.' : 'হয়নি — অর্থটি আবার পড়ে চেষ্টা করুন।'); return;
     }
     puzzleDraw();
@@ -1061,7 +1083,8 @@
 
   /* ---------- search ---------- */
   function viewSearch(q) {
-    q = decodeURIComponent(q || '').trim(); const ql = q.toLowerCase();
+    try { q = decodeURIComponent(q || ''); } catch (e) { q = String(q || ''); }
+    q = q.trim(); const ql = q.toLowerCase();
     const strip = s => String(s).replace(/[ً-ْٰـ]/g, '');
     const qa = strip(q);
     if (!q) return notFound();
@@ -1080,7 +1103,7 @@
     return `<div class="page-head"><div class="eyebrow">${u('settings')}</div><h1 class="page-title">${tx({ bn: 'আপনার অগ্রগতি ও সেটিংস', en: 'Your progress & settings' })}</h1></div>
     <div class="settings">
       <div class="stats" style="margin:0 0 6px">
-        <div class="stat"><b>${num(S.xp)}</b><span>${u('xp')}</span></div><div class="stat"><b>${num(S.streak.count)}</b><span>${u('streak')}</span></div>
+        <div class="stat"><b>${num(S.xp)}</b><span>${u('xp')}</span></div><div class="stat"><b>${num(streakNow())}</b><span>${u('streak')}</span></div>
         <div class="stat"><b>${num(Object.keys(S.done).length)}</b><span>${u('lessonsDone')}</span></div><div class="stat"><b>${num(masteredCount())}</b><span>${u('words')}</span></div>
       </div>
       <div class="set-row"><div><b>${S.lang === 'en' ? 'Arabic text size' : 'আরবি লেখার আকার'}</b><small>${S.lang === 'en' ? 'Make Arabic bigger for easier reading' : 'সহজে পড়ার জন্য আরবি বড় করুন'}</small></div>
@@ -1198,10 +1221,10 @@
 
   /* ---------------- router ---------------- */
   function route() {
-    stopGame(); stopVoice(); if ('speechSynthesis' in window) speechSynthesis.cancel();
+    stopGame(); stopAllAudio(); if (!$('#modal').hidden) closeModal();
     const [r, arg] = location.hash.slice(1).split('/');
     const V = { home: viewHome, '': viewHome, learn: viewLearn, unit: viewUnit, lesson: viewLesson, alphabet: viewAlphabet, cards: viewCards, games: viewGames, play: viewPlay, search: viewSearch, settings: viewSettings, tools: viewTools, roots: viewRoots, makharij: viewMakharij, certificate: viewCertificate, sound: viewSound, audio: viewAudio, contact: viewContact }[r || ''] || notFound;
-    view.innerHTML = V(arg);
+    view.innerHTML = V(arg); a11ySay(view);
     renderChrome(); initTraces(view);
     if (r === 'makharij') markZone();
     if (r === 'contact') mountContact();
@@ -1254,9 +1277,10 @@
       mm0.classList.toggle('btn-primary', lvl > 0); return;
     }
     const mr = t.closest('[data-memorep]'); if (mr) {
-      let n = 0; const ref = mr.dataset.memorep; const go = () => { if (n++ >= 3) return; playAyah(ref, null); if (audioEl) audioEl.addEventListener('ended', go, { once: true }); }; go(); return;
+      stopAllAudio(); const run = memoRun; let n = 0; const ref = mr.dataset.memorep;
+      const go = () => { if (run !== memoRun || n++ >= 3) return; playAyah(ref, null); if (audioEl) audioEl.addEventListener('ended', go, { once: true }); }; go(); return;
     }
-    const md0 = t.closest('[data-memodone]'); if (md0) { S.memo[md0.dataset.memodone] = today(); addXP(5); save(); toast(L() ? 'Marked as memorised. Revise it again tomorrow!' : 'মুখস্থ হিসেবে চিহ্নিত — আগামীকাল আবার ঝালিয়ে নিন!'); return; }
+    const md0 = t.closest('[data-memodone]'); if (md0) { const first = !S.memo[md0.dataset.memodone]; S.memo[md0.dataset.memodone] = today(); if (first) addXP(5); save(); toast(L() ? 'Marked as memorised. Revise it again tomorrow!' : 'মুখস্থ হিসেবে চিহ্নিত — আগামীকাল আবার ঝালিয়ে নিন!'); return; }
     const hidw = t.closest('.ayah-ar .w.hid'); if (hidw) { hidw.classList.add('peek'); setTimeout(() => hidw.classList.remove('peek'), 1400); }
     const lt = t.closest('[data-letter]'); if (lt) { openLetter(lt.dataset.letter); return; }
     const qo = t.closest('[data-qopt]'); if (qo) { const [q, k] = qo.dataset.qopt.split(':'); quizPick(q, +k); return; }
@@ -1286,13 +1310,14 @@
     }
     const sy = t.closest('[data-say]'); if (sy) {
       if (sy.closest('[data-aref]')) sayQuranWord(sy); else say(sy.dataset.say, null, sy.dataset.vo);
-      const w = sy.closest('.ayah-ar .w'); if (w) { $$('.ayah-ar .w.on').forEach(x => x.classList.remove('on')); w.classList.add('on'); const ayah = w.closest('.ayah'); const box = $('.wbw', ayah); if (box.hidden) { box.hidden = false; $('[data-wbw]', ayah).classList.add('btn-primary'); } const tgt = box.children[+w.dataset.wi]; if (tgt) { tgt.style.outline = '2px solid var(--gold)'; setTimeout(() => { tgt.style.outline = ''; }, 1200); } }
+      const w = sy.closest('.ayah-ar .w'); if (w && !(+w.closest('.ayah').dataset.memoLevel > 0)) { $$('.ayah-ar .w.on').forEach(x => x.classList.remove('on')); w.classList.add('on'); const ayah = w.closest('.ayah'); const box = $('.wbw', ayah); if (box.hidden) { box.hidden = false; $('[data-wbw]', ayah).classList.add('btn-primary'); } const tgt = box.children[+w.dataset.wi]; if (tgt) { tgt.style.outline = '2px solid var(--gold)'; setTimeout(() => { tgt.style.outline = ''; }, 1200); } }
       return;
     }
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !$('#modal').hidden) closeModal();
     if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.id === 'fcCard') { e.preventDefault(); document.activeElement.click(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.matches('[data-say][role="button"]')) { e.preventDefault(); document.activeElement.click(); }
   });
   document.addEventListener('input', e => {
     if (e.target.id === 'arScale') { S.arScale = +e.target.value; applyTheme(); save(); }
@@ -1302,7 +1327,10 @@
   });
   document.addEventListener('change', e => {
     if (e.target.id === 'fcDeck') { fcDeck = e.target.value; rerender(); }
-    if (e.target.dataset && e.target.dataset.check) { S.checks[e.target.dataset.check] = e.target.checked; if (e.target.checked) addXP(1); save(); }
+    if (e.target.dataset && e.target.dataset.check) {
+      const k = e.target.dataset.check; S.xpChecks = S.xpChecks || {};
+      S.checks[k] = e.target.checked; if (e.target.checked && !S.xpChecks[k]) { S.xpChecks[k] = 1; addXP(1); } save();
+    }
   });
   document.addEventListener('submit', e => {
     if (e.target.closest('#rootSearch')) { e.preventDefault(); return; }
@@ -1311,7 +1339,8 @@
   });
   addEventListener('hashchange', route);
   addEventListener('scroll', onScroll, { passive: true });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (S.theme === 'auto') renderChrome(); });
+  { const mq = matchMedia('(prefers-color-scheme: dark)'); const onScheme = () => { if (S.theme === 'auto') renderChrome(); };
+    if (mq.addEventListener) mq.addEventListener('change', onScheme); else if (mq.addListener) mq.addListener(onScheme); }
 
   /* index.html?saylist: lists every text the app can speak, for tools/audio.py to record (not linked anywhere). */
   /* Every text the app can speak, with where it is used (unit id, or letters / makharij / roots / tools)

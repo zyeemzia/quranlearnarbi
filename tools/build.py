@@ -68,7 +68,10 @@ def main():
         write(p, s)
 
     sw = os.path.join(ROOT, 'sw.js')
-    write(sw, re.sub(r"const VERSION = '[^']*';", "const VERSION = '" + ver + "';", read(sw)))
+    sws = re.sub(r"const VERSION = '[^']*';", "const VERSION = '" + ver + "';", read(sw))
+    man = os.path.join(ROOT, 'audio', 'manifest.json')   # new recordings get a fresh voice cache
+    aver = hashlib.sha1(open(man, 'rb').read()).hexdigest()[:8] if os.path.exists(man) else '0'
+    write(sw, re.sub(r"const VOICE_VER = '[^']*';", "const VOICE_VER = '" + aver + "';", sws))
 
     size = os.path.getsize(os.path.join(ROOT, 'data.bundle.js'))
     print(f'Built data.bundle.js ({size // 1024} KB), version {ver}.')
