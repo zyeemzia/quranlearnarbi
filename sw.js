@@ -1,7 +1,7 @@
 /* Offline cache for কুরআন ও আরবি শিক্ষা · Quran & Arabic Learning. Copyright © ZyeemZia
    Pages and files open instantly from the cache and are refreshed in the background.
    VERSION is stamped by tools/build.py; a new version clears the old cache. */
-const VERSION = '8f4eeb0e2c';
+const VERSION = '2fc35abb58';
 const CACHE = 'qas-' + VERSION;
 const CORE = ['./', 'index.html', 'app.css', 'fonts.css', 'common.js', 'data.bundle.js', 'app.js', 'favicon.svg', 'book.html', 'book.css', 'book.js'];
 
