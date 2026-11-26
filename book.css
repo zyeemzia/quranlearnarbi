@@ -328,3 +328,18 @@ td .sub, th .sub { font-size: .85em; }
 
 .boot-book { text-align: center; padding: 40mm 0; color: var(--ink-2); font-size: 14pt; }
 @media print { .boot-book { display: none; } }
+
+/* Phone reading: the A4 pages shrink to the screen; wide tables scroll inside their box. */
+@media screen and (max-width: 700px) {
+  .page { padding: 18px 14px; margin: 10px 0; min-height: 0; }
+  .cover-lead { max-width: 100%; }
+  .cert .name, .cert .cert-art { width: 100%; max-width: 120mm; }
+  .wk-sr { flex-wrap: wrap; }
+  .ws-keys { grid-template-columns: minmax(0, 1fr); }
+  .exg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #book .ex span { overflow-wrap: anywhere; }
+  .wk-copy span, .vt .root, .mk-t td.arc { white-space: normal; }
+  #book img, #book svg { max-width: 100%; }
+  #book table, #book pre { display: block; max-width: 100%; overflow-x: auto; }
+  #book p, #book li, #book td, #book th, #book h2, #book h3 { overflow-wrap: break-word; }
+}
