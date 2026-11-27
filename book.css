@@ -1,4 +1,6 @@
 /* Print book: A4, one deliberate light look (paper), ink-green + gold leaf, khatam motif. */
+/* Form controls use the page font; browsers otherwise fall back to Arial. */
+button, input, select, textarea { font-family: inherit; }
 :root {
   --paper: #ffffff; --tint: #f1f6f3; --tint-2: #e3ede8; --ink: #13302b; --ink-2: #4f6660; --ink-3: #8a9c97; --line: #cddad4;
   --primary: #0f6b5e; --gold: #a8720f; --gold-soft: #f6ead0;

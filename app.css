@@ -1,5 +1,7 @@
 /* Layout concept: an illuminated-mushaf study desk — cool paper, ink-green text, gold-leaf accents,
    a faint khatam (8-point star) lattice, and Arabic always given the most room on the page. */
+/* Form controls use the page font; browsers otherwise fall back to Arial. */
+button, input, select, textarea { font-family: inherit; }
 :root {
   --paper: #f3f6f4;
   --surface: #ffffff;
