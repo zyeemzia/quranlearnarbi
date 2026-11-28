@@ -117,7 +117,7 @@ mark.tj-green, mark.tj-gray, mark.tj-blue, mark.tj-red, mark.tj-orange, mark.tj-
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
 .brand-text b { font-weight: 700; font-size: 1rem; }
-.brand-text small { font: 600 .72rem/1.2 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+.brand-text small { font: 600 .75rem/1.2 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
 .mainnav { display: flex; gap: 2px; }
 .mainnav a {
   text-decoration: none; color: var(--ink-2); padding: 7px 11px; border-radius: 9px; font-weight: 500; font-size: .95rem; white-space: nowrap;
@@ -238,7 +238,7 @@ mark.tj-green, mark.tj-gray, mark.tj-blue, mark.tj-red, mark.tj-orange, mark.tj-
   width: 52px; height: 52px; flex-shrink: 0; display: grid; place-items: center; background: var(--uc); color: var(--surface);
   font: 700 26px/1 var(--f-ar); padding-top: 6px;
 }
-.u-num { font: 600 .72rem var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--uc); }
+.u-num { font: 600 .75rem var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--uc); }
 .unit-card h3 { font-size: 1.08rem; }
 .unit-card h3 .sub { font-size: .8em; font-weight: 500; }
 .unit-card p { color: var(--ink-2); font-size: .9rem; }
@@ -280,7 +280,7 @@ mark.tj-green, mark.tj-gray, mark.tj-blue, mark.tj-red, mark.tj-orange, mark.tj-
   text-decoration: none; color: var(--ink); min-width: 0;
 }
 .lesson-link:hover { border-color: var(--uc); }
-.lesson-link .l-n { font: 600 .72rem var(--f-display); letter-spacing: .1em; color: var(--uc); text-transform: uppercase; }
+.lesson-link .l-n { font: 600 .75rem var(--f-display); letter-spacing: .1em; color: var(--uc); text-transform: uppercase; }
 .lesson-link b { font-size: 1.02rem; }
 .lesson-link small { color: var(--ink-2); }
 .lesson-link .l-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
@@ -310,7 +310,7 @@ mark.tj-green, mark.tj-gray, mark.tj-blue, mark.tj-red, mark.tj-orange, mark.tj-
 .b-text .sub { font-size: .92em; }
 
 .tip { border-radius: 14px; padding: 14px 16px 14px 16px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; }
-.tip-label { font: 700 .72rem/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.tip-label { font: 700 .75rem/1.2 var(--f-display); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
 .tip-label svg { width: 16px; height: 16px; }
 .tip-tip { background: var(--c-teal-soft); border-color: transparent; } .tip-tip .tip-label { color: var(--c-teal); }
 .tip-warn { background: var(--bad-soft); border-color: transparent; } .tip-warn .tip-label { color: var(--bad); }
@@ -329,7 +329,7 @@ mark.tj-green, mark.tj-gray, mark.tj-blue, mark.tj-red, mark.tj-orange, mark.tj-
 .ltile .l-tr { font: 500 .78rem var(--f-en); color: var(--ink-2); }
 .ltile .l-dot { position: absolute; top: 8px; left: 8px; width: 8px; height: 8px; border-radius: 50%; }
 .ltile.heavy .l-ar { color: var(--c-rose); }
-.ltile .l-num { position: absolute; top: 6px; right: 9px; font: 600 .7rem var(--f-en); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.ltile .l-num { position: absolute; top: 6px; right: 9px; font: 600 .75rem var(--f-en); color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
 /* example cards */
 .ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
@@ -362,7 +362,7 @@ td .sub, th .sub { font-size: .85em; }
 }
 .build-cell:hover { border-color: var(--primary); background: var(--c-teal-soft); }
 .build-cell .ar { font-size: calc(1.9rem * var(--ar-scale)); line-height: 1.5; }
-.build-cell small { font-size: .72rem; color: var(--ink-2); direction: ltr; }
+.build-cell small { font-size: .75rem; color: var(--ink-2); direction: ltr; }
 .build-head { font-size: .78rem; font-weight: 600; color: var(--ink-2); text-align: center; align-self: end; padding-bottom: 2px; }
 .build-head .ar-in { font-size: 1.6em; }
 .build-base { font: 700 calc(1.9rem * var(--ar-scale))/1.5 var(--f-ar); text-align: center; color: var(--gold); align-self: center; }
@@ -385,7 +385,7 @@ td .sub, th .sub { font-size: .85em; }
 .rule-body { padding: 14px 16px; display: grid; gap: 10px; }
 .rule-letters { font-family: var(--f-ar); font-size: calc(1.7rem * var(--ar-scale)); letter-spacing: .25em; direction: rtl; text-align: right; }
 .rule-how { font-size: .93rem; padding: 10px 12px; background: var(--surface-2); border-radius: 10px; }
-.rule-how b { font-family: var(--f-display); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); display: block; }
+.rule-how b { font-family: var(--f-display); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); display: block; }
 .rule-ex { display: flex; flex-wrap: wrap; gap: 8px; }
 .rule-ex button { border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 6px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
 .rule-ex .ar { font-size: calc(1.7rem * var(--ar-scale)); line-height: 1.6; }
@@ -531,7 +531,7 @@ td .sub, th .sub { font-size: .85em; }
 .boxes { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
 .boxes div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px; text-align: center; }
 .boxes b { display: block; font: 700 1.2rem var(--f-display); font-variant-numeric: tabular-nums; }
-.boxes small { font-size: .72rem; color: var(--ink-2); }
+.boxes small { font-size: .75rem; color: var(--ink-2); }
 
 /* ---------- Games ---------- */
 .game-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
@@ -605,7 +605,7 @@ input[type="range"] { accent-color: var(--primary); width: 180px; max-width: 100
     background: var(--surface); border-top: 1px solid var(--line);
     padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
   }
-  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 7px; text-decoration: none; color: var(--ink-2); font-size: .7rem; font-weight: 600; }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 7px; text-decoration: none; color: var(--ink-2); font-size: .75rem; font-weight: 600; }
   .tabbar a[aria-current="page"] { color: var(--primary); }
   .tabbar svg { width: 21px; height: 21px; }
   .view { padding-bottom: 32px; }
@@ -790,7 +790,7 @@ input[type="range"] { accent-color: var(--primary); width: 180px; max-width: 100
 .bb-cover > *:not(.pattern) { position: relative; }
 .bb-cal { font: 700 1.25rem/1.6 var(--f-ar); color: #f2c76b; direction: rtl; }
 .bb-cover b { font-size: 1.05rem; line-height: 1.3; }
-.bb-cover small { font: 600 .68rem var(--f-display); color: #cfe5df; letter-spacing: .04em; }
+.bb-cover small { font: 600 .75rem var(--f-display); color: #cfe5df; letter-spacing: .04em; }
 .bb-cover .bb-brand { color: #f2c76b; letter-spacing: .2em; text-transform: uppercase; margin-top: 4px; }
 .bb-text { display: grid; gap: 8px; min-width: 0; }
 .bb-text h2 { font-size: 1.3rem; }
